@@ -10,12 +10,10 @@ extends Node2D
 @onready var tess: Character
 @onready var friend: Character
 
-
 # Test heart scenes to instance
 @export var heart_scene: PackedScene = preload("res://scenes/interactables/Heart.tscn")
 @export var whiskey_scene: PackedScene = preload("res://scenes/interactables/Whiskey.tscn")
 @export var cookie_scene: PackedScene = preload("res://scenes/interactables/Cookie.tscn")
-
 
 # Scene management
 var scene_files: Dictionary = {

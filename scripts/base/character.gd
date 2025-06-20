@@ -16,6 +16,7 @@ var target_position: Vector2
 var is_moving: bool = false
 var is_highlighted: bool = false
 var original_modulate: Color
+var last_direction: String = "left"
 
 func _ready() -> void:
 	print("=== CHARACTER SETUP ===")
@@ -85,6 +86,14 @@ func move_towards_target() -> void:
 		var direction = (target_position - global_position).normalized()
 		print("Direction: ", direction)
 		velocity = direction * movement_speed
+		if velocity == Vector2.ZERO:
+			anim.play("idle_" + last_direction)
+		elif direction.x > 0:
+			anim.play("walk_right")
+			last_direction = "left"				
+		elif direction.x < 0:
+			anim.play("walk_left")
+			last_direction = "right"				
 		print("Velocity set to: ", velocity)
 		
 		# Check for collision issues
@@ -106,7 +115,6 @@ func move_towards_target() -> void:
 		global_position = target_position
 		velocity = Vector2.ZERO
 		is_moving = false
-		
 	
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if event is InputEventScreenTouch and event.pressed:
