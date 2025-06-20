@@ -10,6 +10,20 @@ config_version=5
 
 [application]
 
-config/name="Empress Hearts"
+config/name="Tess of Hearts"
+run/main_scene="uid://bk4xvlepqi83s"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*res://scripts/autoload/game_manager.gd"
+HeartRepairSystem="*res://scripts/autoload/heart_repair_system.gd"
+InputManager="*res://scripts/autoload/input_manager.gd"
+HandwirttenTextManager="*res://scripts/autoload/handwritten_text_manager.gd"
+DialogueSystem="*res://scripts/autoload/dialogue_system.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080

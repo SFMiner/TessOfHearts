@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://cyrjenpnd3oxn"]
+
+[ext_resource type="Script" uid="uid://devp6cp3g8dhd" path="res://scenes/interactables/guide_cat.gd" id="1_866fa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sw4cc"]
+size = Vector2(64, 64)
+
+[node name="Node2DCatGuide" type="Node2D"]
+script = ExtResource("1_866fa")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_sw4cc")

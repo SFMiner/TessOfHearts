@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://u0sf34gsbdld"]
+
+[ext_resource type="Script" uid="uid://c1p0fxahbbxks" path="res://scripts/base/cat_trigger.gd" id="1_c6cp7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_okjn8"]
+size = Vector2(64, 64)
+
+[node name="CatTrigger" type="Node2D"]
+script = ExtResource("1_c6cp7")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_okjn8")

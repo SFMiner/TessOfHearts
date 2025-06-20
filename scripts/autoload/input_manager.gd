@@ -1,0 +1,98 @@
+# ===========================================
+# SCRIPTS/AUTOLOAD/INPUTMANAGER.GD (ENHANCED)
+# ===========================================
+
+extends Node
+
+signal object_touched(object: Node2D, position: Vector2)
+signal touch_started(position: Vector2)
+signal touch_ended(position: Vector2)
+signal touch_moved(position: Vector2)
+
+var is_touching: bool = false
+var touch_start_position: Vector2
+var current_touch_position: Vector2
+var touched_objects: Array[Node2D] = []
+
+func _ready() -> void:
+	print("InputManager initialized - Touch controls active")
+
+func _input(event: InputEvent) -> void:
+	# Handle touch input (primary)
+	if event is InputEventScreenTouch:
+		handle_touch_event(event)
+	elif event is InputEventScreenDrag:
+		handle_drag_event(event)
+	# Handle mouse input as fallback
+	elif event is InputEventMouseButton:
+		handle_mouse_event(event)
+	elif event is InputEventMouseMotion and is_touching:
+		handle_mouse_motion(event)
+
+func handle_touch_event(event: InputEventScreenTouch) -> void:
+	if event.pressed:
+		start_touch(event.position)
+	else:
+		end_touch(event.position)
+
+func handle_drag_event(event: InputEventScreenDrag) -> void:
+	if is_touching:
+		current_touch_position = event.position
+		touch_moved.emit(event.position)
+
+func handle_mouse_event(event: InputEventMouseButton) -> void:
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			start_touch(event.position)
+		else:
+			end_touch(event.position)
+
+func handle_mouse_motion(event: InputEventMouseMotion) -> void:
+	current_touch_position = event.position
+	touch_moved.emit(event.position)
+
+func start_touch(position: Vector2) -> void:
+	is_touching = true
+	touch_start_position = position
+	current_touch_position = position
+	touched_objects.clear()
+	
+	touch_started.emit(position)
+	
+	# Find all objects at touch position using multiple collision layers
+	find_touched_objects(position)
+
+func end_touch(position: Vector2) -> void:
+	is_touching = false
+	current_touch_position = position
+	touched_objects.clear()
+	
+	touch_ended.emit(position)
+
+func find_touched_objects(position: Vector2) -> void:
+	var space_state = get_viewport().world_2d.direct_space_state
+	var query = PhysicsPointQueryParameters2D.new()
+	query.position = position
+	query.collision_mask = 0b1111  # Check multiple layers
+	
+	var results = space_state.intersect_point(query)
+	
+	for result in results:
+		var collider = result.collider
+		var body = collider.get_parent()
+		
+		if body and body not in touched_objects:
+			touched_objects.append(body)
+			object_touched.emit(body, position)
+			
+			# Special handling for different object types
+			if body.has_method("_on_touched"):
+				body._on_touched(position)
+			elif body.has_signal("touched"):
+				body.touched.emit(position)
+
+func get_current_touch_position() -> Vector2:
+	return current_touch_position
+
+func is_currently_touching() -> bool:
+	return is_touching

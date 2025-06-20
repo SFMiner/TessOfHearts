@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://bk4xvlepqi83s"]
+
+[ext_resource type="Script" uid="uid://bh70teu4eshda" path="res://scripts/main.gd" id="1_m2o5p"]
+[ext_resource type="PackedScene" uid="uid://cayw2yw2rl77c" path="res://scenes/environments/room_scene.tscn" id="2_0bbpv"]
+[ext_resource type="PackedScene" uid="uid://6ws07pmaahf" path="res://scenes/ui/game_hud.tscn" id="5_nhptj"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_m2o5p")
+heart_scene = null
+whiskey_scene = null
+cookie_scene = null
+
+[node name="SceneHolder" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="NotebookPage" parent="." instance=ExtResource("2_0bbpv")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HandwrittenGameHUD" parent="UI" instance=ExtResource("5_nhptj")]
+script = null
+
+[node name="SimpleDialogueSystem" type="Node" parent="UI"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+zoom = Vector2(2, 2)

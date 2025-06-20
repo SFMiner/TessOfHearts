@@ -1,0 +1,17 @@
+# ===========================================
+# USAGE EXAMPLES
+# ===========================================
+
+# In scene, add CatTrigger node with:
+# - cat_scene: preload("res://scenes/cats/WisdomCat.tscn")
+# - spawn_position: Vector2(400, 300)
+# - trigger_condition: "hearts >= 3"
+
+# Or spawn directly in script:
+func spawn_guide_cat() -> void:
+	var cat = preload("res://scenes/cats/guide_cat.tscn").instantiate()
+	cat.global_position = Vector2(300, 200)
+	cat.cat_name = "Mystic"
+	cat.dialogue_key = "cat_wisdom_1"
+	cat.trigger_condition = "hearts >= 5"
+	add_child(cat)

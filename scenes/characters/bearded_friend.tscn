@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://uki6q3e7spy8"]
+
+[ext_resource type="Script" uid="uid://nc8oahsbvoh0" path="res://scenes/characters/bearded_friend.gd" id="1_pnylu"]
+[ext_resource type="Texture2D" uid="uid://bwp6unglw1qf7" path="res://textures/placeholders/blue_rect.png" id="2_pnylu"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j30s1"]
+size = Vector2(64, 64)
+
+[node name="BeardedFriend" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 8
+script = ExtResource("1_pnylu")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_pnylu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_j30s1")
+
+[node name="TouchArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TouchArea"]
+shape = SubResource("RectangleShape2D_j30s1")
+
+[node name="TouchResponder" type="Node" parent="TouchArea"]
+
+[node name="DialoguePoint" type="Marker2D" parent="."]
+position = Vector2(0, -40)

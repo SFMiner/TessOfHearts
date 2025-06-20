@@ -1,0 +1,81 @@
+[gd_scene load_steps=6 format=3 uid="uid://cayw2yw2rl77c"]
+
+[ext_resource type="Script" uid="uid://bse3sbb2f0t2y" path="res://scripts/ui/notebook_page.gd" id="1_alxu8"]
+[ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
+[ext_resource type="Texture2D" uid="uid://cqogjmpyfsu04" path="res://assets/paper/aged_paper.jpg" id="2_kb3qs"]
+[ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_kb3qs"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3eq7c"]
+size = Vector2(274, 133)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_alxu8")
+
+[node name="PaperBackground" type="TextureRect" parent="."]
+unique_name_in_owner = true
+offset_right = 4098.0
+offset_bottom = 3072.0
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_kb3qs")
+
+[node name="ContentContainer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Environment" type="Node2D" parent="ContentContainer"]
+unique_name_in_owner = true
+
+[node name="Bathtub" type="StaticBody2D" parent="ContentContainer/Environment"]
+position = Vector2(877, 582)
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContentContainer/Environment/Bathtub"]
+position = Vector2(137, 66.5)
+shape = SubResource("RectangleShape2D_3eq7c")
+
+[node name="Tub" type="ColorRect" parent="ContentContainer/Environment/Bathtub"]
+offset_right = 274.0
+offset_bottom = 133.0
+
+[node name="Water" type="ColorRect" parent="ContentContainer/Environment/Bathtub/Tub"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -127.0
+offset_top = -56.5
+offset_right = 127.0
+offset_bottom = 56.5
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.176471, 0.639216, 1, 1)
+
+[node name="SpawnPoints" type="Node2D" parent="ContentContainer"]
+unique_name_in_owner = true
+
+[node name="HeartSpawn1" type="Marker2D" parent="ContentContainer/SpawnPoints"]
+position = Vector2(200, 200)
+
+[node name="HeartSpawn2" type="Marker2D" parent="ContentContainer/SpawnPoints"]
+position = Vector2(800, 300)
+
+[node name="ItemSpawn1" type="Marker2D" parent="ContentContainer/SpawnPoints"]
+position = Vector2(400, 500)
+
+[node name="Interactables" type="Node2D" parent="ContentContainer"]
+unique_name_in_owner = true
+
+[node name="Characters" type="Node2D" parent="ContentContainer"]
+
+[node name="Tess" parent="ContentContainer/Characters" instance=ExtResource("2_3eq7c")]
+unique_name_in_owner = true
+position = Vector2(400, 350)
+
+[node name="BeardedFriend" parent="ContentContainer/Characters" instance=ExtResource("3_kb3qs")]
+unique_name_in_owner = true
+position = Vector2(600, 350)

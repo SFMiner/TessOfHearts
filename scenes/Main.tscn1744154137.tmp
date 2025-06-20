@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3 uid="uid://bk4xvlepqi83s"]
+
+[ext_resource type="Script" uid="uid://bh70teu4eshda" path="res://scripts/main.gd" id="1_m2o5p"]
+[ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_gjx4k"]
+[ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_c58k2"]
+[ext_resource type="PackedScene" uid="uid://6ws07pmaahf" path="res://scenes/ui/game_hud.tscn" id="5_nhptj"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_m2o5p")
+
+[node name="NotebookPage" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PaperBackground" type="TextureRect" parent="NotebookPage"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ContentContainer" type="Control" parent="NotebookPage"]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Environment" type="Node2D" parent="NotebookPage/ContentContainer"]
+
+[node name="Interactables" type="Node2D" parent="NotebookPage/ContentContainer"]
+
+[node name="Characters" type="Node2D" parent="NotebookPage/ContentContainer"]
+
+[node name="Tess" parent="NotebookPage/ContentContainer/Characters" instance=ExtResource("2_gjx4k")]
+position = Vector2(400, 350)
+
+[node name="BeardedFriend" parent="NotebookPage/ContentContainer/Characters" instance=ExtResource("3_c58k2")]
+position = Vector2(600, 350)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="HeartSpawn1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(200, 200)
+
+[node name="HeartSpawn2" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(800, 300)
+
+[node name="ItemSpawn1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(400, 500)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HandwrittenGameHUD" parent="UI" instance=ExtResource("5_nhptj")]
+script = null
+
+[node name="SimpleDialogueSystem" type="Node" parent="UI"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+zoom = Vector2(2, 2)

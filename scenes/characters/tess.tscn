@@ -1,0 +1,126 @@
+[gd_scene load_steps=11 format=3 uid="uid://d1l80sh4u51vd"]
+
+[ext_resource type="Script" uid="uid://bs4fmp38adl2f" path="res://scenes/characters/tess.gd" id="1_xqbcu"]
+[ext_resource type="Texture2D" uid="uid://c7yxi581cgiat" path="res://assets/art/Tess_sprite-Sheet.png" id="2_bxk6a"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bxk6a"]
+radius = 32.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bxk6a"]
+size = Vector2(64, 64)
+
+[sub_resource type="Animation" id="Animation_bxk6a"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_3cpho"]
+resource_name = "idle_left"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_mc2s7"]
+resource_name = "idle_right"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [4]
+}
+
+[sub_resource type="Animation" id="Animation_cctbo"]
+resource_name = "walk_left"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_xyejk"]
+resource_name = "walk_right"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [4, 5, 6, 7]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xyejk"]
+_data = {
+&"RESET": SubResource("Animation_bxk6a"),
+&"idle_left": SubResource("Animation_3cpho"),
+&"idle_right": SubResource("Animation_mc2s7"),
+&"walk_left": SubResource("Animation_cctbo"),
+&"walk_right": SubResource("Animation_xyejk")
+}
+
+[node name="Tess" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 8
+script = ExtResource("1_xqbcu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bxk6a")
+
+[node name="TouchArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TouchArea"]
+shape = SubResource("RectangleShape2D_bxk6a")
+
+[node name="TouchResponder" type="Node" parent="TouchArea"]
+
+[node name="DialoguePoint" type="Marker2D" parent="."]
+position = Vector2(0, -40)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_xyejk")
+}
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 100
+position = Vector2(-9.53674e-07, -1)
+scale = Vector2(0.24, 0.24)
+texture = ExtResource("2_bxk6a")
+hframes = 8

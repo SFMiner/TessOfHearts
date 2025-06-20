@@ -1,0 +1,61 @@
+{
+	"repair_materials": {
+		"broken": {
+			"multiplier": 0.333,
+			"description": "Base value, painful but incomplete",
+			"visual_effect": "crack_lines"
+		},
+		"tape": {
+			"multiplier": 0.5,
+			"description": "Superficial fix",
+			"visual_effect": "adhesive_strips"
+		},
+		"sutures": {
+			"multiplier": 0.75,
+			"description": "Earnest effort, imperfect repair",
+			"visual_effect": "medical_stitching"
+		},
+		"barbed_wire": {
+			"multiplier": 0.75,
+			"description": "Painful coping, leaves damage",
+			"visual_effect": "sharp_bindings"
+		},
+		"rose_thorns": {
+			"multiplier": 0.75,
+			"description": "Beauty and hurt intertwined",
+			"visual_effect": "floral_thorns"
+		},
+		"scars": {
+			"multiplier": 1.0,
+			"description": "Healing acknowledged, not erased",
+			"visual_effect": "healed_marks"
+		},
+		"kinagami": {
+			"multiplier": 2.0,
+			"description": "Sacred art of emotional restoration",
+			"visual_effect": "golden_origami"
+		},
+		"thoughts_and_prayers": {
+			"multiplier": 0.0,
+			"description": "Empty gestures",
+			"visual_effect": "dissipating_words"
+		}
+	},
+	"heart_types": {
+		"broken": {
+			"base_value": 10.0,
+			"rarity": "common",
+			"description": "A heart that has known pain"
+		},
+		"sleeping": {
+			"base_value": 15.0,
+			"rarity": "uncommon",
+			"description": "A heart in peaceful rest"
+		},
+		"cosmic": {
+			"base_value": 25.0,
+			"rarity": "rare",
+			"description": "A heart that touches the infinite"
+		}
+	}
+}

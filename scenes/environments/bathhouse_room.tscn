@@ -1,0 +1,151 @@
+[gd_scene load_steps=4 format=3 uid="uid://ddwx3kuiwhejf"]
+
+[ext_resource type="Script" uid="uid://di0ffo32aa5wq" path="res://scenes/environments/bathhouse_room.gd" id="1_p4t7r"]
+[ext_resource type="Texture2D" uid="uid://cqogjmpyfsu04" path="res://assets/paper/aged_paper.jpg" id="2_yjc7t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yjc7t"]
+size = Vector2(397, 195)
+
+[node name="BathhouseRoom" type="Node2D"]
+script = ExtResource("1_p4t7r")
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(522, 714)
+scale = Vector2(0.464762, 0.464762)
+texture = ExtResource("2_yjc7t")
+offset = Vector2(970, 0.5)
+
+[node name="Architecture" type="Node2D" parent="."]
+
+[node name="Walls" type="Node2D" parent="Architecture"]
+
+[node name="LeftWall" type="ColorRect" parent="Architecture/Walls"]
+offset_right = 50.0
+offset_bottom = 1080.0
+color = Color(0.239216, 0.129412, 0.0901961, 1)
+
+[node name="RightWall" type="ColorRect" parent="Architecture/Walls"]
+offset_left = 1870.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.239216, 0.129412, 0.0901961, 1)
+
+[node name="TopWall" type="ColorRect" parent="Architecture/Walls"]
+offset_right = 1920.0
+offset_bottom = 50.0
+color = Color(0.239216, 0.129412, 0.0901961, 1)
+
+[node name="BottomWall" type="ColorRect" parent="Architecture/Walls"]
+offset_top = 1030.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.239216, 0.129412, 0.0901961, 1)
+
+[node name="BathStructure" type="StaticBody2D" parent="Architecture" groups=["walls"]]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Architecture/BathStructure"]
+position = Vector2(961.5, 539.5)
+shape = SubResource("RectangleShape2D_yjc7t")
+
+[node name="MainBath" type="ColorRect" parent="Architecture/BathStructure"]
+offset_left = 760.0
+offset_top = 440.0
+offset_right = 1160.0
+offset_bottom = 640.0
+color = Color(0.101961, 0.0588235, 0.0392157, 1)
+
+[node name="Water" type="ColorRect" parent="Architecture/BathStructure"]
+offset_left = 770.0
+offset_top = 450.0
+offset_right = 1150.0
+offset_bottom = 630.0
+color = Color(0.290196, 0.564706, 0.643137, 0.6)
+
+[node name="Steam" type="Node2D" parent="Architecture/BathStructure"]
+
+[node name="SteamParticle1" type="ColorRect" parent="Architecture/BathStructure/Steam"]
+offset_left = 800.0
+offset_top = 400.0
+offset_right = 820.0
+offset_bottom = 430.0
+color = Color(1, 1, 1, 0.2)
+
+[node name="SteamParticle2" type="ColorRect" parent="Architecture/BathStructure/Steam"]
+offset_left = 950.0
+offset_top = 380.0
+offset_right = 975.0
+offset_bottom = 415.0
+color = Color(1, 1, 1, 0.15)
+
+[node name="SteamParticle3" type="ColorRect" parent="Architecture/BathStructure/Steam"]
+offset_left = 1100.0
+offset_top = 360.0
+offset_right = 1130.0
+offset_bottom = 400.0
+color = Color(1, 1, 1, 0.1)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="PlayerSpawn" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(960, 800)
+
+[node name="HeartSpawn1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(200, 600)
+
+[node name="HeartSpawn2" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(1720, 600)
+
+[node name="ItemSpawn1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(960, 200)
+
+[node name="WardSymbols" type="Node2D" parent="SpawnPoints"]
+
+[node name="Symbol1" type="ColorRect" parent="SpawnPoints/WardSymbols"]
+offset_left = 400.0
+offset_top = 300.0
+offset_right = 440.0
+offset_bottom = 340.0
+color = Color(1, 0.666667, 0.666667, 1)
+
+[node name="Symbol2" type="ColorRect" parent="SpawnPoints/WardSymbols"]
+offset_left = 1520.0
+offset_top = 300.0
+offset_right = 1560.0
+offset_bottom = 340.0
+color = Color(1, 0.666667, 0.666667, 1)
+
+[node name="Symbol3" type="ColorRect" parent="SpawnPoints/WardSymbols"]
+offset_left = 960.0
+offset_top = 150.0
+offset_right = 1000.0
+offset_bottom = 190.0
+color = Color(1, 0.666667, 0.666667, 1)
+
+[node name="Lighting" type="Node2D" parent="."]
+
+[node name="AmbientLight" type="ColorRect" parent="Lighting"]
+z_index = 10
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(1, 0.894118, 0.709804, 0.1)
+
+[node name="WaterReflection" type="ColorRect" parent="Lighting"]
+z_index = 5
+offset_left = 770.0
+offset_top = 450.0
+offset_right = 1150.0
+offset_bottom = 630.0
+mouse_filter = 2
+color = Color(0.529412, 0.807843, 0.921569, 0.2)
+
+[node name="SteamGlow" type="ColorRect" parent="Lighting"]
+z_index = 3
+offset_left = 660.0
+offset_top = 250.0
+offset_right = 1260.0
+offset_bottom = 650.0
+mouse_filter = 2
+color = Color(0.941176, 0.972549, 1, 0.05)
