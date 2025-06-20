@@ -7,7 +7,7 @@ extends Character
 func _ready() -> void:
 	character_name = "Bearded Friend"
 	super._ready()
-
+	
 func setup_character() -> void:
 	if sprite:
 		create_placeholder_texture(Color("#4C8CB8"))  # Blue

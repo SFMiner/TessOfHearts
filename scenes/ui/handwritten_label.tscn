@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://otwlt7284w6j"]
+[gd_scene load_steps=2 format=3 uid="uid://otwlt7284w6j"]
+
+[ext_resource type="Script" uid="uid://bcfc52c0saqrb" path="res://scripts/ui/handwritten_label.gd" id="1_hf07p"]
 
 [node name="HandwrittenLabel" type="Control"]
 layout_mode = 3
@@ -7,5 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_hf07p")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true

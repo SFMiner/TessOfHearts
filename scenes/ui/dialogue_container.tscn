@@ -1,15 +1,15 @@
 [gd_scene load_steps=2 format=3 uid="uid://co23oslvn6wq0"]
 
-[ext_resource type="Script" uid="uid://bcfc52c0saqrb" path="res://scripts/ui/handwritten_label.gd" id="1_jq7rp"]
+[ext_resource type="PackedScene" uid="uid://otwlt7284w6j" path="res://scenes/ui/handwritten_label.tscn" id="1_t6hf4"]
 
 [node name="DialogueContainer" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 
 [node name="Background" type="ColorRect" parent="."]
+layout_mode = 0
 offset_right = 257.0
 offset_bottom = 55.0
 
-[node name="TextDisplay" type="Control" parent="."]
-anchors_preset = 0
-script = ExtResource("1_jq7rp")
+[node name="HandwrittenLabel" parent="." instance=ExtResource("1_t6hf4")]
+layout_mode = 1

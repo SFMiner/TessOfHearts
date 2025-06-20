@@ -12,6 +12,10 @@ extends Node2D
 @onready var spawn_points: Node2D = $SpawnPoints
 @onready var ward_barrier: Node2D = $WardBarrier
 
+@onready var ward_barrier: Node2D = %Tess
+@onready var ward_barrier: Node2D = #
+
+
 func _ready() -> void:
 	setup_room()
 	check_access()

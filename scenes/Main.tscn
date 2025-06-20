@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bh70teu4eshda" path="res://scripts/main.gd" id="1_m2o5p"]
 [ext_resource type="Script" uid="uid://bdjxwf15waob" path="res://scripts/autoload/dialogue_system.gd" id="3_0bbpv"]
-[ext_resource type="PackedScene" uid="uid://co23oslvn6wq0" path="res://scenes/ui/DialogueContainer.tscn" id="4_rarhs"]
+[ext_resource type="PackedScene" uid="uid://co23oslvn6wq0" path="res://scenes/ui/dialogue_container.tscn" id="4_rarhs"]
 [ext_resource type="PackedScene" uid="uid://6ws07pmaahf" path="res://scenes/ui/game_hud.tscn" id="5_nhptj"]
 
 [node name="Main" type="Node2D"]
@@ -25,7 +25,3 @@ script = ExtResource("3_0bbpv")
 
 [node name="DialogueContainer" parent="UI/DialogueSystem" instance=ExtResource("4_rarhs")]
 unique_name_in_owner = true
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640, 360)
-zoom = Vector2(2, 2)

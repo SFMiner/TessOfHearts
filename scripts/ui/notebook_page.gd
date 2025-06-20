@@ -11,10 +11,17 @@ class_name NotebookPage
 @onready var friend : Character = %BeardedFriend
 var paper_manager: NotebookPaperManager
 var current_paper_type: NotebookPaperManager.PaperType
+var main
+
 
 func _ready() -> void:
-	paper_manager = get_node("/root/NotebookPaperManager")
+	main = get_tree().get_root().get_node("Main")
+	main.set_tess(tess)
+#	paper_manager = get_node("/root/NotebookPaperManager")
 #setup_paper_background()
+
+func get_tess() -> Character:
+	return tess
 
 func setup_paper_background() -> void:
 	if paper_background:

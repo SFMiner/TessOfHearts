@@ -10,6 +10,7 @@ extends Node2D
 @onready var tess: Character
 @onready var friend: Character
 
+
 # Test heart scenes to instance
 @export var heart_scene: PackedScene = preload("res://scenes/interactables/Heart.tscn")
 @export var whiskey_scene: PackedScene = preload("res://scenes/interactables/Whiskey.tscn")
@@ -26,10 +27,17 @@ var scene_files: Dictionary = {
 
 func _ready() -> void:
 	switch_scenes("central_bath")
-	tess = current_scene.tess
+	print("current scene = ", str(current_scene))
 	print("=== GATHER HEARTS - SCENE SYSTEM ===")
 	setup_game()
 	load_initial_scene()
+
+func set_tess(tess_node : Character) -> void:
+	tess = tess_node
+
+func set_friend(friend_node : Character) -> void:
+	friend = friend_node
+
 
 func switch_scenes(scene_name : String) -> void:
 	var loaded_scene = load(scene_files[scene_name]).instantiate()
@@ -42,7 +50,6 @@ func setup_game() -> void:
 	# Connect to game events for scene transitions
 	if GameManager:
 		GameManager.area_unlocked.connect(_on_area_unlocked)
-	
 	print("Scene system ready")
 
 func load_initial_scene() -> void:

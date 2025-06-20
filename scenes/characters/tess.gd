@@ -13,7 +13,6 @@ func _ready() -> void:
 	anim = get_node_or_null("AnimationPlayer")
 	print("AnimationPlayer = " + str(anim.name))
 	anim.play("idle_right")
-	
 #func setup_character() -> void:
 #	if sprite:
 #		create_placeholder_texture(Color("#8B4CB8"))  # Purple

@@ -5,11 +5,11 @@
 extends Control
 class_name HandwrittenLabel
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: Sprite2D = %Sprite2D
 var text_manager
 
 func _ready() -> void:
-	text_manager = get_node("/root/HandwrittenTextManager")
+	text_manager = HandwrittenTextManager
 	# Create sprite if it doesn't exist
 	if not sprite:
 		sprite = Sprite2D.new()

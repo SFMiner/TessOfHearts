@@ -2,7 +2,7 @@ extends Control
 class_name SimpleDialogueSystem
 
 @onready var dialogue_container: Control = %DialogueContainer
-@onready var text_display: Sprite2D = $DialogueContainer/TextDisplay
+@onready var text_display: HandwrittenLabel 
 @onready var background: ColorRect = $DialogueContainer/Background
 
 var is_showing: bool = false
@@ -10,6 +10,7 @@ var is_showing: bool = false
 func _ready() -> void:
 	if not dialogue_container:
 		setup_dialogue_container()
+	text_display = dialogue_container.get_node_or_null("TextDisplay")
 	hide_dialogue()
 
 func setup_dialogue_container() -> void:
