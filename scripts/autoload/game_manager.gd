@@ -27,6 +27,39 @@ var unlocked_areas: Array[String] = ["bathhouse_entry"]
 func _ready() -> void:
 	print("GameManager initialized - Gather Hearts")
 
+
+func add_collectable(collectable_type : int) -> void:
+	match collectable_type:
+		0 : GameData.num_hearts_whole  += 1
+		1 : GameData.num_hearts_2third  += 1
+		2 : GameData.num_hearts_half  += 1
+		3 : GameData.num_hearts_1third  += 1
+		4 : GameData.num_whiskey  += 1
+		5 : GameData.num_cookies  += 1
+		6 : GameData.num_sutures  += 1
+		7 : GameData.num_tape  += 1
+		8 : GameData.num_barbed_wire  += 1
+		9 : GameData.num_gold += 1
+	update_collectables()
+
+func spend_collectable(collectable_type : int) -> void:
+	match collectable_type:
+		"hearts_whole" : GameData.num_hearts_whole  -= 1
+		"hearts_2third"  : GameData.num_hearts_2third  -= 1
+		"hearts_half"  : GameData.num_hearts_half  -= 1
+		"hearts_2third"  : GameData.num_hearts_1third  -= 1
+		"whiskey"  : GameData.num_whiskey  -= 1
+		"cookies"  : GameData.num_cookies  -= 1
+		"sutures"  : GameData.num_sutures  -= 1
+		"tape"  : GameData.num_tape  -= 1
+		"barbed_wire"  : GameData.num_barbed_wire  -= 1
+		"gold"  : GameData.num_gold  -= 1
+	update_collectables()
+
+func update_collectables():
+	get_main().GameHUD.set_inventory()
+
+
 func change_state(new_state: GameState) -> void:
 	if current_state != new_state:
 		current_state = new_state
@@ -60,3 +93,9 @@ func debug_game_state() -> void:
 		print("GameState enum values: ", GameManager.GameState)
 	else:
 		print("ERROR: GameManager not found!")
+
+func get_main() -> Node2D:
+	return get_tree().get_root().get_node("Main")	
+	
+func get_tess() -> Node2D:
+	return get_tree().get_nodes_in_group("Tess")[0]

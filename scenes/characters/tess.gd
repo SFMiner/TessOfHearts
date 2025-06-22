@@ -4,6 +4,8 @@
 
 extends Character
 
+signal interacted()
+
 func _ready() -> void:
 	character_name = "Tess"
 	super._ready()
@@ -13,6 +15,12 @@ func _ready() -> void:
 	anim = get_node_or_null("AnimationPlayer")
 	print("AnimationPlayer = " + str(anim.name))
 	anim.play("idle_right")
+	print("Tess group includes: " + str(get_tree().get_nodes_in_group("Tess")))
+	if get_tree().get_nodes_in_group("Tess").size() > 0:
+		for child in get_tree().get_nodes_in_group("Tess"):
+			child.remove_from_group("Tess")
+	add_to_group("Tess")
+	print("Tess group includes: " + str(get_tree().get_nodes_in_group("Tess")))
 #func setup_character() -> void:
 #	if sprite:
 #		create_placeholder_texture(Color("#8B4CB8"))  # Purple
@@ -28,3 +36,6 @@ func _on_character_touched(position: Vector2) -> void:
 	super._on_character_touched(position)
 	print("Tess: 'What is it?'")
 	say_dialogue("tess_what_is_it")
+	
+func interact():
+	emit_signal("interacted")

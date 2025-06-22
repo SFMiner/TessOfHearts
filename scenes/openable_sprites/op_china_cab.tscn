@@ -1,0 +1,29 @@
+[gd_scene load_steps=8 format=3 uid="uid://bharll8m05ann"]
+
+[ext_resource type="Texture2D" uid="uid://coii1fyb1ceb3" path="res://assets/art/china_cab.png" id="1_gjbcy"]
+[ext_resource type="PackedScene" uid="uid://cpttrwygb6an1" path="res://scenes/interactables/openable.tscn" id="2_d4xwg"]
+[ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="3_vus32"]
+[ext_resource type="Texture2D" uid="uid://chgf3yxl6slqe" path="res://assets/spritesheets/china_cab_doors_upper_spritesheet.png" id="4_005yx"]
+[ext_resource type="PackedScene" uid="uid://c423c5rvn6yat" path="res://scenes/interactables/collectable.tscn" id="5_5n8wp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_005yx"]
+size = Vector2(240, 140)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vus32"]
+size = Vector2(240, 120)
+
+[node name="OpenableSprite" type="Sprite2D"]
+texture = ExtResource("1_gjbcy")
+
+[node name="Heart" parent="." instance=ExtResource("5_5n8wp")]
+position = Vector2(30, 66)
+
+[node name="Top" parent="." instance=ExtResource("2_d4xwg")]
+position = Vector2(7, -54)
+interaction_area_rect = SubResource("RectangleShape2D_005yx")
+texture = ExtResource("4_005yx")
+
+[node name="Bottom" parent="." instance=ExtResource("2_d4xwg")]
+position = Vector2(6, 60)
+interaction_area_rect = SubResource("RectangleShape2D_vus32")
+texture = ExtResource("3_vus32")

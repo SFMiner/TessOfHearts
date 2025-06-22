@@ -6,6 +6,7 @@ extends Node2D
 
 @onready var scene_holder: Node2D = $SceneHolder
 @onready var ui: CanvasLayer = $UI
+@onready var game_hud: Control = %GameHUD
 @onready var current_scene: Node2D
 @onready var tess: Character
 @onready var friend: Character
@@ -30,11 +31,11 @@ func _ready() -> void:
 	setup_game()
 	load_initial_scene()
 
-func set_tess(tess_node : Character) -> void:
-	tess = tess_node
+#func set_tess(tess_node : Character) -> void:
+#	tess = tess_node
 
-func set_friend(friend_node : Character) -> void:
-	friend = friend_node
+#func set_friend(friend_node : Character) -> void:
+#	friend = friend_node
 
 
 func switch_scenes(scene_name : String) -> void:
@@ -79,6 +80,9 @@ func load_scene(scene_name: String) -> void:
 	else:
 		print("ERROR: Scene not found: ", scene_name)
 
+func get_tess() -> Character:
+	return tess
+
 func transition_to_scene(scene_name: String, fade_duration: float = 0.5) -> void:
 	print("Transitioning to: ", scene_name)
 	
@@ -119,6 +123,59 @@ func setup_global_input_handling() -> void:
 func _on_global_touch_started(position: Vector2) -> void:
 	print("=== TOUCH DETECTED ===")
 	print("Touch position (screen): ", position)
+	tess = GameManager.get_tess()
+	if not tess:
+		print("ERROR: No Tess to move!")
+		return
+	
+	var world_position = get_global_mouse_position()
+	print("World position (converted): ", world_position)
+	
+	# Check if Tess is in an interactive area
+	if is_tess_in_interactive_area():
+		# Only allow movement if click is far enough away to exit the area
+		var distance_to_click = tess.global_position.distance_to(world_position)
+		if distance_to_click < 100:  # Adjust this threshold as needed
+			print("Click too close while in interactive area - ignoring")
+			return
+		else:
+			print("Click far enough to exit area - allowing movement")
+	
+	print("Calling tess.move_to() with: ", world_position)
+	tess.move_to(world_position)
+
+func is_tess_in_interactive_area() -> bool:
+	# Simple check - you could make this more sophisticated
+	var interactive_areas = get_tree().get_nodes_in_group("interactive_areas")
+	for area in interactive_areas:
+		if area.player_has:  # Assuming your areas have this variable
+			return true
+	return false
+
+func is_position_over_interactive_area(world_pos: Vector2) -> bool:
+	var space_state = get_viewport().world_2d.direct_space_state
+	var query = PhysicsPointQueryParameters2D.new()
+	query.position = world_pos
+	query.collision_mask = 0b1111  # Check all layers (1, 2, 4, 8)
+	
+	var results = space_state.intersect_point(query)
+	print("Checking position: ", world_pos, " - Found ", results.size(), " colliders")
+	
+	for result in results:
+		var collider = result.collider
+		var area = collider.get_parent()
+		print("Found object: ", area.name, " (", area.get_class(), ")")
+		
+		if area.has_method("toggle_open_close") or area.name.contains("Cab"):
+			print("Found interactive area: ", area.name)
+			return true
+	
+	return false
+
+
+func _on_global_touch_started_old(position: Vector2) -> void:
+	print("=== TOUCH DETECTED ===")
+	print("Touch position (screen): ", position)
 	
 	if not tess:
 		print("ERROR: No Tess to move!")
@@ -126,6 +183,7 @@ func _on_global_touch_started(position: Vector2) -> void:
 	
 	# Convert screen coordinates to world coordinates
 	var world_position = get_global_mouse_position()
+	'''
 	print("World position (converted): ", world_position)
 	print("Offset difference: ", position - world_position)
 	
@@ -135,12 +193,13 @@ func _on_global_touch_started(position: Vector2) -> void:
 	
 	# Tell Tess to move to WORLD position, not screen position
 	print("Calling tess.move_to() with: ", world_position)
+	'''
 	tess.move_to(world_position)
-	
+	'''
 	print("After move_to call:")
 	print("Tess target_position: ", tess.target_position)
 	print("Tess is_moving: ", tess.is_moving)
-
+'''
 func _input(event: InputEvent) -> void:
 	# Backup input handling if InputManager fails
 	if event is InputEventScreenTouch:

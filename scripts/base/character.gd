@@ -64,27 +64,27 @@ func _physics_process(delta: float) -> void:
 
 func move_to(new_position: Vector2) -> void:
 	if can_move:
-		print("=== MOVE DEBUG ===")
-		print(character_name, " current position: ", global_position)
-		print(character_name, " target position: ", new_position)
+		#print("=== MOVE DEBUG ===")
+		#print(character_name, " current position: ", global_position)
+		#print(character_name, " target position: ", new_position)
 		target_position = new_position
 		is_moving = true
-		print(character_name, " is_moving set to: ", is_moving)
+		#print(character_name, " is_moving set to: ", is_moving)
 
 # Add to Character.gd in move_towards_target():
 func move_towards_target() -> void:
-	print("=== MOVEMENT DEBUG ===")
+	'''print("=== MOVEMENT DEBUG ===")
 	print(character_name, " attempting to move")
 	print("Current position: ", global_position)
 	print("Target position: ", target_position)
 	print("Distance: ", global_position.distance_to(target_position))
 	print("can_move: ", can_move)
-	print("is_moving: ", is_moving)
+	print("is_moving: ", is_moving)'''
 	
 	var distance = global_position.distance_to(target_position)
 	if distance > 5.0:
 		var direction = (target_position - global_position).normalized()
-		print("Direction: ", direction)
+		#print("Direction: ", direction)
 		velocity = direction * movement_speed
 		if velocity == Vector2.ZERO:
 			anim.play("idle_" + last_direction)
@@ -94,16 +94,16 @@ func move_towards_target() -> void:
 		elif direction.x < 0:
 			anim.play("walk_left")
 			last_direction = "right"				
-		print("Velocity set to: ", velocity)
+		#print("Velocity set to: ", velocity)
 		
 		# Check for collision issues
 		var old_position = global_position
 		move_and_slide()
 		var new_position = global_position
 		
-		print("Position after move_and_slide: ", new_position)
-		print("Position changed: ", old_position != new_position)
-		
+		#print("Position after move_and_slide: ", new_position)
+		#print("Position changed: ", old_position != new_position)
+		'''
 		if is_on_wall():
 			print("Hit wall!")
 		if is_on_floor():
@@ -115,7 +115,7 @@ func move_towards_target() -> void:
 		global_position = target_position
 		velocity = Vector2.ZERO
 		is_moving = false
-	
+'''
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if event is InputEventScreenTouch and event.pressed:
 		_on_character_touched(event.position)

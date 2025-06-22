@@ -1,15 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=9 format=3 uid="uid://cayw2yw2rl77c"]
 
-[ext_resource type="Script" uid="uid://bse3sbb2f0t2y" path="res://scripts/ui/notebook_page.gd" id="1_alxu8"]
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
 [ext_resource type="Texture2D" uid="uid://cqogjmpyfsu04" path="res://assets/paper/aged_paper.jpg" id="2_kb3qs"]
+[ext_resource type="PackedScene" uid="uid://bharll8m05ann" path="res://scenes/openable_sprites/op_china_cab.tscn" id="3_dd548"]
 [ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_kb3qs"]
+[ext_resource type="PackedScene" uid="uid://cpttrwygb6an1" path="res://scenes/interactables/openable.tscn" id="5_dd548"]
+[ext_resource type="PackedScene" uid="uid://c423c5rvn6yat" path="res://scenes/interactables/collectable.tscn" id="6_4vfav"]
+[ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="6_y8ogp"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3eq7c"]
-size = Vector2(274, 133)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8dyj1"]
 
 [node name="Room" type="Node2D"]
-script = ExtResource("1_alxu8")
 
 [node name="PaperBackground" type="TextureRect" parent="."]
 unique_name_in_owner = true
@@ -27,35 +28,7 @@ offset_bottom = 40.0
 
 [node name="Environment" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
-
-[node name="Bathtub" type="StaticBody2D" parent="ContentContainer/Environment"]
-position = Vector2(877, 582)
-collision_layer = 10
-collision_mask = 0
-metadata/_edit_group_ = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ContentContainer/Environment/Bathtub"]
-position = Vector2(137, 66.5)
-shape = SubResource("RectangleShape2D_3eq7c")
-
-[node name="Tub" type="ColorRect" parent="ContentContainer/Environment/Bathtub"]
-offset_right = 274.0
-offset_bottom = 133.0
-
-[node name="Water" type="ColorRect" parent="ContentContainer/Environment/Bathtub/Tub"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -127.0
-offset_top = -56.5
-offset_right = 127.0
-offset_bottom = 56.5
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.176471, 0.639216, 1, 1)
+scale = Vector2(0.25, 0.25)
 
 [node name="SpawnPoints" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
@@ -71,6 +44,90 @@ position = Vector2(400, 500)
 
 [node name="Interactables" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
+
+[node name="ChinaCapbinet" parent="ContentContainer/Interactables" instance=ExtResource("3_dd548")]
+position = Vector2(339, 106)
+scale = Vector2(0.25, 0.25)
+
+[node name="Heart" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(487, 262)
+scaling = 0.25
+
+[node name="Openable" parent="ContentContainer/Interactables" instance=ExtResource("5_dd548")]
+position = Vector2(562, 491)
+interaction_area_rect = SubResource("RectangleShape2D_8dyj1")
+texture = ExtResource("6_y8ogp")
+scaling = 0.25
+
+[node name="Heart 1_3_" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(465, 120)
+collectable_type = 1
+scaling = 0.25
+
+[node name="Heart 1_3_2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(543, 120)
+collectable_type = 1
+scaling = 0.25
+
+[node name="Heart 1_3_3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(605, 120)
+collectable_type = 1
+scaling = 0.25
+
+[node name="Heart Half" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(677, 120)
+collectable_type = 2
+scaling = 0.25
+
+[node name="Heart Half2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(747, 119)
+collectable_type = 2
+scaling = 0.25
+
+[node name="heart 2_3_" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(816, 121)
+collectable_type = 3
+scaling = 0.25
+
+[node name="Whiskey" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(396, 191)
+collectable_type = 4
+scaling = 0.25
+
+[node name="Cookie" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(465, 191)
+collectable_type = 5
+scaling = 0.25
+
+[node name="Sutures" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(543, 191)
+collectable_type = 6
+scaling = 0.25
+
+[node name="Tape" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(605, 191)
+collectable_type = 7
+scaling = 0.25
+
+[node name="Barbed_Wire" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(677, 191)
+collectable_type = 8
+scaling = 0.25
+
+[node name="Gold" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(747, 190)
+collectable_type = 9
+scaling = 0.25
+
+[node name="Gold2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(816, 192)
+collectable_type = 9
+scaling = 0.25
+
+[node name="Gold3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+position = Vector2(816, 258)
+collectable_type = 9
+scaling = 0.25
 
 [node name="Characters" type="Node2D" parent="ContentContainer"]
 

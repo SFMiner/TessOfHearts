@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://cpttrwygb6an1"]
+
+[ext_resource type="Script" uid="uid://dr3wnvl1hihph" path="res://scenes/interactables/openable.gd" id="1_pgyht"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_krngc"]
+
+[node name="Openable" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_pgyht")
+interaction_area_rect = SubResource("RectangleShape2D_krngc")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+hframes = 2
+
+[node name="InteractionArea" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_krngc")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -60.0
+offset_right = 61.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Start"
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

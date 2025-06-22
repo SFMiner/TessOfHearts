@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7yxi581cgiat"
-path="res://.godot/imported/Tess_sprite-Sheet.png-b429f28dc402a007b69700b4676903ec.ctex"
+uid="uid://bp0am8x5t01co"
+path="res://.godot/imported/cookie.png-e6e09be24cc9cc7ca9e4214912a84308.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/Tess_sprite-Sheet.png"
-dest_files=["res://.godot/imported/Tess_sprite-Sheet.png-b429f28dc402a007b69700b4676903ec.ctex"]
+source_file="res://assets/textures/collectables/cookie.png"
+dest_files=["res://.godot/imported/cookie.png-e6e09be24cc9cc7ca9e4214912a84308.ctex"]
 
 [params]
 

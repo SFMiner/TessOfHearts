@@ -57,10 +57,12 @@ func start_touch(position: Vector2) -> void:
 	current_touch_position = position
 	touched_objects.clear()
 	
-	touch_started.emit(position)
+	# Convert to world coordinates before emitting
+	var world_position = get_viewport().get_camera_2d().get_global_mouse_position()
+	touch_started.emit(world_position)  # Emit world coordinates instead of screen
 	
-	# Find all objects at touch position using multiple collision layers
-	find_touched_objects(position)
+	# Find all objects at touch position using world coordinates
+	find_touched_objects(world_position)
 
 func end_touch(position: Vector2) -> void:
 	is_touching = false

@@ -13,9 +13,8 @@ unique_name_in_owner = true
 
 [node name="UI" type="CanvasLayer" parent="."]
 
-[node name="HandwrittenGameHUD" parent="UI" instance=ExtResource("5_nhptj")]
+[node name="GameHUD" parent="UI" instance=ExtResource("5_nhptj")]
 unique_name_in_owner = true
-script = null
 
 [node name="DialogueSystem" type="Control" parent="UI"]
 unique_name_in_owner = true

@@ -6,6 +6,7 @@ extends Character
 
 func _ready() -> void:
 	character_name = "Bearded Friend"
+	add_to_group("Friend")
 	super._ready()
 	
 func setup_character() -> void:

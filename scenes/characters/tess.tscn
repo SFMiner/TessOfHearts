@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://d1l80sh4u51vd"]
 
 [ext_resource type="Script" uid="uid://bs4fmp38adl2f" path="res://scenes/characters/tess.gd" id="1_xqbcu"]
-[ext_resource type="Texture2D" uid="uid://c7yxi581cgiat" path="res://assets/art/Tess_sprite-Sheet.png" id="2_bxk6a"]
+[ext_resource type="Texture2D" uid="uid://c7yxi581cgiat" path="res://assets/spritesheets/Tess_sprite-Sheet.png" id="2_bxk6a"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bxk6a"]
 radius = 32.0

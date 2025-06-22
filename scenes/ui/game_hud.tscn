@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://6ws07pmaahf"]
+[gd_scene load_steps=4 format=3 uid="uid://6ws07pmaahf"]
 
-[ext_resource type="Script" uid="uid://dqf0yiqeua0ap" path="res://scripts/handwritten_game_hud.gd" id="1_xsr0h"]
+[ext_resource type="Script" uid="uid://c8g4y1riulr52" path="res://scripts/ui/game_hud.gd" id="1_el006"]
+[ext_resource type="FontFile" uid="uid://3310jk62iv68" path="res://assets/fonts/black-window-font/BlackWindow-WEyG.ttf" id="2_8n052"]
+[ext_resource type="FontFile" uid="uid://cfppmkcvrkwbq" path="res://assets/fonts/geldotica-font/Geldoticathick-Ad42.ttf" id="3_acb04"]
 
 [node name="GameHUD" type="Control"]
 layout_mode = 3
@@ -9,29 +11,98 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_xsr0h")
+script = ExtResource("1_el006")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="VBoxContainer2" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 80.0
-grow_horizontal = 2
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 336.0
+offset_bottom = 416.0
 
-[node name="HeartsCollected" type="Label" parent="TopBar"]
-modulate = Color(1, 0.714, 0.757, 1)
+[node name="TopBar" type="HBoxContainer" parent="VBoxContainer2"]
 layout_mode = 2
+
+[node name="CurrentArea" type="Label" parent="VBoxContainer2/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_8n052")
+theme_override_font_sizes/font_size = 41
+text = "Location: Bathhouse Entry"
+
+[node name="Inventory" type="VBoxContainer" parent="VBoxContainer2"]
+layout_mode = 2
+
+[node name="HeartsCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.644585, 0, 0.292235, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
 text = "Hearts: 0"
 
-[node name="VSeparator" type="VSeparator" parent="TopBar"]
+[node name="TapeCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.407498, 0.87507, 1, 1)
 layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Tape: 0"
 
-[node name="CurrentArea" type="Label" parent="TopBar"]
-modulate = Color(0.529, 0.808, 0.922, 1)
+[node name="SuturesCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.361961, 4.22347e-06, 0.131989, 1)
 layout_mode = 2
-text = "Area: Bathhouse Entry"
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Sutures: 0"
 
-[node name="Settings" type="Button" parent="TopBar"]
+[node name="BarbedWireCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.571172, 0.54892, 0.529763, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Wire: 0"
+
+[node name="GoldCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.601602, 0.568793, 1.92523e-07, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Gold: 0"
+
+[node name="CookiesCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.436345, 0.281546, 0.15891, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Cookies: 0"
+
+[node name="WhiskeyCollected" type="Label" parent="VBoxContainer2/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.712858, 0.63061, 0.223988, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Whiskey: 0"
+
+[node name="Settings" type="Button" parent="VBoxContainer2/Inventory"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 text = "⚙"

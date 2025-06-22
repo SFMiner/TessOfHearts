@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://c423c5rvn6yat"]
+
+[ext_resource type="Script" uid="uid://cryt7trc0txbb" path="res://scripts/collectable.gd" id="1_a2uub"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0ig1r"]
+size = Vector2(50, 50)
+
+[node name="Collectable" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_a2uub")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="InteractionArea" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_0ig1r")
+
+[node name="Label" type="Label" parent="."]
+visible = false
+offset_left = -59.0
+offset_top = 15.0
+offset_right = -17.0
+offset_bottom = 38.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Label"
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
