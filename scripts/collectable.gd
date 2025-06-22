@@ -2,6 +2,8 @@
 
 extends Area2D
 
+const scr_debug : bool = false 
+var debug : bool
 
 enum CollectableType {
 	heart_whole,
@@ -31,6 +33,7 @@ var loaded_texture : bool = false
 var player_has : bool = false
 
 func _ready():
+	debug = scr_debug or GameData.sys_debug
 	add_to_group("collectables")
 	add_to_group("interactables")
 	add_to_group("interactive_areas")
@@ -67,16 +70,16 @@ func _on_body_exited(body: Node2D) -> void:
 	label.text = str(collectable_type)
 	
 func _on_area_input(viewport, event: InputEvent, shape_idx: int) -> void:
-	print("Collectable input detected!")
+	if debug: print("Collectable input detected!")
 	if player_has:
 		get_collected()
 
 func _on_global_touch(position: Vector2) -> void:
-	print("Collectable input detected!")
+	if debug: print("Collectable input detected!")
 
 	if not player_has:
 		return
-	print("PLayer has collectable!!")	
+	if debug: print("PLayer has collectable!!")	
 	# Convert to world coordinates 
 	var world_position = get_global_mouse_position()
 	var local_position = to_local(world_position)
@@ -130,7 +133,7 @@ func process(delta):
 
 
 func get_collected():
-	print("Collectable collected!")
+	if debug: print("Collectable collected!")
 	GameManager.add_collectable(int(collectable_type))
 	remove_from_group("collectables")
 	remove_from_group("interactables")

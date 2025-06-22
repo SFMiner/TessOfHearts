@@ -4,6 +4,9 @@
 
 extends Node
 
+const scr_debug : bool = false 
+var debug : bool
+
 signal object_touched(object: Node2D, position: Vector2)
 signal touch_started(position: Vector2)
 signal touch_ended(position: Vector2)
@@ -15,7 +18,8 @@ var current_touch_position: Vector2
 var touched_objects: Array[Node2D] = []
 
 func _ready() -> void:
-	print("InputManager initialized - Touch controls active")
+	debug = scr_debug or GameData.sys_debug
+	if debug: print("InputManager initialized - Touch controls active")
 
 func _input(event: InputEvent) -> void:
 	# Handle touch input (primary)

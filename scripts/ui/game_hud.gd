@@ -10,8 +10,11 @@ extends Control
 @onready var cookies_collected : Label = %CookiesCollected
 @onready var whiskey_collected : Label = %WhiskeyCollected
 
+const scr_debug : bool = false 
+var debug : bool
 
 func set_inventory():
+	debug = scr_debug or GameData.sys_debug
 	var total_hearts = GameData.num_hearts_whole + (GameData.num_hearts_whole *2 / 3) +  (GameData.num_hearts_half / 2) + (GameData.num_hearts_2third / 3)
 	hearts_collected.text = "Hearts: " + str(total_hearts)
 	tape_collected.text = "Tape: " + str(GameData.num_tape)

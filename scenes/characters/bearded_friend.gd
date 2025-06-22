@@ -4,7 +4,11 @@
 
 extends Character
 
+const scr_debug : bool = false 
+var debug : bool
+
 func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
 	character_name = "Bearded Friend"
 	add_to_group("Friend")
 	super._ready()

@@ -4,6 +4,9 @@
 
 extends Control
 
+const scr_debug : bool = false 
+var debug : bool
+
 @onready var hearts_collected_label: Label = $HeartsCollected
 @onready var current_area_label: Label = $CurrentArea
 @onready var interaction_hint: Label = $InteractionHint
@@ -11,6 +14,7 @@ extends Control
 var hearts_count: int = 0
 
 func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
 	# Connect to game manager signals
 	if GameManager:
 		GameManager.heart_collected.connect(_on_heart_collected)

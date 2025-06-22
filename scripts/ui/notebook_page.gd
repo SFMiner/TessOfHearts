@@ -15,6 +15,7 @@ var main
 
 
 func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
 	main = get_tree().get_root().get_node("Main")
 	main.set_tess(tess)
 #	paper_manager = get_node("/root/NotebookPaperManager")

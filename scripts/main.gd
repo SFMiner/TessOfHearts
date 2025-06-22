@@ -4,12 +4,16 @@
 
 extends Node2D
 
+const scr_debug : bool = false 
+var debug : bool
+
 @onready var scene_holder: Node2D = $SceneHolder
 @onready var ui: CanvasLayer = $UI
 @onready var game_hud: Control = %GameHUD
 @onready var current_scene: Node2D
 @onready var tess: Character
 @onready var friend: Character
+
 
 # Test heart scenes to instance
 @export var heart_scene: PackedScene = preload("res://scenes/interactables/Heart.tscn")
@@ -25,9 +29,10 @@ var scene_files: Dictionary = {
 }
 
 func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
 	switch_scenes("central_bath")
-	print("current scene = ", str(current_scene))
-	print("=== GATHER HEARTS - SCENE SYSTEM ===")
+	if debug: print("current scene = ", str(current_scene))
+	if debug: print("=== GATHER HEARTS - SCENE SYSTEM ===")
 	setup_game()
 	load_initial_scene()
 
@@ -49,13 +54,13 @@ func setup_game() -> void:
 	# Connect to game events for scene transitions
 	if GameManager:
 		GameManager.area_unlocked.connect(_on_area_unlocked)
-	print("Scene system ready")
+	if debug: print("Scene system ready")
 
 func load_initial_scene() -> void:
 	load_scene("central_bath")
 
 func load_scene(scene_name: String) -> void:
-	print("Loading scene: ", scene_name)
+	if debug: print("Loading scene: ", scene_name)
 	
 	# Unload current scene
 	if current_scene:
@@ -74,17 +79,17 @@ func load_scene(scene_name: String) -> void:
 			if GameManager:
 				GameManager.current_area = scene_name
 			
-			print("Scene loaded: ", scene_name)
+			if debug: print("Scene loaded: ", scene_name)
 		else:
-			print("ERROR: Could not load scene: ", scene_path)
+			if debug: print("ERROR: Could not load scene: ", scene_path)
 	else:
-		print("ERROR: Scene not found: ", scene_name)
+		if debug: print("ERROR: Scene not found: ", scene_name)
 
 func get_tess() -> Character:
 	return tess
 
 func transition_to_scene(scene_name: String, fade_duration: float = 0.5) -> void:
-	print("Transitioning to: ", scene_name)
+	if debug: print("Transitioning to: ", scene_name)
 	
 	# Fade out
 	var tween = create_tween()
@@ -97,51 +102,51 @@ func transition_to_scene(scene_name: String, fade_duration: float = 0.5) -> void
 	)
 
 func _on_area_unlocked(area_name: String) -> void:
-	print("Area unlocked: ", area_name)
+	if debug: print("Area unlocked: ", area_name)
 	# Could auto-transition or show unlock message
 
 func connect_signals() -> void:
-	print("Connecting signals...")
+	if debug: print("Connecting signals...")
 	# Connect to game manager signals
 	if GameManager:
 		GameManager.heart_collected.connect(_on_heart_collected)
 		GameManager.game_state_changed.connect(_on_game_state_changed)
-		print("GameManager signals connected")
+		if debug: print("GameManager signals connected")
 	else:
-		print("ERROR: GameManager not found!")
+		if debug: print("ERROR: GameManager not found!")
 
 func setup_global_input_handling() -> void:
-	print("Setting up global input handling...")
+	if debug: print("Setting up global input handling...")
 	
 	# Connect to InputManager if available
 	if InputManager:
 		InputManager.touch_started.connect(_on_global_touch_started)
-		print("InputManager connected")
+		if debug: print("InputManager connected")
 	else:
-		print("ERROR: InputManager not found!")
+		if debug: print("ERROR: InputManager not found!")
 
 func _on_global_touch_started(position: Vector2) -> void:
-	print("=== TOUCH DETECTED ===")
-	print("Touch position (screen): ", position)
+	if debug: print("=== TOUCH DETECTED ===")
+	if debug: print("Touch position (screen): ", position)
 	tess = GameManager.get_tess()
 	if not tess:
-		print("ERROR: No Tess to move!")
+		if debug: print("ERROR: No Tess to move!")
 		return
 	
 	var world_position = get_global_mouse_position()
-	print("World position (converted): ", world_position)
+	if debug: print("World position (converted): ", world_position)
 	
 	# Check if Tess is in an interactive area
 	if is_tess_in_interactive_area():
 		# Only allow movement if click is far enough away to exit the area
 		var distance_to_click = tess.global_position.distance_to(world_position)
 		if distance_to_click < 100:  # Adjust this threshold as needed
-			print("Click too close while in interactive area - ignoring")
+			if debug: print("Click too close while in interactive area - ignoring")
 			return
 		else:
-			print("Click far enough to exit area - allowing movement")
+			if debug: print("Click far enough to exit area - allowing movement")
 	
-	print("Calling tess.move_to() with: ", world_position)
+	if debug: print("Calling tess.move_to() with: ", world_position)
 	tess.move_to(world_position)
 
 func is_tess_in_interactive_area() -> bool:
@@ -159,26 +164,26 @@ func is_position_over_interactive_area(world_pos: Vector2) -> bool:
 	query.collision_mask = 0b1111  # Check all layers (1, 2, 4, 8)
 	
 	var results = space_state.intersect_point(query)
-	print("Checking position: ", world_pos, " - Found ", results.size(), " colliders")
+	if debug: print("Checking position: ", world_pos, " - Found ", results.size(), " colliders")
 	
 	for result in results:
 		var collider = result.collider
 		var area = collider.get_parent()
-		print("Found object: ", area.name, " (", area.get_class(), ")")
+		if debug: print("Found object: ", area.name, " (", area.get_class(), ")")
 		
 		if area.has_method("toggle_open_close") or area.name.contains("Cab"):
-			print("Found interactive area: ", area.name)
+			if debug: print("Found interactive area: ", area.name)
 			return true
 	
 	return false
 
 
 func _on_global_touch_started_old(position: Vector2) -> void:
-	print("=== TOUCH DETECTED ===")
-	print("Touch position (screen): ", position)
+	if debug: print("=== TOUCH DETECTED ===")
+	if debug: print("Touch position (screen): ", position)
 	
 	if not tess:
-		print("ERROR: No Tess to move!")
+		if debug: print("ERROR: No Tess to move!")
 		return
 	
 	# Convert screen coordinates to world coordinates
@@ -204,38 +209,38 @@ func _input(event: InputEvent) -> void:
 	# Backup input handling if InputManager fails
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			print("=== BACKUP TOUCH DETECTED ===")
-			print("Touch position (screen): ", event.position)
+			if debug: print("=== BACKUP TOUCH DETECTED ===")
+			if debug: print("Touch position (screen): ", event.position)
 			# Use world coordinates for movement
 			var world_pos = get_global_mouse_position()
-			print("World position (converted): ", world_pos)
+			if debug: print("World position (converted): ", world_pos)
 			_on_global_touch_started(world_pos)
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			print("=== BACKUP MOUSE CLICK DETECTED ===")
-			print("Click position (screen): ", event.position)
+			if debug: print("=== BACKUP MOUSE CLICK DETECTED ===")
+			if debug: print("Click position (screen): ", event.position)
 			# Use world coordinates for movement
 			var world_pos = get_global_mouse_position()
 			print("World position (converted): ", world_pos)
 			_on_global_touch_started(world_pos)
 
 func _on_heart_collected(heart_data: Dictionary) -> void:
-	print("Main: Heart collected - ", heart_data)
+	if debug: print("Main: Heart collected - ", heart_data)
 
 func _on_game_state_changed(new_state: GameManager.GameState) -> void:
-	print("Main: Game state changed to - ", GameManager.GameState.keys()[new_state])
+	if debug: print("Main: Game state changed to - ", GameManager.GameState.keys()[new_state])
 
 func test_simple_movement() -> void:
-	print("=== SIMPLE MOVEMENT TEST ===")
+	if debug: print("=== SIMPLE MOVEMENT TEST ===")
 	if tess:
-		print("Testing direct movement...")
-		print("Tess current position: ", tess.global_position)
-		print("Moving to (400, 400)")
+		if debug: print("Testing direct movement...")
+		if debug: print("Tess current position: ", tess.global_position)
+		if debug: print("Moving to (400, 400)")
 		
 		tess.target_position = Vector2(400, 400)
 		tess.is_moving = true
 		
-		print("Movement set - target: ", tess.target_position)
-		print("is_moving: ", tess.is_moving)
+		if debug: print("Movement set - target: ", tess.target_position)
+		if debug: print("is_moving: ", tess.is_moving)
 	else:
-		print("ERROR: Tess not found!")
+		if debug: print("ERROR: Tess not found!")

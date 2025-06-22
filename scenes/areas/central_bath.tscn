@@ -1,14 +1,97 @@
-[gd_scene load_steps=9 format=3 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=14 format=4 uid="uid://cayw2yw2rl77c"]
 
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
+[ext_resource type="Texture2D" uid="uid://d3pqwsy1i6swu" path="res://assets/textures/Wallpapers/wallpaper-Sheet.png" id="2_4vfav"]
 [ext_resource type="Texture2D" uid="uid://cqogjmpyfsu04" path="res://assets/paper/aged_paper.jpg" id="2_kb3qs"]
 [ext_resource type="PackedScene" uid="uid://bharll8m05ann" path="res://scenes/openable_sprites/op_china_cab.tscn" id="3_dd548"]
 [ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_kb3qs"]
-[ext_resource type="PackedScene" uid="uid://cpttrwygb6an1" path="res://scenes/interactables/openable.tscn" id="5_dd548"]
 [ext_resource type="PackedScene" uid="uid://c423c5rvn6yat" path="res://scenes/interactables/collectable.tscn" id="6_4vfav"]
-[ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="6_y8ogp"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_8dyj1"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jaxqq"]
+texture = ExtResource("2_4vfav")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+0:0/0/terrain_set = 0
+0:0/0/terrain = 0
+1:0/0 = 0
+1:0/0/terrain_set = 0
+1:0/0/terrain = 0
+2:0/0 = 0
+2:0/0/terrain_set = 0
+2:0/0/terrain = 0
+3:0/0 = 0
+3:0/0/terrain_set = 0
+3:0/0/terrain = 0
+4:0/0 = 0
+4:0/0/terrain_set = 0
+4:0/0/terrain = 0
+0:1/0 = 0
+0:1/0/terrain_set = 0
+0:1/0/terrain = 0
+1:1/0 = 0
+1:1/0/terrain_set = 0
+1:1/0/terrain = 0
+2:1/0 = 0
+2:1/0/terrain_set = 0
+2:1/0/terrain = 0
+3:1/0 = 0
+3:1/0/terrain_set = 0
+3:1/0/terrain = 0
+4:1/0 = 0
+4:1/0/terrain_set = 0
+4:1/0/terrain = 0
+0:2/0 = 0
+0:2/0/terrain_set = 0
+0:2/0/terrain = 0
+1:2/0 = 0
+1:2/0/terrain_set = 0
+1:2/0/terrain = 0
+2:2/0 = 0
+2:2/0/terrain_set = 0
+2:2/0/terrain = 0
+3:2/0 = 0
+3:2/0/terrain_set = 0
+3:2/0/terrain = 0
+4:2/0 = 0
+4:2/0/terrain_set = 0
+4:2/0/terrain = 0
+0:3/0 = 0
+0:3/0/terrain_set = 0
+0:3/0/terrain = 0
+1:3/0 = 0
+1:3/0/terrain_set = 0
+1:3/0/terrain = 0
+2:3/0 = 0
+2:3/0/terrain_set = 0
+2:3/0/terrain = 0
+3:3/0 = 0
+3:3/0/terrain_set = 0
+3:3/0/terrain = 0
+4:3/0 = 0
+4:3/0/terrain_set = 0
+4:3/0/terrain = 0
+
+[sub_resource type="TileSet" id="TileSet_qc58w"]
+tile_size = Vector2i(32, 32)
+terrain_set_0/mode = 0
+terrain_set_0/terrain_0/name = "Wallpaper"
+terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
+sources/0 = SubResource("TileSetAtlasSource_jaxqq")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ugf0w"]
+size = Vector2(1212, 45)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_33uhw"]
+size = Vector2(830, 35)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y6plm"]
+size = Vector2(507, 38)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gjfko"]
+size = Vector2(84, 38)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5arep"]
+size = Vector2(343, 38)
 
 [node name="Room" type="Node2D"]
 
@@ -18,6 +101,7 @@ offset_right = 4098.0
 offset_bottom = 3072.0
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_kb3qs")
+metadata/_edit_lock_ = true
 
 [node name="ContentContainer" type="Control" parent="."]
 unique_name_in_owner = true
@@ -28,7 +112,35 @@ offset_bottom = 40.0
 
 [node name="Environment" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
-scale = Vector2(0.25, 0.25)
+metadata/_edit_lock_ = true
+
+[node name="WallPaper" type="TileMapLayer" parent="ContentContainer/Environment"]
+tile_map_data = PackedByteArray("AAAIAAIAAAADAAAAAAAIAAMAAAACAAAAAAAJAAIAAAADAAAAAAAJAAMAAAAEAAAAAAAKAAIAAAABAAAAAAAKAAMAAAACAAAAAAALAAIAAAABAAAAAAALAAMAAAAEAAAAAAAMAAIAAAADAAAAAAAMAAMAAAADAAAAAAANAAIAAAAEAAAAAAANAAMAAAAEAAAAAAAOAAIAAAADAAAAAAAOAAMAAAAAAAAAAAAPAAIAAAACAAAAAAAPAAMAAAADAAAAAAAQAAIAAAABAAAAAAAQAAMAAAADAAAAAAARAAIAAAABAAAAAAARAAMAAAACAAAAAAASAAIAAAABAAAAAAASAAMAAAABAAAAAAATAAIAAAABAAAAAAATAAMAAAADAAAAAAAUAAIAAAABAAAAAAAUAAMAAAACAAAAAAAVAAIAAAADAAAAAAAVAAMAAAADAAAAAAAWAAIAAAACAAAAAAAWAAMAAAAAAAAAAAAXAAIAAAACAAAAAAAXAAMAAAAEAAAAAAAYAAIAAAAAAAAAAAAYAAMAAAADAAAAAAAZAAIAAAAEAAAAAAAZAAMAAAAEAAAAAAAbAAIAAAABAAEAAAAbAAMAAAAEAAEAAAAcAAIAAAABAAEAAAAcAAMAAAAAAAEAAAAdAAIAAAACAAEAAAAdAAMAAAADAAEAAAAeAAIAAAAAAAEAAAAeAAMAAAAEAAEAAAAfAAIAAAABAAEAAAAfAAMAAAACAAEAAAAgAAIAAAABAAEAAAAgAAMAAAABAAEAAAAhAAIAAAAAAAEAAAAhAAMAAAADAAEAAAAiAAIAAAAEAAEAAAAiAAMAAAAAAAEAAAAjAAIAAAAAAAEAAAAjAAMAAAAAAAEAAAAkAAIAAAACAAEAAAAkAAMAAAABAAEAAAAlAAIAAAAEAAEAAAAlAAMAAAADAAEAAAAmAAIAAAACAAEAAAAmAAMAAAAAAAEAAAAnAAIAAAAAAAEAAAAnAAMAAAAEAAEAAAAoAAIAAAACAAEAAAAoAAMAAAAEAAEAAAApAAIAAAAEAAEAAAApAAMAAAAEAAEAAAAqAAIAAAAAAAEAAAAqAAMAAAAAAAEAAAArAAIAAAABAAEAAAArAAMAAAAEAAEAAAAsAAIAAAADAAEAAAAsAAMAAAAAAAEAAAAtAAIAAAADAAEAAAAtAAMAAAAAAAEAAAAbAAEAAAADAAEAAAAcAAEAAAABAAEAAAAdAAEAAAABAAEAAAAeAAEAAAAAAAEAAAAfAAEAAAABAAEAAAAgAAEAAAADAAEAAAAhAAEAAAAAAAEAAAAiAAEAAAABAAEAAAAjAAEAAAAAAAEAAAAkAAEAAAADAAEAAAAlAAEAAAAAAAEAAAAmAAEAAAAAAAEAAAAnAAEAAAAEAAEAAAAoAAEAAAADAAEAAAApAAEAAAADAAEAAAAqAAEAAAABAAEAAAArAAEAAAADAAEAAAAsAAEAAAAEAAEAAAAtAAEAAAAAAAEAAAAIAAEAAAADAAAAAAAJAAEAAAABAAAAAAAKAAEAAAACAAAAAAALAAEAAAAAAAAAAAAMAAEAAAADAAAAAAANAAEAAAACAAAAAAAOAAEAAAAAAAAAAAAPAAEAAAAEAAAAAAAQAAEAAAAEAAAAAAARAAEAAAACAAAAAAASAAEAAAABAAAAAAATAAEAAAAAAAAAAAAUAAEAAAACAAAAAAAVAAEAAAAEAAAAAAAWAAEAAAAAAAAAAAAXAAEAAAAEAAAAAAAYAAEAAAABAAAAAAAZAAEAAAAEAAAAAAAOAAcAAAAAAAAAAAAOAAgAAAADAAAAAAAOAAkAAAAAAAAAAAAPAAcAAAACAAAAAAAPAAgAAAADAAAAAAAPAAkAAAADAAAAAAAQAAcAAAABAAAAAAAQAAgAAAAAAAAAAAAQAAkAAAADAAAAAAARAAcAAAAAAAAAAAARAAgAAAACAAAAAAARAAkAAAADAAAAAAASAAcAAAABAAAAAAASAAgAAAAAAAAAAAASAAkAAAAEAAAAAAATAAcAAAADAAAAAAATAAgAAAABAAAAAAATAAkAAAADAAAAAAAUAAcAAAAAAAAAAAAUAAgAAAABAAAAAAAUAAkAAAABAAAAAAAVAAcAAAAEAAAAAAAVAAgAAAAAAAAAAAAVAAkAAAAAAAAAAAAWAAcAAAAEAAAAAAAWAAgAAAAEAAAAAAAWAAkAAAAEAAAAAAAXAAcAAAABAAAAAAAXAAgAAAABAAAAAAAXAAkAAAABAAAAAAAYAAcAAAACAAAAAAAYAAgAAAAEAAAAAAAYAAkAAAABAAAAAAAZAAcAAAABAAAAAAAZAAgAAAACAAAAAAAZAAkAAAADAAAAAAAaAAEAAAABAAAAAAAaAAIAAAACAAAAAAAaAAMAAAAEAAAAAAAaAAcAAAADAAIAAAAaAAgAAAAAAAIAAAAaAAkAAAAAAAIAAAAbAAcAAAACAAIAAAAbAAgAAAADAAIAAAAbAAkAAAAEAAIAAAAcAAcAAAABAAIAAAAcAAgAAAAEAAIAAAAcAAkAAAAEAAIAAAAdAAcAAAADAAIAAAAdAAgAAAADAAIAAAAdAAkAAAABAAIAAAAeAAcAAAABAAIAAAAeAAgAAAABAAIAAAAeAAkAAAADAAIAAAAfAAcAAAAAAAIAAAAfAAgAAAACAAIAAAAfAAkAAAACAAIAAAAgAAcAAAADAAIAAAAgAAgAAAABAAIAAAAgAAkAAAAEAAIAAAAhAAcAAAABAAIAAAAhAAgAAAABAAIAAAAhAAkAAAAEAAIAAAAiAAcAAAABAAIAAAAiAAgAAAACAAIAAAAiAAkAAAAAAAIAAAAjAAcAAAAAAAIAAAAjAAgAAAABAAIAAAAjAAkAAAAAAAIAAAAkAAcAAAABAAIAAAAkAAgAAAADAAIAAAAkAAkAAAABAAIAAAAlAAcAAAAEAAIAAAAlAAgAAAABAAIAAAAlAAkAAAAAAAIAAAAmAAcAAAAEAAIAAAAmAAgAAAAAAAIAAAAmAAkAAAAAAAIAAAAnAAcAAAAEAAIAAAAnAAgAAAACAAIAAAAnAAkAAAACAAIAAAAfAA0AAAAAAAIAAAAfAA4AAAAAAAIAAAAfAA8AAAADAAIAAAAgAA0AAAAEAAIAAAAgAA4AAAAEAAIAAAAgAA8AAAAEAAIAAAAhAA0AAAACAAIAAAAhAA4AAAAEAAIAAAAhAA8AAAABAAIAAAAiAA0AAAADAAIAAAAiAA4AAAAEAAIAAAAiAA8AAAADAAIAAAAjAA0AAAACAAIAAAAjAA4AAAADAAIAAAAjAA8AAAADAAIAAAAkAA0AAAAAAAIAAAAkAA4AAAABAAIAAAAkAA8AAAABAAIAAAAlAA0AAAADAAIAAAAlAA4AAAAEAAIAAAAlAA8AAAABAAIAAAAmAA0AAAABAAIAAAAmAA4AAAADAAIAAAAmAA8AAAACAAIAAAAnAA0AAAABAAIAAAAnAA4AAAAAAAIAAAAnAA8AAAAAAAIAAAAoAA0AAAAAAAIAAAAoAA4AAAACAAIAAAAoAA8AAAACAAIAAAApAA0AAAABAAIAAAApAA4AAAAAAAIAAAApAA8AAAADAAIAAAAaAA0AAAADAAIAAAAaAA4AAAAAAAIAAAAaAA8AAAACAAIAAAAbAA0AAAABAAIAAAAbAA4AAAACAAIAAAAbAA8AAAAEAAIAAAAcAA0AAAAEAAIAAAAcAA4AAAACAAIAAAAcAA8AAAABAAIAAAAIAA8AAAADAAMAAAAIABAAAAACAAMAAAAIABEAAAACAAMAAAAJAA8AAAADAAMAAAAJABAAAAACAAMAAAAJABEAAAABAAMAAAAKAA8AAAAEAAMAAAAKABAAAAAAAAMAAAAKABEAAAADAAMAAAALAA8AAAABAAMAAAALABAAAAAAAAMAAAALABEAAAADAAMAAAAMAA8AAAABAAMAAAAMABAAAAADAAMAAAAMABEAAAACAAMAAAANAA8AAAACAAMAAAANABAAAAAAAAMAAAANABEAAAADAAMAAAAOAA8AAAADAAMAAAAOABAAAAACAAMAAAAOABEAAAAAAAMAAAAPAA8AAAACAAMAAAAPABAAAAABAAMAAAAPABEAAAADAAMAAAAQAA8AAAADAAMAAAAQABAAAAADAAMAAAAQABEAAAACAAMAAAARAA8AAAABAAMAAAARABAAAAAEAAMAAAARABEAAAADAAMAAAASAA8AAAAAAAMAAAASABAAAAAAAAMAAAASABEAAAAAAAMAAAATAA8AAAABAAMAAAATABAAAAADAAMAAAATABEAAAACAAMAAAAUAA8AAAACAAMAAAAUABAAAAAAAAMAAAAUABEAAAABAAMAAAAVAA8AAAAEAAMAAAAVABAAAAACAAMAAAAVABEAAAAAAAMAAAAWAA8AAAABAAMAAAAWABAAAAAEAAMAAAAWABEAAAADAAMAAAAXAA8AAAAEAAMAAAAXABAAAAADAAMAAAAXABEAAAADAAMAAAA=")
+tile_set = SubResource("TileSet_qc58w")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ContentContainer/Environment"]
+collision_layer = 8
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(865, 54.5)
+shape = SubResource("RectangleShape2D_ugf0w")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(863, 242.5)
+shape = SubResource("RectangleShape2D_33uhw")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(509.5, 502)
+shape = SubResource("RectangleShape2D_y6plm")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(879, 436)
+shape = SubResource("RectangleShape2D_gjfko")
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(1171.5, 435)
+shape = SubResource("RectangleShape2D_5arep")
 
 [node name="SpawnPoints" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
@@ -51,12 +163,6 @@ scale = Vector2(0.25, 0.25)
 
 [node name="Heart" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(487, 262)
-scaling = 0.25
-
-[node name="Openable" parent="ContentContainer/Interactables" instance=ExtResource("5_dd548")]
-position = Vector2(562, 491)
-interaction_area_rect = SubResource("RectangleShape2D_8dyj1")
-texture = ExtResource("6_y8ogp")
 scaling = 0.25
 
 [node name="Heart 1_3_" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
@@ -92,27 +198,27 @@ scaling = 0.25
 [node name="Whiskey" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(396, 191)
 collectable_type = 4
-scaling = 0.25
+scaling = 0.15
 
 [node name="Cookie" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(465, 191)
 collectable_type = 5
-scaling = 0.25
+scaling = 0.15
 
 [node name="Sutures" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(543, 191)
 collectable_type = 6
-scaling = 0.25
+scaling = 0.15
 
 [node name="Tape" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(605, 191)
 collectable_type = 7
-scaling = 0.25
+scaling = 0.15
 
 [node name="Barbed_Wire" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(677, 191)
 collectable_type = 8
-scaling = 0.25
+scaling = 0.15
 
 [node name="Gold" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(747, 190)
@@ -125,7 +231,7 @@ collectable_type = 9
 scaling = 0.25
 
 [node name="Gold3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
-position = Vector2(816, 258)
+position = Vector2(890, 166)
 collectable_type = 9
 scaling = 0.25
 

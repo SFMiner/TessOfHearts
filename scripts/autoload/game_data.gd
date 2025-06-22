@@ -1,5 +1,7 @@
 extends Node
 
+const sys_debug : bool = false
+
 var num_hearts_whole : int = 0
 var num_hearts_2third : int = 0
 var num_hearts_half : int = 0

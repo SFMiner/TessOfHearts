@@ -12,6 +12,7 @@ var hearts_count: int = 0
 var current_area: String = "bathhouse_entry"
 
 func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
 	setup_handwritten_hud()
 	connect_signals()
 

@@ -4,6 +4,10 @@
 
 extends Node
 
+const scr_debug : bool = false 
+var debug : bool
+
+
 signal game_state_changed(new_state: GameState)
 signal heart_collected(heart_data: Dictionary)
 signal area_unlocked(area_name: String)
@@ -57,7 +61,7 @@ func spend_collectable(collectable_type : int) -> void:
 	update_collectables()
 
 func update_collectables():
-	get_main().GameHUD.set_inventory()
+	get_main().game_hud.set_inventory()
 
 
 func change_state(new_state: GameState) -> void:

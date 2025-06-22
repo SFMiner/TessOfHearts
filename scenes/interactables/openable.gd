@@ -1,6 +1,8 @@
 @tool
 extends Area2D
 
+const scr_debug : bool = false 
+var debug : bool
 
 @onready var sprite : Sprite2D = get_node_or_null("Sprite2D")
 @onready var interaction_area: CollisionShape2D = $InteractionArea
@@ -21,6 +23,7 @@ var collectables_behind: Array[Node2D] = []
 var collectables_moved: bool = false
 
 func _ready():
+	debug = scr_debug or GameData.sys_debug
 
 	sprite.scale = Vector2(scaling, scaling)
 	sprite.texture = texture
@@ -58,7 +61,7 @@ func _on_global_touch(position: Vector2) -> void:
 			break
 
 func _on_area_input(viewport, event: InputEvent, shape_idx: int) -> void:
-	print("Openable input detected!")
+	if debug: print("Openable input detected!")
 	if player_has:
 		toggle_open_close()
 
@@ -82,13 +85,13 @@ func _on_body_exited(body: Node2D) -> void:
 		label.text = ""
 		
 func open():
-	print("Opening")
+	if debug: print("Opening")
 	sprite.set_frame(1)
 	move_openable_to_back()
 	
 
 func close():
-	print("Closing")
+	if debug: print("Closing")
 	sprite.set_frame(0)
 	move_openable_to_front()
 	'''
@@ -125,7 +128,7 @@ func move_openable_to_back():
 	
 	# Move this openable to position 0 (processed last for input)
 	parent_node.move_child(self, 0)
-	print("Moved openable to back of input processing")
+	if debug: print("Moved openable to back of input processing")
 
 func move_openable_to_front():
 	if original_scene_position >= 0:
@@ -133,4 +136,4 @@ func move_openable_to_front():
 		# Move back to original position, or end if position no longer valid
 		var target_position = min(original_scene_position, parent_node.get_child_count() - 1)
 		parent_node.move_child(self, target_position)
-		print("Moved openable back to original position: ", target_position)
+		if debug: print("Moved openable back to original position: ", target_position)
