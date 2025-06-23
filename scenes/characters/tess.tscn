@@ -102,7 +102,7 @@ script = ExtResource("1_xqbcu")
 shape = SubResource("CircleShape2D_bxk6a")
 
 [node name="TouchArea" type="Area2D" parent="."]
-collision_layer = 0
+collision_layer = 2
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="TouchArea"]

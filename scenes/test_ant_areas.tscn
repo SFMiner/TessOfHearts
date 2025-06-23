@@ -1,0 +1,68 @@
+[gd_scene load_steps=4 format=3 uid="uid://test_ant_areas"]
+
+[ext_resource type="PackedScene" uid="uid://ant_area_scene" path="res://scenes/interactables/ant_area.tscn" id="1_ant_area"]
+[ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="2_bearded_friend"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(1920, 100)
+
+[node name="TestAntAreas" type="Node2D"]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(960, 1040)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="AntArea1" parent="." instance=ExtResource("1_ant_area")]
+position = Vector2(400, 300)
+ant_count = 8
+area_size = Vector2(150, 120)
+ant_speed = 25.0
+
+[node name="AntArea2" parent="." instance=ExtResource("1_ant_area")]
+position = Vector2(800, 300)
+ant_count = 15
+area_size = Vector2(200, 150)
+ant_speed = 35.0
+ant_color = Color(0.4, 0.2, 0.1, 1)
+
+[node name="AntArea3" parent="." instance=ExtResource("1_ant_area")]
+position = Vector2(1200, 300)
+ant_count = 5
+area_size = Vector2(100, 80)
+ant_speed = 20.0
+ant_color = Color(0.6, 0.4, 0.2, 1)
+
+[node name="AntArea4" parent="." instance=ExtResource("1_ant_area")]
+position = Vector2(1600, 300)
+ant_count = 12
+area_size = Vector2(180, 140)
+ant_speed = 30.0
+ant_color = Color(0.3, 0.1, 0.05, 1)
+
+[node name="BeardedFriend" parent="." instance=ExtResource("2_bearded_friend")]
+position = Vector2(960, 900)
+
+[node name="TestInstructions" type="Label" parent="."]
+position = Vector2(50, 50)
+text = "Ant Area System Test:
+- Walk into ant areas to activate them
+- Ant counter appears when in area
+- Click/touch individual ants to step on them
+- Courage penalties based on remaining ant count:
+  * Entering area: costs courage equal to ant count
+  * Leaving area: costs courage equal to ant count  
+  * Stepping on ant: costs courage equal to current ant count
+  * Each ant removed reduces future penalties
+- Each ant area has different:
+  * Ant count (5-15 ants)
+  * Area size (100x80 to 200x150)
+  * Ant speed (20-35 pixels/sec)
+  * Ant colors (different brown shades)
+- Areas turn green when all ants are cleared
+- Visual feedback when stepping on ants
+- Ants move randomly within their area bounds
+- Areas self-destruct when completely cleared"
+horizontal_alignment = 0
+vertical_alignment = 0 

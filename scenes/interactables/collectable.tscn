@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://c423c5rvn6yat"]
+[gd_scene load_steps=4 format=3 uid="uid://c423c5rvn6yat"]
 
 [ext_resource type="Script" uid="uid://cryt7trc0txbb" path="res://scripts/collectable.gd" id="1_a2uub"]
+[ext_resource type="Texture2D" uid="uid://hq1mx40r22mf" path="res://assets/textures/collectables/heart.png" id="2_0ig1r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0ig1r"]
 size = Vector2(50, 50)
@@ -10,6 +11,7 @@ collision_mask = 2
 script = ExtResource("1_a2uub")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_0ig1r")
 
 [node name="InteractionArea" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_0ig1r")
@@ -21,7 +23,7 @@ offset_top = 15.0
 offset_right = -17.0
 offset_bottom = 38.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "Label"
+text = "0"
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

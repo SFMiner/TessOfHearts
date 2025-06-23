@@ -134,6 +134,17 @@ func process(delta):
 
 func get_collected():
 	if debug: print("Collectable collected!")
+	
+	# Check energy before allowing collection
+	var current_energy = GameManager.get_energy()
+	if current_energy <= 0:
+		print(name, " cannot be collected - no energy (", current_energy, ")")
+		return
+	
+	# Spend energy for collection
+	GameManager.spend_energy(1)
+	print(name, " spent 1 energy for collection. Remaining: ", GameManager.get_energy())
+	
 	GameManager.add_collectable(int(collectable_type))
 	remove_from_group("collectables")
 	remove_from_group("interactables")

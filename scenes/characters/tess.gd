@@ -9,11 +9,17 @@ var debug : bool
 
 signal interacted()
 
+@onready var camera : Camera2D = get_node_or_null("Camera2D")
 
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	character_name = "Tess"
 	super._ready()
+	set_camera_limits()
+	
+	# Initialize movement tracking
+	GameData.record_tess_position(global_position)
+	
 	if debug: print("=== TESS COLLISION DEBUG ===")
 	if debug: print("Tess collision_layer: ", collision_layer)
 	if debug: print("Tess collision_mask: ", collision_mask)
@@ -44,3 +50,25 @@ func _on_character_touched(position: Vector2) -> void:
 	
 func interact():
 	emit_signal("interacted")
+	
+func set_camera_limits():
+	camera.limit_right = GameData.camera_limit_right
+	camera.limit_bottom = GameData.camera_limit_bottom
+	camera.limit_left = GameData.camera_limit_left
+	camera.limit_top = GameData.camera_limit_top
+
+# Override movement functions to record movement for friend
+func move_to(new_position: Vector2) -> void:
+	# Call parent movement function
+	super.move_to(new_position)
+
+func move_towards_target() -> void:
+	# Call parent movement function
+	super.move_towards_target()
+
+func _physics_process(delta: float) -> void:
+	# Continuously update Tess's position in GameData
+	GameData.record_tess_position(global_position)
+	
+	# Call parent physics process
+	super._physics_process(delta)

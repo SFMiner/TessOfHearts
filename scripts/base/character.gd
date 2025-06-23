@@ -8,6 +8,7 @@ class_name Character
 @export var character_name: String = ""
 @export var movement_speed: float = 200.0
 @export var can_move: bool = true
+@export var uses_energy: bool = true  # Whether this character uses energy for movement
 var anim : AnimationPlayer = null
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var touch_area: Area2D = $TouchArea
@@ -17,15 +18,18 @@ var is_moving: bool = false
 var is_highlighted: bool = false
 var original_modulate: Color
 var last_direction: String = "left"
+var base_movement_speed: float = 200.0
 
 func _ready() -> void:
 	print("=== CHARACTER SETUP ===")
 	print(character_name, " _ready() called")
 	print("Position: ", global_position)
 	print("Can move: ", can_move)
+	print("Uses energy: ", uses_energy)
 	
 	target_position = global_position
 	original_modulate = modulate
+	base_movement_speed = movement_speed
 #	setup_character()
 	setup_touch_detection()
 	
@@ -37,11 +41,67 @@ func setup_character() -> void:
 	# Override in derived classes to set sprite texture
 	pass
 
+func get_effective_movement_speed() -> float:
+	if not uses_energy:
+		return movement_speed
+	
+	var energy = GameManager.get_energy()
+	var speed_multiplier = 1.0
+	
+	# Apply speed reduction based on energy levels
+	if energy <= 0:
+		speed_multiplier = 0.0  # No movement at 0 energy
+	elif energy <= 25:
+		speed_multiplier = 0.33  # 33% speed at 1-25 energy
+	elif energy <= 50:
+		speed_multiplier = 0.66  # 66% speed at 26-50 energy
+	# Above 50 energy: full speed (100%)
+	
+	var effective_speed = base_movement_speed * speed_multiplier
+	if name != "Tess" : print("Energy: ", energy, " - Speed multiplier: ", speed_multiplier, " - Effective speed: ", effective_speed)
+	return effective_speed
+
+func can_move_with_energy() -> bool:
+	if not uses_energy:
+		return true
+	
+	var energy = GameManager.get_energy()
+	var can_move = energy > 0
+	
+	if not can_move:
+		print(character_name, " cannot move - no energy (", energy, ")")
+	
+	return can_move
+
+func spend_energy_for_action(amount: int = 1) -> bool:
+	if not uses_energy:
+		return true
+	
+	var current_energy = GameManager.get_energy()
+	if current_energy < amount:
+		print(character_name, " cannot perform action - insufficient energy (", current_energy, " < ", amount, ")")
+		return false
+	
+	GameManager.spend_energy(amount)
+	print(character_name, " spent ", amount, " energy. Remaining: ", GameManager.get_energy())
+	return true
+
 func say_dialogue(dialogue_key: String) -> void:
-	var dialogue_system = get_tree().current_scene.find_child("SimpleDialogueSystem")
+	print("=== CHARACTER SAYING DIALOGUE ===")
+	print("Character: ", character_name)
+	print("Dialogue key: ", dialogue_key)
+	
+	var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
+	var speaker_position = dialogue_point.global_position
+	
+	print("Speaker position: ", speaker_position)
+	
+	# Find dialogue system in scene
+	var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 	if dialogue_system:
-		var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
-		dialogue_system.show_dialogue(dialogue_key, dialogue_point.global_position)
+		dialogue_system.show_dialogue(dialogue_key, speaker_position)
+	else:
+		print("ERROR: DialogueSystem not found in scene")
 
 func setup_touch_detection() -> void:
 	if touch_area:
@@ -63,13 +123,25 @@ func _physics_process(delta: float) -> void:
 		move_towards_target()
 
 func move_to(new_position: Vector2) -> void:
-	if can_move:
-		#print("=== MOVE DEBUG ===")
-		#print(character_name, " current position: ", global_position)
-		#print(character_name, " target position: ", new_position)
-		target_position = new_position
-		is_moving = true
-		#print(character_name, " is_moving set to: ", is_moving)
+	if not can_move:
+		print(character_name, " cannot move - movement disabled")
+		return
+	
+	if not can_move_with_energy():
+		print(character_name, " cannot move - insufficient energy")
+		return
+	
+	# Spend energy for movement
+	if not spend_energy_for_action(1):
+		print(character_name, " movement cancelled - no energy")
+		return
+	
+	#print("=== MOVE DEBUG ===")
+	#print(character_name, " current position: ", global_position)
+	#print(character_name, " target position: ", new_position)
+	target_position = new_position
+	is_moving = true
+	#print(character_name, " is_moving set to: ", is_moving)
 
 # Add to Character.gd in move_towards_target():
 func move_towards_target() -> void:
@@ -85,7 +157,11 @@ func move_towards_target() -> void:
 	if distance > 5.0:
 		var direction = (target_position - global_position).normalized()
 		#print("Direction: ", direction)
-		velocity = direction * movement_speed
+		
+		# Use effective movement speed based on energy
+		var effective_speed = get_effective_movement_speed()
+		velocity = direction * effective_speed
+		
 		if velocity == Vector2.ZERO:
 			anim.play("idle_" + last_direction)
 		elif direction.x > 0:
@@ -103,13 +179,13 @@ func move_towards_target() -> void:
 		
 		#print("Position after move_and_slide: ", new_position)
 		#print("Position changed: ", old_position != new_position)
-		'''
-		if is_on_wall():
-			print("Hit wall!")
-		if is_on_floor():
-			print("On floor!")
-		if is_on_ceiling():
-			print("Hit ceiling!")
+	'''
+	if is_on_wall():
+		print("Hit wall!")
+	if is_on_floor():
+		print("On floor!")
+	if is_on_ceiling():
+		print("Hit ceiling!")
 	else:
 		print("Reached target, stopping")
 		global_position = target_position
@@ -145,6 +221,12 @@ func _on_character_touched(position: Vector2) -> void:
 	print(character_name, " was touched at position: ", position)
 	print("can_move: ", can_move)
 	print("is_moving: ", is_moving)
+	
+	# Spend energy for interaction
+	if uses_energy:
+		if not spend_energy_for_action(1):
+			print(character_name, " interaction cancelled - no energy")
+			return
 	
 	# Visual feedback
 	var tween = create_tween()

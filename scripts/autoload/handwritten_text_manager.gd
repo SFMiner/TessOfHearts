@@ -3,7 +3,6 @@
 # ===========================================
 
 extends Node
-class_name HandwrittenTextManager
 
 # Central repository for all handwritten text assets
 var handwritten_assets: Dictionary = {
@@ -28,17 +27,21 @@ var handwritten_assets: Dictionary = {
 		"send_home": preload("res://assets/handwritten/ui/send_home.png")
 	},
 	
-	# === DIALOGUE (minimal) ===
+	# === DIALOGUE (expanded) ===
 	"dialogue": {
 		"tess_what_is_it": preload("res://assets/handwritten/dialogue/tess_what_is_it.png"),
 		"friend_hey_there": preload("res://assets/handwritten/dialogue/friend_hey_there.png"),
-		"cat_wisdom": preload("res://assets/handwritten/dialogue/cat_wisdom.png")
+		"cat_wisdom": preload("res://assets/handwritten/dialogue/cat_wisdom.png"),
+		"still_doesnt_like_ants": preload("res://assets/handwritten/dialogue/still_doesnt_like_ants.png")
 	},
 	
-	# === MESSAGES ===
+	# === MESSAGES (expanded) ===
 	"messages": {
 		"heart_collected": preload("res://assets/handwritten/messages/heart_collected.png"),
-		"barrier_locked": preload("res://assets/handwritten/messages/barrier_locked.png")
+		"barrier_locked": preload("res://assets/handwritten/messages/barrier_locked.png"),
+		"area_unlocked": preload("res://assets/handwritten/messages/area_unlocked.png"),
+		"friend_summoned": preload("res://assets/handwritten/messages/friend_summoned.png"),
+		"whiskey_shared": preload("res://assets/handwritten/messages/whiskey_shared.png")
 	}
 }
 

@@ -1,0 +1,187 @@
+# ===========================================
+# DIALOGUE SYSTEM - COMPREHENSIVE FIX
+# ===========================================
+
+extends Control
+class_name SimpleDialogueSystem
+
+@onready var dialogue_container: Control = %DialogueContainer
+@onready var handwritten_label: HandwrittenLabel
+@onready var background: ColorRect = %Background
+
+var is_showing: bool = false
+var text_manager
+
+func _ready() -> void:
+	print("=== DIALOGUE SYSTEM SETUP ===")
+	
+	# Get text manager
+	text_manager = HandwrittenTextManager
+	
+	# Add to group for easy finding
+	add_to_group("DialogueSystem")
+	
+	if not dialogue_container:
+		print("ERROR: No dialogue container found")
+		setup_dialogue_container()
+	
+	if not handwritten_label:
+		print("ERROR: No handwritten label found")
+		handwritten_label = dialogue_container.get_node_or_null("HandwrittenLabel")
+	
+	if not background:
+		print("ERROR: No background found")
+		background = dialogue_container.get_node_or_null("Background")
+	
+	hide_dialogue()
+	print("Dialogue system setup complete")
+
+func setup_dialogue_container() -> void:
+	print("Setting up dialogue container manually")
+	dialogue_container = Control.new()
+	add_child(dialogue_container)
+	
+	# Create background
+	background = ColorRect.new()
+	background.color = Color("#FFFACD", 0.9)  # Post-it yellow
+	dialogue_container.add_child(background)
+	
+	# Create handwritten label
+	handwritten_label = HandwrittenLabel.new()
+	dialogue_container.add_child(handwritten_label)
+
+func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO) -> void:
+	print("=== SHOWING DIALOGUE ===")
+	print("Dialogue key: ", dialogue_key)
+	print("Speaker position: ", speaker_position)
+	
+	# Get texture from text manager
+	var texture = text_manager.get_handwritten_texture("dialogue", dialogue_key)
+	if not texture:
+		print("ERROR: No texture found for dialogue key: ", dialogue_key)
+		return
+	
+	print("Texture loaded: ", texture.get_size())
+	
+	# Set the handwritten text
+	handwritten_label.set_handwritten_text("dialogue", dialogue_key)
+	
+	# Position dialogue properly
+	if speaker_position != Vector2.ZERO:
+		position_dialogue_near_speaker(speaker_position)
+	else:
+		position_dialogue_center()
+	
+	# Resize container and background to fit content
+	resize_container_to_content(texture)
+	
+	# Show with animation
+	dialogue_container.visible = true
+	dialogue_container.modulate = Color.TRANSPARENT
+	dialogue_container.scale = Vector2(0.5, 0.5)  # Scale down for appropriate size
+	
+	var tween = create_tween()
+	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
+	
+	is_showing = true
+	
+	# Auto-hide after a few seconds
+	get_tree().create_timer(3.0).timeout.connect(hide_dialogue)
+	
+	print("Dialogue display complete")
+
+func hide_dialogue() -> void:
+	if not is_showing:
+		return
+		
+	print("=== HIDING DIALOGUE ===")
+	
+	var tween = create_tween()
+	tween.tween_property(dialogue_container, "modulate", Color.TRANSPARENT, 0.3)
+	tween.tween_callback(func(): dialogue_container.visible = false)
+	
+	is_showing = false
+
+func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
+	print("=== POSITIONING DIALOGUE ===")
+	print("Speaker position: ", speaker_pos)
+	
+	# Convert world position to viewport coordinates
+	var viewport_size = get_viewport().get_visible_rect().size
+	var camera = get_viewport().get_camera_2d()
+	
+	var screen_pos: Vector2
+	if camera:
+		screen_pos = camera.to_screen_position(speaker_pos)
+	else:
+		screen_pos = speaker_pos
+	
+	print("Screen position: ", screen_pos)
+	print("Viewport size: ", viewport_size)
+	
+	# Position dialogue above speaker with some offset
+	var dialogue_pos = Vector2(
+		screen_pos.x - (dialogue_container.size.x * 0.5 * 0.5),  # Center horizontally, account for scale
+		screen_pos.y - 150  # Above speaker
+	)
+	
+	# Ensure dialogue stays within viewport bounds
+	dialogue_pos.x = clamp(dialogue_pos.x, 20, viewport_size.x - dialogue_container.size.x * 0.5 - 20)
+	dialogue_pos.y = clamp(dialogue_pos.y, 20, viewport_size.y - dialogue_container.size.y * 0.5 - 20)
+	
+	dialogue_container.position = dialogue_pos
+	print("Final dialogue position: ", dialogue_pos)
+
+func position_dialogue_center() -> void:
+	print("=== POSITIONING DIALOGUE CENTER ===")
+	
+	var viewport_size = get_viewport().get_visible_rect().size
+	var center_pos = Vector2(
+		(viewport_size.x - dialogue_container.size.x * 0.5) * 0.5,
+		(viewport_size.y - dialogue_container.size.y * 0.5) * 0.5 - 100
+	)
+	
+	dialogue_container.position = center_pos
+	print("Center dialogue position: ", center_pos)
+
+func resize_container_to_content(texture: Texture2D) -> void:
+	print("=== RESIZING CONTAINER ===")
+	print("Texture size: ", texture.get_size())
+	
+	# Add margins around text
+	var margin = 20
+	var content_size = texture.get_size() + Vector2(margin * 2, margin * 2)
+	
+	print("Content size with margins: ", content_size)
+	
+	# Set container size
+	dialogue_container.custom_minimum_size = content_size
+	dialogue_container.size = content_size
+	
+	# Resize background to match
+	if background:
+		background.size = content_size
+		print("Background resized to: ", background.size)
+	
+	# Position handwritten label with margins
+	if handwritten_label:
+		handwritten_label.position = Vector2(margin, margin)
+		print("Handwritten label positioned at: ", handwritten_label.position)
+	
+	print("Container resize complete")
+
+# Check if dialogue system is interfering:
+func say_dialogue(dialogue_key: String) -> void:
+	print("=== DIALOGUE DEBUG ===")
+	print("Looking for dialogue system...")
+	
+	var dialogue_system = get_tree().current_scene.find_child("SimpleDialogueSystem")
+	if dialogue_system:
+		print("Dialogue system found!")
+		var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
+		dialogue_system.show_dialogue(dialogue_key, dialogue_point.global_position)
+	else:
+		print("ERROR: No dialogue system found")
+		print("Current scene children: ")
+		for child in get_tree().current_scene.get_children():
+			print("  - ", child.name, " (", child.get_class(), ")")

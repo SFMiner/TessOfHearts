@@ -1,0 +1,55 @@
+[gd_scene load_steps=4 format=3 uid="uid://test_friend_movement"]
+
+[ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="1_bearded_friend"]
+[ext_resource type="PackedScene" uid="uid://b251uf3o553p2" path="res://scenes/ui/game_hud.tscn" id="2_game_hud"]
+[ext_resource type="Script" path="res://scenes/characters/tess.gd" id="3_tess"]
+
+[node name="TestFriendMovement" type="Node2D"]
+
+[node name="Tess" type="CharacterBody2D" parent="."]
+position = Vector2(400, 300)
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("3_tess")
+
+[node name="Sprite2D" type="Sprite2D" parent="Tess"]
+
+[node name="TouchArea" type="Area2D" parent="Tess"]
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tess/TouchArea"]
+
+[node name="DialoguePoint" type="Marker2D" parent="Tess"]
+position = Vector2(0, -50)
+
+[node name="Camera2D" type="Camera2D" parent="Tess"]
+enabled = true
+
+[node name="BeardedFriend" parent="." instance=ExtResource("1_bearded_friend")]
+position = Vector2(400, 400)
+
+[node name="GameHUD" parent="." instance=ExtResource("2_game_hud")]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(960, 1040)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+
+[node name="TestInstructions" type="Label" parent="."]
+position = Vector2(50, 50)
+text = "Friend Movement Personality Test:
+- Move Tess around the screen
+- The bearded friend now has personality!
+- Friend follows Tess with a 1-second echo delay
+- Friend occasionally wanders randomly for 0.5-2 seconds
+- Friend sometimes pauses for 0.5-1.5 seconds
+- Friend stops when touching Tess (within 50 pixels)
+- Friend resumes following when Tess moves away
+- Much more interesting than simple shadowing!
+
+Controls:
+- Click/touch to move Tess
+- Watch the friend's personality emerge!"
+horizontal_alignment = 0
+vertical_alignment = 0 

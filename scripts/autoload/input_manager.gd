@@ -91,6 +91,13 @@ func find_touched_objects(position: Vector2) -> void:
 			touched_objects.append(body)
 			object_touched.emit(body, position)
 			
+			# Check energy before allowing interaction
+			if body.has_method("uses_energy") and body.uses_energy:
+				var current_energy = GameManager.get_energy()
+				if current_energy <= 0:
+					print("Cannot interact with ", body.name, " - no energy (", current_energy, ")")
+					continue
+			
 			# Special handling for different object types
 			if body.has_method("_on_touched"):
 				body._on_touched(position)

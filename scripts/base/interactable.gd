@@ -13,6 +13,7 @@ signal touched(position: Vector2)
 @export var can_interact: bool = true
 @export var destroy_on_interact: bool = false
 @export var interaction_text: String = ""
+@export var uses_energy: bool = true  # Whether this interactable uses energy
 
 @onready var area_2d: Area2D = $Area2D
 @onready var visual: ColorRect = $Visual
@@ -88,8 +89,52 @@ func setup_visual() -> void:
 	# Override in derived classes to set specific colors
 	pass
 
+func can_interact_with_energy() -> bool:
+	# Dialogue interactions don't use energy
+	if interaction_type == "dialogue" or interaction_type == "guide_cat":
+		return true
+	
+	if not uses_energy:
+		return true
+	
+	var energy = GameManager.get_energy()
+	var can_interact = energy > 0
+	
+	if not can_interact:
+		print(name, " cannot interact - no energy (", energy, ")")
+	
+	return can_interact
+
+func spend_energy_for_interaction(amount: int = 1) -> bool:
+	# Dialogue interactions don't use energy
+	if interaction_type == "dialogue" or interaction_type == "guide_cat":
+		return true
+	
+	if not uses_energy:
+		return true
+	
+	var current_energy = GameManager.get_energy()
+	if current_energy < amount:
+		print(name, " cannot interact - insufficient energy (", current_energy, " < ", amount, ")")
+		return false
+	
+	GameManager.spend_energy(amount)
+	print(name, " spent ", amount, " energy for interaction. Remaining: ", GameManager.get_energy())
+	return true
+
 func perform_interaction() -> void:
 	print("Interacting with: ", name)
+	
+	# Check energy before allowing interaction
+	if not can_interact_with_energy():
+		print(name, " interaction cancelled - insufficient energy")
+		return
+	
+	# Spend energy for interaction
+	if not spend_energy_for_interaction(1):
+		print(name, " interaction cancelled - no energy")
+		return
+	
 	interacted.emit(self)
 	
 	# Visual feedback for interaction

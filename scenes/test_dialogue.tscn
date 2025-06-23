@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3 uid="uid://test_dialogue_scene"]
+
+[ext_resource type="PackedScene" uid="uid://bqx8y2n3m4k5l" path="res://scenes/interactables/dialogue_trigger.tscn" id="1_dialogue_trigger"]
+[ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="2_bearded_friend"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(1920, 100)
+
+[node name="TestDialogue" type="Node2D"]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(960, 1040)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="DialogueTrigger1" parent="." instance=ExtResource("1_dialogue_trigger")]
+position = Vector2(400, 300)
+dialogue_key = "tess_what_is_it"
+
+[node name="DialogueTrigger2" parent="." instance=ExtResource("1_dialogue_trigger")]
+position = Vector2(800, 300)
+dialogue_key = "friend_hey_there"
+
+[node name="DialogueTrigger3" parent="." instance=ExtResource("1_dialogue_trigger")]
+position = Vector2(1200, 300)
+dialogue_key = "cat_wisdom"
+
+[node name="DialogueTrigger4" parent="." instance=ExtResource("1_dialogue_trigger")]
+position = Vector2(1600, 300)
+dialogue_key = "still_doesnt_like_ants"
+
+[node name="BeardedFriend" parent="." instance=ExtResource("2_bearded_friend")]
+position = Vector2(960, 900) 

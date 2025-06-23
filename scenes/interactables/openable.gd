@@ -1,7 +1,7 @@
 @tool
 extends Area2D
 
-const scr_debug : bool = false 
+const scr_debug : bool = true 
 var debug : bool
 
 @onready var sprite : Sprite2D = get_node_or_null("Sprite2D")
@@ -115,6 +115,16 @@ func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 '''
 
 func toggle_open_close():
+	# Check energy before allowing interaction
+	var current_energy = GameManager.get_energy()
+	if current_energy <= 0:
+		print(name, " cannot open/close - no energy (", current_energy, ")")
+		return
+	
+	# Spend energy for interaction
+	GameManager.spend_energy(1)
+	print(name, " spent 1 energy for open/close. Remaining: ", GameManager.get_energy())
+	
 	match is_open:
 		true: close()
 		false: open()

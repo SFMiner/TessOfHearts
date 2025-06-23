@@ -133,6 +133,14 @@ func _on_global_touch_started(position: Vector2) -> void:
 		if debug: print("ERROR: No Tess to move!")
 		return
 	
+	# Check if Tess has enough energy to move
+	if tess.uses_energy:
+		var current_energy = GameManager.get_energy()
+		if current_energy <= 0:
+			if debug: print("Tess cannot move - no energy (", current_energy, ")")
+			return
+		if debug: print("Tess energy before movement: ", current_energy)
+	
 	var world_position = get_global_mouse_position()
 	if debug: print("World position (converted): ", world_position)
 	
@@ -221,7 +229,7 @@ func _input(event: InputEvent) -> void:
 			if debug: print("Click position (screen): ", event.position)
 			# Use world coordinates for movement
 			var world_pos = get_global_mouse_position()
-			print("World position (converted): ", world_pos)
+			if debug: print("World position (converted): ", world_pos)
 			_on_global_touch_started(world_pos)
 
 func _on_heart_collected(heart_data: Dictionary) -> void:

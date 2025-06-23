@@ -16,7 +16,7 @@ size = Vector2(240, 120)
 texture = ExtResource("1_gjbcy")
 
 [node name="Heart" parent="." instance=ExtResource("5_5n8wp")]
-position = Vector2(30, 66)
+position = Vector2(37, -40)
 
 [node name="Top" parent="." instance=ExtResource("2_d4xwg")]
 position = Vector2(7, -54)

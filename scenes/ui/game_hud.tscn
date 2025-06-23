@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://6ws07pmaahf"]
+[gd_scene load_steps=6 format=3 uid="uid://6ws07pmaahf"]
 
 [ext_resource type="Script" uid="uid://c8g4y1riulr52" path="res://scripts/ui/game_hud.gd" id="1_el006"]
 [ext_resource type="FontFile" uid="uid://3310jk62iv68" path="res://assets/fonts/black-window-font/BlackWindow-WEyG.ttf" id="2_8n052"]
+[ext_resource type="Script" uid="uid://b251uf3o553p2" path="res://scenes/ui/inventory_container.gd" id="3_8n052"]
 [ext_resource type="FontFile" uid="uid://cfppmkcvrkwbq" path="res://assets/fonts/geldotica-font/Geldoticathick-Ad42.ttf" id="3_acb04"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8n052"]
+bg_color = Color(1, 1, 1, 0.301961)
 
 [node name="GameHUD" type="Control"]
 layout_mode = 3
@@ -32,10 +36,43 @@ theme_override_fonts/font = ExtResource("2_8n052")
 theme_override_font_sizes/font_size = 41
 text = "Location: Bathhouse Entry"
 
-[node name="Inventory" type="VBoxContainer" parent="VBoxContainer2"]
+[node name="EnergyDisplay" type="Label" parent="VBoxContainer2/TopBar"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_8n052")
+theme_override_font_sizes/font_size = 32
+text = "Energy: 100"
 
-[node name="HeartsCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="CourageDisplay" type="Label" parent="VBoxContainer2/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_8n052")
+theme_override_font_sizes/font_size = 32
+text = "Courage: 100"
+
+[node name="InventoryContainer" type="Control" parent="VBoxContainer2"]
+layout_mode = 2
+script = ExtResource("3_8n052")
+
+[node name="Panel" type="Panel" parent="VBoxContainer2/InventoryContainer"]
+layout_mode = 2
+offset_top = -58.0
+offset_right = 326.0
+offset_bottom = 320.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_8n052")
+
+[node name="Inventory" type="VBoxContainer" parent="VBoxContainer2/InventoryContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_top = 4.0
+offset_right = 326.0
+offset_bottom = 316.0
+
+[node name="HeartsCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.644585, 0, 0.292235, 1)
 layout_mode = 2
@@ -44,7 +81,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Hearts: 0"
 
-[node name="TapeCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="TapeCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.407498, 0.87507, 1, 1)
 layout_mode = 2
@@ -53,7 +90,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Tape: 0"
 
-[node name="SuturesCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="SuturesCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.361961, 4.22347e-06, 0.131989, 1)
 layout_mode = 2
@@ -62,7 +99,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Sutures: 0"
 
-[node name="BarbedWireCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="BarbedWireCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.571172, 0.54892, 0.529763, 1)
 layout_mode = 2
@@ -72,7 +109,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Wire: 0"
 
-[node name="GoldCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="GoldCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.601602, 0.568793, 1.92523e-07, 1)
 layout_mode = 2
@@ -82,7 +119,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Gold: 0"
 
-[node name="CookiesCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="CookiesCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.436345, 0.281546, 0.15891, 1)
 layout_mode = 2
@@ -92,7 +129,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Cookies: 0"
 
-[node name="WhiskeyCollected" type="Label" parent="VBoxContainer2/Inventory"]
+[node name="WhiskeyCollected" type="Label" parent="VBoxContainer2/InventoryContainer/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.712858, 0.63061, 0.223988, 1)
 layout_mode = 2
@@ -102,7 +139,72 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Whiskey: 0"
 
-[node name="Settings" type="Button" parent="VBoxContainer2/Inventory"]
+[node name="ConsumeCookieButton" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.436345, 0.281546, 0.15891, 1)
+theme_override_colors/font_color = Color(0.436345, 0.281546, 0.15891, 1)
+theme_override_colors/font_focus_color = Color(0.436345, 0.281546, 0.15891, 1)
+theme_override_colors/font_pressed_color = Color(0.436345, 0.281546, 0.15891, 1)
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 20
+text = "Eat Cookie (+25 Energy)"
+flat = true
+
+[node name="ConsumeWhiskeyButton" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.712858, 0.63061, 0.223988, 1)
+theme_override_colors/font_color = Color(0.712858, 0.63061, 0.223988, 1)
+theme_override_colors/font_focus_color = Color(0.712858, 0.63061, 0.223988, 1)
+theme_override_colors/font_pressed_color = Color(0.712858, 0.63061, 0.223988, 1)
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 20
+text = "Drink Whiskey (+30 Courage)"
+flat = true
+
+[node name="CraftTapeHeartButton" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.407498, 0.87507, 1, 1)
+theme_override_colors/font_color = Color(0.407498, 0.87507, 1, 1)
+theme_override_colors/font_focus_color = Color(0.407498, 0.87507, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.407498, 0.87507, 1, 1)
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 18
+text = "Craft Tape Heart"
+flat = true
+
+[node name="CraftWireHeartButton" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.571172, 0.54892, 0.529763, 1)
+theme_override_colors/font_color = Color(0.571172, 0.54892, 0.529763, 1)
+theme_override_colors/font_focus_color = Color(0.571172, 0.54892, 0.529763, 1)
+theme_override_colors/font_pressed_color = Color(0.571172, 0.54892, 0.529763, 1)
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 18
+text = "Craft Wire Heart"
+flat = true
+
+[node name="CraftSewnHeartButton" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.361961, 4.22347e-06, 0.131989, 1)
+theme_override_colors/font_color = Color(0.361961, 4.22347e-06, 0.131989, 1)
+theme_override_colors/font_focus_color = Color(0.361961, 4.22347e-06, 0.131989, 1)
+theme_override_colors/font_pressed_color = Color(0.361961, 4.22347e-06, 0.131989, 1)
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 18
+text = "Craft Sewn Heart"
+flat = true
+
+[node name="Settings" type="Button" parent="VBoxContainer2/InventoryContainer/Inventory"]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 text = "⚙"
@@ -137,7 +239,125 @@ modulate = Color(1, 0.714, 0.757, 1)
 layout_mode = 2
 text = "0/100"
 
+[node name="HeartsInventory" type="Control" parent="."]
+layout_mode = 2
+anchors_preset = 0
+offset_left = 1511.0
+offset_top = 114.0
+offset_right = 2128.0
+offset_bottom = 114.0
+script = ExtResource("3_8n052")
+
+[node name="Panel" type="Panel" parent="HeartsInventory"]
+layout_mode = 2
+offset_top = -58.0
+offset_right = 377.0
+offset_bottom = 320.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_8n052")
+
+[node name="Inventory" type="VBoxContainer" parent="HeartsInventory"]
+layout_mode = 2
+offset_left = 21.0
+offset_top = -47.0
+offset_right = 396.0
+offset_bottom = 308.0
+
+[node name="WholeHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.644585, 0, 0.292235, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Unbroken Hearts: 0"
+
+[node name="TapeHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.407498, 0.87507, 1, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Taped  Hearts: 0"
+
+[node name="SewnHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.361961, 4.22347e-06, 0.131989, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Sewn  Hearts: 0"
+
+[node name="WireHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.571172, 0.54892, 0.529763, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Wire  Hearts: 0"
+
+[node name="WireHearts2" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.580642, 0.487289, 0.814387, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Scarred Hearts"
+
+[node name="ScarredHearts" type="Label" parent="HeartsInventory/Inventory"]
+modulate = Color(0.601602, 0.568793, 1.92523e-07, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "   SCARRED: 0"
+
+[node name="ScarredTapeHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.407498, 0.87507, 1, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "   Tapedtext 0"
+
+[node name="ScarredSewnHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.361961, 4.22347e-06, 0.131989, 1)
+layout_mode = 2
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "   Sewn: 0"
+
+[node name="ScarredWireHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.571172, 0.54892, 0.529763, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "   Wire: 0"
+
+[node name="KintsugiHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
+modulate = Color(0.436345, 0.281546, 0.15891, 1)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_acb04")
+theme_override_font_sizes/font_size = 26
+text = "Kintsugi Hearts: 0"
+
 [node name="Feedback" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

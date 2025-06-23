@@ -1,11 +1,13 @@
-[gd_scene load_steps=14 format=4 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=16 format=4 uid="uid://cayw2yw2rl77c"]
 
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
 [ext_resource type="Texture2D" uid="uid://d3pqwsy1i6swu" path="res://assets/textures/Wallpapers/wallpaper-Sheet.png" id="2_4vfav"]
 [ext_resource type="Texture2D" uid="uid://cqogjmpyfsu04" path="res://assets/paper/aged_paper.jpg" id="2_kb3qs"]
+[ext_resource type="PackedScene" uid="uid://bqx8y2n3m4k5l" path="res://scenes/interactables/dialogue_trigger.tscn" id="3_8dyj1"]
 [ext_resource type="PackedScene" uid="uid://bharll8m05ann" path="res://scenes/openable_sprites/op_china_cab.tscn" id="3_dd548"]
 [ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_kb3qs"]
 [ext_resource type="PackedScene" uid="uid://c423c5rvn6yat" path="res://scenes/interactables/collectable.tscn" id="6_4vfav"]
+[ext_resource type="PackedScene" uid="uid://bydcytb38rejr" path="res://scenes/interactables/ant_area.tscn" id="8_4vfav"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jaxqq"]
 texture = ExtResource("2_4vfav")
@@ -157,6 +159,10 @@ position = Vector2(400, 500)
 [node name="Interactables" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
 
+[node name="DialogueTrigger" parent="ContentContainer/Interactables" instance=ExtResource("3_8dyj1")]
+position = Vector2(515, 363)
+trigger_once = false
+
 [node name="ChinaCapbinet" parent="ContentContainer/Interactables" instance=ExtResource("3_dd548")]
 position = Vector2(339, 106)
 scale = Vector2(0.25, 0.25)
@@ -239,8 +245,14 @@ scaling = 0.25
 
 [node name="Tess" parent="ContentContainer/Characters" instance=ExtResource("2_3eq7c")]
 unique_name_in_owner = true
-position = Vector2(400, 350)
+position = Vector2(361, 358)
 
 [node name="BeardedFriend" parent="ContentContainer/Characters" instance=ExtResource("3_kb3qs")]
 unique_name_in_owner = true
 position = Vector2(600, 350)
+
+[node name="AntArea" parent="." instance=ExtResource("8_4vfav")]
+position = Vector2(233, 388)
+ant_count = 5
+area_size = Vector2(150, 150)
+ant_speed = 20.0

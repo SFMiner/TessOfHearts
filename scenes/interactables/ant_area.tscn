@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://bydcytb38rejr"]
+
+[ext_resource type="Script" uid="uid://cs1oev4xwq8ub" path="res://scripts/base/ant_area.gd" id="1_ant_area"]
+
+[node name="AntArea" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_ant_area")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="AntContainer" type="Node2D" parent="."]
+
+[node name="VisualIndicator" type="ColorRect" parent="."]
+modulate = Color(0.5, 0.3, 0.1, 0.2)
+offset_left = -100.0
+offset_top = -75.0
+offset_right = 100.0
+offset_bottom = 75.0
+
+[node name="AntCounter" type="Label" parent="."]
+visible = false
+offset_left = -50.0
+offset_top = -100.0
+offset_right = 50.0
+offset_bottom = -80.0
+theme_override_colors/font_color = Color(0.8, 0.4, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+text = "10 ants"
+horizontal_alignment = 1

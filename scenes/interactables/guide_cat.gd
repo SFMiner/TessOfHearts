@@ -18,6 +18,7 @@ var has_been_interacted: bool = false
 
 func _ready() -> void:
 	interaction_type = "guide_cat"
+	uses_energy = false  # Dialogue interactions don't use energy
 	super._ready()
 	
 	# Start hidden
@@ -83,10 +84,12 @@ func handle_interaction() -> void:
 	print("Cat interaction: ", cat_name)
 	has_been_interacted = true
 	
-	# Show dialogue
+	# Show dialogue using scene reference
 	var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 	if dialogue_system:
 		dialogue_system.show_dialogue(dialogue_key, global_position)
+	else:
+		print("ERROR: DialogueSystem not found in scene")
 	
 	# Brief animation
 	if animation_player and animation_player.has_animation("speak"):
