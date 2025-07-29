@@ -246,7 +246,7 @@ collectable_type = 9
 scaling = 0.25
 
 [node name="Gold3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
-position = Vector2(890, 166)
+position = Vector2(715, 405)
 collectable_type = 9
 scaling = 0.25
 

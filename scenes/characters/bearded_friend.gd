@@ -393,7 +393,29 @@ func _on_touched(position: Vector2) -> void:
 	
 	if tess_in_interaction_area or tess_in_range:
 		print("BeardedFriend: 'Hey there, friend.'")
-		say_dialogue("friend_hey_there")
+		
+		# Show dialogue choices for Tess
+		var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
+		if dialogue_system:
+			# Get Tess's position for the dialogue choices
+			var tess_position = Vector2.ZERO
+			var tess_nodes_choice = get_tree().get_nodes_in_group("Tess")
+			if tess_nodes_choice.size() > 0:
+				tess_position = tess_nodes_choice[0].global_position
+			
+			var choices: Array[Dictionary] = [
+				{"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"},
+				{"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"},
+				{"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"},
+				{"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"}
+			]
+			dialogue_system.show_dialogue_with_choices("friend_hey_there", choices, tess_position)
+		else:
+			print("ERROR: Dialogue system not found")
+			print("Available children: ")
+			for child in get_tree().current_scene.get_children():
+				print("  - ", child.name, " (", child.get_class(), ")")
+		
 		if debug: print("Friend interaction - Tess in interaction area")
 		# DO NOT allow movement - return without doing anything
 		return

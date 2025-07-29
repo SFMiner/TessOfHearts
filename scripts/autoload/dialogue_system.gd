@@ -6,6 +6,7 @@ class_name SimpleDialogueSystem
 @onready var background: ColorRect = %Background
 
 var is_showing: bool = false
+var choice_ui: Control = null
 
 func _ready() -> void:
 	print("=== DIALOGUE SYSTEM SETUP ===")
@@ -43,6 +44,14 @@ func _ready() -> void:
 	
 	print("text_display = " + str(text_display))
 	print("background = " + str(background))
+	
+	# Find choice UI
+	choice_ui = get_tree().current_scene.get_node_or_null("UI/DialogueChoiceUI")
+	if choice_ui:
+		print("Choice UI found: ", choice_ui.name)
+		choice_ui.choice_selected.connect(_on_choice_selected)
+	else:
+		print("WARNING: Choice UI not found")
 	
 	hide_dialogue()
 	print("Dialogue system setup complete")
@@ -121,8 +130,9 @@ func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZER
 	
 	is_showing = true
 	
-	# Auto-hide after a few seconds
-	get_tree().create_timer(3.0).timeout.connect(hide_dialogue)
+	# Auto-hide after a few seconds (only for regular dialogue, not choice dialogue)
+	if not choice_ui or not choice_ui.is_showing:
+		get_tree().create_timer(3.0).timeout.connect(hide_dialogue)
 	
 	print("Dialogue display complete")
 
@@ -188,3 +198,120 @@ func say_dialogue(dialogue_key: String) -> void:
 		print("Current scene children: ")
 		for child in get_tree().current_scene.get_children():
 			print("  - ", child.name, " (", child.get_class(), ")")
+
+func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO) -> void:
+	print("=== SHOWING DIALOGUE WITH CHOICES ===")
+	print("Dialogue key: ", dialogue_key)
+	print("Number of choices: ", choices.size())
+	
+	# Show the dialogue first (without auto-hide)
+	show_dialogue_manual(dialogue_key, speaker_position)
+	
+	# Wait a moment, then show choices
+	await get_tree().create_timer(1.0).timeout
+	
+	if choice_ui:
+		choice_ui.show_choices(choices, speaker_position)
+	else:
+		print("ERROR: Choice UI not available")
+
+func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO) -> void:
+	print("=== SHOWING DIALOGUE MANUAL ===")
+	print("Dialogue key: ", dialogue_key)
+	print("Speaker position: ", speaker_position)
+	
+	# Ensure we have the text display
+	if not text_display:
+		print("ERROR: text_display is null! Trying to find it again...")
+		text_display = dialogue_container.get_node_or_null("HandwrittenLabel")
+		if not text_display:
+			print("ERROR: Still can't find HandwrittenLabel, creating new one")
+			text_display = HandwrittenLabel.new()
+			text_display.name = "HandwrittenLabel"
+			dialogue_container.add_child(text_display)
+	
+	# Set the handwritten text
+	if text_display:
+		print("text_display found, setting text...")
+		text_display.set_handwritten_text("dialogue", dialogue_key)
+		
+		# Use the HandwrittenLabel's size (which includes margins) and scale it down
+		var label_size = text_display.custom_minimum_size
+		var scaled_size = label_size * 0.5  # Scale to half size
+		print("HandwrittenLabel size: ", label_size)
+		print("Scaled size: ", scaled_size)
+		
+		# Resize the dialogue container to match the scaled label size
+		dialogue_container.size = scaled_size
+		print("Resized dialogue container to: ", dialogue_container.size)
+		
+		# Also resize the background to match
+		if background:
+			background.size = scaled_size
+			print("Resized background to: ", background.size)
+		
+		# Scale the text display to match
+		text_display.scale = Vector2(0.5, 0.5)
+		print("Scaled text display to: ", text_display.scale)
+	else:
+		print("ERROR: text_display is still null!")
+		return
+	
+	# Position near speaker
+	if speaker_position != Vector2.ZERO:
+		position_dialogue_near_speaker(speaker_position)
+	
+	# Show with animation
+	dialogue_container.visible = true
+	dialogue_container.modulate = Color.TRANSPARENT
+	
+	var tween = create_tween()
+	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
+	
+	is_showing = true
+	
+	print("Dialogue display complete (manual - no auto-hide)")
+
+func _on_choice_selected(choice_key: String) -> void:
+	print("=== DIALOGUE CHOICE SELECTED ===")
+	print("Choice key: ", choice_key)
+	
+	# Hide the dialogue when a choice is made
+	hide_dialogue()
+	
+	# Handle different choice responses
+	match choice_key:
+		"eat_cookies":
+			print("Tess chose to eat cookies")
+			trigger_cookie_effects()
+		"drink_whiskey":
+			print("Tess chose to drink whiskey")
+			trigger_whiskey_effects()
+		"cookies_and_whiskey":
+			print("Tess chose cookies and whiskey")
+			trigger_cookie_effects()
+			trigger_whiskey_effects()
+		"never_mind":
+			print("Tess chose to do nothing")
+		_:
+			print("Unknown choice key: ", choice_key)
+
+func trigger_cookie_effects() -> void:
+	print("=== TRIGGERING COOKIE EFFECTS ===")
+	# Cookie effects: comfort_value = 3.0 * 1.5 = 4.5
+	var comfort_value = 4.5
+	print("Cookie comfort value: ", comfort_value)
+	
+	# TODO: Add comfort/healing effects to Tess
+	# For now, just print the effect
+	print("Tess feels comforted by the cookies")
+
+func trigger_whiskey_effects() -> void:
+	print("=== TRIGGERING WHISKEY EFFECTS ===")
+	# Whiskey effects: healing_amount = 5.0 * 1.5 = 7.5
+	var healing_amount = 7.5
+	print("Whiskey healing amount: ", healing_amount)
+	
+	# TODO: Add healing effects to Tess
+	# For now, just print the effect
+	print("Tess feels warmed by the whiskey")
