@@ -1,7 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://uki6q3e7spy8"]
+[gd_scene load_steps=13 format=3 uid="uid://uki6q3e7spy8"]
 
 [ext_resource type="Script" uid="uid://nc8oahsbvoh0" path="res://scenes/characters/bearded_friend.gd" id="1_pnylu"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/click_dialogue_trigger.tscn" id="2_mogrr"]
 [ext_resource type="Texture2D" uid="uid://bwp6unglw1qf7" path="res://textures/placeholders/blue_rect.png" id="2_pnylu"]
+[ext_resource type="Script" uid="uid://cwv12xqiufji8" path="res://scripts/base/touch_responder.gd" id="3_touch_responder"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j30s1"]
 size = Vector2(64, 64)
@@ -98,6 +100,9 @@ collision_layer = 2
 collision_mask = 8
 script = ExtResource("1_pnylu")
 
+[node name="DialogueTrigger" parent="." instance=ExtResource("2_mogrr")]
+dialogue_key = "friend_hey_there"
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_pnylu")
 
@@ -112,6 +117,7 @@ collision_mask = 0
 shape = SubResource("RectangleShape2D_pnylu")
 
 [node name="TouchResponder" type="Node" parent="TouchArea"]
+script = ExtResource("3_touch_responder")
 
 [node name="DialoguePoint" type="Marker2D" parent="."]
 position = Vector2(0, -40)

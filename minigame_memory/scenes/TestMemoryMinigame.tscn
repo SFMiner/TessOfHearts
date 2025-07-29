@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://qagf2s0atcaw"]
+
+[ext_resource type="PackedScene" uid="uid://dvryf377q5f1o" path="res://minigame_memory/scenes/MemoryMinigame.tscn" id="1_0x0x0"]
+
+[node name="TestMemoryMinigame" type="Node2D"]
+
+[node name="MemoryMinigame" parent="." instance=ExtResource("1_0x0x0")]
+position = Vector2(1, -1)

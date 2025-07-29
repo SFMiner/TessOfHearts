@@ -45,6 +45,12 @@ var tess_current_position: Vector2 = Vector2.ZERO
 var tess_is_moving: bool = false
 var tess_last_position: Vector2 = Vector2.ZERO
 
+# === Memory Minigame Begin ===
+var memory_mini_passed := false
+var memory_mini_current_level := 0
+var memory_mini_total_levels := 3
+# === Memory Minigame End ===
+
 func add_courage(amt: int) -> void:
 	cur_courage += floor(amt)
 	if cur_courage > max_courage:

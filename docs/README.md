@@ -193,7 +193,7 @@ TessOfHearts/
 
 **Available Dialogue:**
 - `"tess_what_is_it"` - Tess asking what something is
-- `"friend_hey_there"` - Friend greeting
+- `"friend_hey_there"` - Friend greeting (proximity-based, 50 pixel range)
 - `"cat_wisdom"` - Cat giving wisdom
 - `"still_doesnt_like_ants"` - Something about not liking ants
 
@@ -201,6 +201,7 @@ TessOfHearts/
 - Add `dialogue_trigger.tscn` to scenes and set dialogue keys
 - Characters can trigger dialogue via `say_dialogue()` method
 - Direct system calls via `DialogueSystem.show_dialogue()`
+- Friend dialogue: Click friend while Tess is within 50 pixels
 
 ### ✅ **Energy Management System** (Fully Implemented)
 - **Energy costs for actions**: Movement, interactions, and item collection
@@ -261,6 +262,14 @@ TessOfHearts/
 - **Pause behavior**: Short 0.5-1.0 second pauses for natural movement
 - **Collision detection**: Stops when within 50 pixels of Tess
 - **Natural movement patterns**: Friend feels like a companion with his own personality rather than just following
+
+**Friend Dialogue System:**
+- **Proximity-based dialogue**: Friend speaks when clicked while Tess is within 50 pixels
+- **Direct distance checking**: Reliable detection using real-time distance calculation
+- **Touch input integration**: Works with both touch and mouse input
+- **Dialogue key**: "friend_hey_there" - Friend greets Tess when in range
+- **No energy cost**: Dialogue interactions don't consume energy
+- **Visual feedback**: Friend flashes when touched to indicate interaction
 
 ### ✅ **Heart Repair System** (Fully Implemented)
 - **Material-based repair mechanics** with multiplier system

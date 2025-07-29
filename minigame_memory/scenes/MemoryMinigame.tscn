@@ -1,0 +1,212 @@
+[gd_scene load_steps=5 format=3 uid="uid://dvryf377q5f1o"]
+
+[ext_resource type="Script" uid="uid://jis1056rqly1" path="res://minigame_memory/scripts/memory_minigame.gd" id="1_0x0x0"]
+[ext_resource type="PackedScene" uid="uid://c8xvn8yqxqxqx" path="res://minigame_memory/scenes/Vessel.tscn" id="3_0x0x0"]
+[ext_resource type="PackedScene" uid="uid://brha4hstw44ms" path="res://minigame_memory/scenes/MemoryHybrid.tscn" id="4_vqdyr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0, 0, 0, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="MemoryMinigame" type="Node2D"]
+script = ExtResource("1_0x0x0")
+memory_scene = ExtResource("4_vqdyr")
+vessel_scene = ExtResource("3_0x0x0")
+
+[node name="MemoryContainer" type="Node2D" parent="."]
+
+[node name="MemoryRoot" parent="MemoryContainer" instance=ExtResource("4_vqdyr")]
+position = Vector2(303, 672)
+required_connections = Array[int]([1])
+
+[node name="MemoryRoot2" parent="MemoryContainer" instance=ExtResource("4_vqdyr")]
+position = Vector2(539, 681)
+memory_id = 1
+required_connections = Array[int]([2])
+
+[node name="MemoryRoot3" parent="MemoryContainer" instance=ExtResource("4_vqdyr")]
+position = Vector2(761, 641)
+memory_id = 2
+required_connections = Array[int]([0])
+
+[node name="VesselContainer" type="Node2D" parent="."]
+
+[node name="Vessel" parent="VesselContainer" instance=ExtResource("3_0x0x0")]
+position = Vector2(197, 241)
+
+[node name="Vessel2" parent="VesselContainer" instance=ExtResource("3_0x0x0")]
+position = Vector2(466, 239)
+vessel_id = 1
+vessel_name = "Vessel2"
+
+[node name="Vessel3" parent="VesselContainer" instance=ExtResource("3_0x0x0")]
+position = Vector2(741, 243)
+vessel_id = 3
+vessel_name = "Vessel3"
+
+[node name="UIContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Instructions" type="Label" parent="UIContainer"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 661.0
+offset_top = 12.0
+offset_right = 1061.0
+offset_bottom = 87.0
+grow_horizontal = 2
+text = "Drag memories to vessels. Right-click memories to connect them.
+Find the true arrangement of these fragments."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ResultDialog" type="Panel" parent="UIContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 986.0
+offset_top = 209.0
+offset_right = 1486.0
+offset_bottom = 509.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="TitleLabel" type="Label" parent="UIContainer/ResultDialog"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "Result"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="UIContainer/ResultDialog"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Message will appear here"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ContinueButton" type="Button" parent="UIContainer/ResultDialog"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -40.0
+offset_right = 50.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Continue"
+
+[node name="ResetButton" type="Button" parent="UIContainer/ResultDialog"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -40.0
+offset_right = -60.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Reset"
+
+[node name="ExitButton" type="Button" parent="UIContainer/ResultDialog"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = -40.0
+offset_right = 120.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Exit"
+
+[node name="ConnectionLines" type="Node2D" parent="."]
+
+[node name="VesselBody1" type="StaticBody2D" parent="."]
+position = Vector2(203, 244)
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VesselBody1"]
+position = Vector2(1, 23)
+polygon = PackedVector2Array(51, 6, 90, 176, 40, 236, -39, 239, -97, 168, -53, 3, -73, 162, -11, 212, 20, 213, 60, 172)
+
+[node name="VesselBody2" type="StaticBody2D" parent="."]
+position = Vector2(464, 242)
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VesselBody2"]
+position = Vector2(1, 23)
+polygon = PackedVector2Array(51, 6, 90, 176, 40, 236, -39, 239, -97, 168, -53, 3, -73, 162, -11, 212, 20, 213, 60, 172)
+
+[node name="VesselBody3" type="StaticBody2D" parent="."]
+position = Vector2(737, 256)
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VesselBody3"]
+position = Vector2(1, 23)
+polygon = PackedVector2Array(51, 6, 90, 176, 40, 236, -39, 239, -97, 168, -53, 3, -73, 162, -11, 212, 20, 213, 60, 172)
+
+[node name="VesselBody4" type="StaticBody2D" parent="."]
+position = Vector2(757, 633)
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VesselBody4"]
+position = Vector2(8.00003, -166)
+scale = Vector2(1, 1.15079)
+polygon = PackedVector2Array(90, 153, 90, 176, 37, 211, -34, 208, -97, 168, -84, 148, -73, 162, -15, 185, 26, 187, 60, 172)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="VesselBody4"]
+position = Vector2(-221, -121)
+scale = Vector2(1, 1.15079)
+polygon = PackedVector2Array(90, 153, 90, 176, 37, 211, -34, 208, -97, 168, -84, 148, -73, 162, -15, 185, 26, 187, 60, 172)
+
+[node name="CollisionPolygon2D3" type="CollisionPolygon2D" parent="VesselBody4"]
+position = Vector2(-458, -132)
+scale = Vector2(1, 1.15079)
+polygon = PackedVector2Array(90, 153, 90, 176, 37, 211, -34, 208, -97, 168, -84, 148, -73, 162, -15, 185, 26, 187, 60, 172)

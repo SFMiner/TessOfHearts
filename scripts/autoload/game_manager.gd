@@ -290,3 +290,28 @@ func can_craft_with_sutures() -> bool:
 	return GameData.num_sutures > 0 and (GameData.num_hearts_half >= 2 or 
 		(GameData.num_hearts_2third >= 1 and GameData.num_hearts_1third >= 1) or 
 		GameData.num_hearts_1third >= 3)
+
+# === Memory Minigame Begin ===
+func start_memory_minigame() -> void:
+	GameData.memory_mini_current_level = 0
+	GameData.memory_mini_passed = false
+	print("Memory minigame started")
+
+func complete_memory_minigame_level() -> void:
+	GameData.memory_mini_current_level += 1
+	if GameData.memory_mini_current_level >= GameData.memory_mini_total_levels:
+		GameData.memory_mini_passed = true
+		print("Memory minigame completed successfully!")
+	else:
+		print("Memory minigame level ", GameData.memory_mini_current_level, " completed")
+
+func get_memory_minigame_progress() -> Dictionary:
+	return {
+		"current_level": GameData.memory_mini_current_level,
+		"total_levels": GameData.memory_mini_total_levels,
+		"passed": GameData.memory_mini_passed
+	}
+
+func is_memory_minigame_completed() -> bool:
+	return GameData.memory_mini_passed
+# === Memory Minigame End ===

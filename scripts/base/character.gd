@@ -193,9 +193,15 @@ func move_towards_target() -> void:
 		is_moving = false
 '''
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	print("=== CHARACTER AREA INPUT EVENT ===")
+	print("Event type: ", event.get_class())
+	print("Event pressed: ", event.pressed if event.has_method("pressed") else "N/A")
+	
 	if event is InputEventScreenTouch and event.pressed:
+		print("Screen touch detected - calling _on_character_touched")
 		_on_character_touched(event.position)
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		print("Mouse button detected - calling _on_character_touched")
 		_on_character_touched(event.position)
 
 func _on_mouse_entered() -> void:

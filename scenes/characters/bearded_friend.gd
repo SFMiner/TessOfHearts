@@ -4,7 +4,7 @@
 
 extends Character
 
-const scr_debug : bool = false 
+const scr_debug : bool = true
 var debug : bool
 
 # Friend personality variables
@@ -35,6 +35,7 @@ func _ready() -> void:
 	anim = get_node_or_null("AnimationPlayer")
 	add_to_group("Friend")
 	setup_interaction_area()
+	setup_touch_responder()
 	super._ready()
 	
 	# Debug check
@@ -78,7 +79,7 @@ func handle_friend_personality() -> void:
 	if is_colliding_with_tess():
 		is_moving = false
 		velocity = Vector2.ZERO
-		if debug: print("Friend stopped - touching Tess")
+		#if debug: print("Friend stopped - touching Tess")
 		return
 	
 	# Random wandering behavior (very rare)
@@ -190,8 +191,10 @@ func move_towards_target_friend() -> void:
 		is_moving = false
 
 func _on_character_touched(position: Vector2) -> void:
-	print("=== FRIEND TOUCHED DEBUG ===")
+	print("=== FRIEND CHARACTER TOUCHED DEBUG ===")
+	print("Position: ", position)
 	print("Tess in interaction area: ", tess_in_interaction_area)
+	print("Interaction area exists: ", interaction_area != null)
 	
 	# Check if Tess is in interaction area
 	if tess_in_interaction_area:
@@ -259,6 +262,26 @@ func handle_drift() -> void:
 		if debug: print("Friend finished drifting")
 		return
 
+func setup_touch_responder() -> void:
+	print("=== SETTING UP FRIEND TOUCH RESPONDER ===")
+	var touch_responder = $TouchArea/TouchResponder
+	if touch_responder:
+		touch_responder.touched.connect(_on_touched)
+		print("Connected TouchResponder touched signal")
+		print("TouchResponder script: ", touch_responder.get_script())
+	else:
+		print("ERROR: TouchResponder not found")
+	
+	# Also check TouchArea setup
+	var touch_area = $TouchArea
+	if touch_area:
+		print("TouchArea found - collision_layer: ", touch_area.collision_layer, " collision_mask: ", touch_area.collision_mask)
+		print("TouchArea children: ", touch_area.get_child_count())
+		for child in touch_area.get_children():
+			print("  - ", child.name, " (", child.get_class(), ")")
+	else:
+		print("ERROR: TouchArea not found")
+
 func setup_interaction_area() -> void:
 	print("=== SETTING UP FRIEND INTERACTION AREA ===")
 	
@@ -267,6 +290,7 @@ func setup_interaction_area() -> void:
 	interaction_area.name = "InteractionArea"
 	add_child(interaction_area)
 	print("Created interaction area: ", interaction_area)
+	print("Interaction area collision_layer: ", interaction_area.collision_layer, " collision_mask: ", interaction_area.collision_mask)
 	
 	# Create collision shape
 	var collision_shape = CollisionShape2D.new()
@@ -277,8 +301,8 @@ func setup_interaction_area() -> void:
 	print("Added collision shape with size: ", shape.size)
 	
 	# Connect signals
-	interaction_area.area_entered.connect(_on_interaction_area_area_entered)
-	interaction_area.area_exited.connect(_on_interaction_area_area_exited)
+	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
+	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
 	print("Connected interaction area signals")
 	
 	# Add to interactable_areas group for input manager
@@ -287,36 +311,87 @@ func setup_interaction_area() -> void:
 	
 	# Set collision layer/mask to detect Tess
 	interaction_area.collision_layer = 0  # Don't collide with anything
-	interaction_area.collision_mask = 4   # Detect layer 2 (2^2 = 4)
+	interaction_area.collision_mask = 4   # Detect layer 2 (2^2 = 4) - Tess's layer
 	print("Set collision layer: ", interaction_area.collision_layer, " mask: ", interaction_area.collision_mask)
+	
+	# Debug: Check what Tess's collision layer actually is
+	var tess_nodes = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess = tess_nodes[0]
+		print("Tess collision_layer: ", tess.collision_layer)
+		print("Tess collision_mask: ", tess.collision_mask)
+		print("Tess groups: ", tess.get_groups())
 	
 	if debug: print("Friend interaction area setup complete")
 	print("=== INTERACTION AREA SETUP COMPLETE ===")
+	
+	# Check if Tess is already in the interaction area
+	await get_tree().process_frame  # Wait a frame for physics to update
+	var tess_nodes_check = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes_check.size() > 0:
+		var tess_check = tess_nodes_check[0]
+		var distance = global_position.distance_to(tess_check.global_position)
+		print("Tess distance after setup: ", distance)
+		if distance < 50:  # Within interaction area
+			print("Tess is already within interaction area - manually setting tess_in_interaction_area")
+			tess_in_interaction_area = true
 
-func _on_interaction_area_area_entered(area: Area2D) -> void:
-	if area.is_in_group("Tess"):
+func _on_interaction_area_body_entered(body: Node2D) -> void:
+	print("=== INTERACTION AREA BODY ENTERED ===")
+	print("Body name: ", body.name)
+	print("Body class: ", body.get_class())
+	print("Body groups: ", body.get_groups())
+	print("Body is in Tess group: ", body.is_in_group("Tess"))
+	
+	if body.is_in_group("Tess"):
 		tess_in_interaction_area = true
 		print("=== INTERACTION AREA DEBUG ===")
 		print("Tess entered friend interaction area")
 		print("tess_in_interaction_area set to: ", tess_in_interaction_area)
 	else:
-		print("Area entered interaction area: ", area.name, " (not Tess)")
+		print("Body entered interaction area: ", body.name, " (not Tess)")
 
-func _on_interaction_area_area_exited(area: Area2D) -> void:
-	if area.is_in_group("Tess"):
+func _on_interaction_area_body_exited(body: Node2D) -> void:
+	print("=== INTERACTION AREA BODY EXITED ===")
+	print("Body name: ", body.name)
+	print("Body is in Tess group: ", body.is_in_group("Tess"))
+	
+	if body.is_in_group("Tess"):
 		tess_in_interaction_area = false
 		print("=== INTERACTION AREA DEBUG ===")
 		print("Tess exited friend interaction area")
 		print("tess_in_interaction_area set to: ", tess_in_interaction_area)
 	else:
-		print("Area exited interaction area: ", area.name, " (not Tess)")
+		print("Body exited interaction area: ", body.name, " (not Tess)")
 
 func _on_touched(position: Vector2) -> void:
 	print("=== FRIEND _ON_TOUCHED DEBUG ===")
+	print("Position: ", position)
 	print("Tess in interaction area: ", tess_in_interaction_area)
+	print("Interaction area exists: ", interaction_area != null)
 	
-	# Check if Tess is in interaction area
-	if tess_in_interaction_area:
+	# Debug Tess position and distance
+	var tess_nodes = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess = tess_nodes[0]
+		var distance = global_position.distance_to(tess.global_position)
+		print("Tess position: ", tess.global_position)
+		print("Friend position: ", global_position)
+		print("Distance to Tess: ", distance)
+		print("Interaction area size: 100x100 pixels")
+	else:
+		print("No Tess found in scene!")
+	
+	# Check if Tess is in interaction area (both the stored state and current distance)
+	var tess_nodes_range = get_tree().get_nodes_in_group("Tess")
+	var tess_in_range = false
+	if tess_nodes_range.size() > 0:
+		var tess_range = tess_nodes_range[0]
+		var distance = global_position.distance_to(tess_range.global_position)
+		tess_in_range = distance < 50  # 50 pixel radius for 100x100 area
+		print("Distance check: ", distance, " < 50 = ", tess_in_range)
+	
+	if tess_in_interaction_area or tess_in_range:
 		print("BeardedFriend: 'Hey there, friend.'")
 		say_dialogue("friend_hey_there")
 		if debug: print("Friend interaction - Tess in interaction area")

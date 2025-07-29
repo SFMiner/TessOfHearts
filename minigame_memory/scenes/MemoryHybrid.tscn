@@ -1,0 +1,61 @@
+[gd_scene load_steps=5 format=3 uid="uid://brha4hstw44ms"]
+
+[ext_resource type="Script" uid="uid://cp5glkvvs6qkf" path="res://minigame_memory/scripts/memory_hybrid.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bwp6unglw1qf7" path="res://textures/placeholders/blue_rect.png" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(120, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(100, 100)
+
+[node name="MemoryRoot" type="Node2D"]
+script = ExtResource("1")
+
+[node name="DragArea" type="Area2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="DragArea"]
+texture = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DragArea"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Label" type="Label" parent="DragArea"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -25.0
+offset_right = 50.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Memory Fragment"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PhysicsBody" type="RigidBody2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="PhysicsBody"]
+texture = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PhysicsBody"]
+shape = SubResource("RectangleShape2D_2")
+
+[node name="Label" type="Label" parent="PhysicsBody"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -25.0
+offset_right = 50.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Memory Fragment"
+horizontal_alignment = 1
+vertical_alignment = 1

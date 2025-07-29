@@ -1,0 +1,172 @@
+[
+  {
+    "condition": "memories_split_two",
+    "tone": "reflective",
+    "text": "Two mouths telling the same story doesn't make it true."
+  },
+  {
+    "condition": "memories_split_two",
+    "tone": "melancholic",
+    "text": "Twins of a grief that never doubled."
+  },
+  {
+    "condition": "memories_split_two",
+    "tone": "direct",
+    "text": "You've mistaken resonance for separation."
+  },
+  {
+    "condition": "memories_split_two",
+    "tone": "wistful",
+    "text": "She's echoing herself across different names."
+  },
+  {
+    "condition": "memories_split_two",
+    "tone": "gentle",
+    "text": "You've divided her to soften the weight."
+  },
+  {
+    "condition": "vessel_connections",
+    "tone": "accusatory",
+    "text": "These aren't bridges. They're excuses."
+  },
+  {
+    "condition": "vessel_connections",
+    "tone": "insightful",
+    "text": "You keep connecting strangers. But none of them ever left."
+  },
+  {
+    "condition": "vessel_connections",
+    "tone": "metaphorical",
+    "text": "She doesn't need a thread between her hands to tie herself up."
+  },
+  {
+    "condition": "vessel_connections",
+    "tone": "sharp",
+    "text": "Stop drawing lines. It was never between them."
+  },
+  {
+    "condition": "vessel_connections",
+    "tone": "subtle",
+    "text": "She looked for someone else to blame, and drew herself instead."
+  },
+  {
+    "condition": "memories_split_three",
+    "tone": "near-miss",
+    "text": "She's in there somewhere, but not where you left her."
+  },
+  {
+    "condition": "memories_split_three",
+    "tone": "ambiguous",
+    "text": "You've carved her too finely to recognize her shape."
+  },
+  {
+    "condition": "memories_split_three",
+    "tone": "pained",
+    "text": "It's still her, even when you scatter her name."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 1,
+    "text": "Some pieces don't fit where you want them to."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 1,
+    "text": "You're close to the shape of it."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 1,
+    "text": "Try again. Truth doesn't mind repetition."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 1,
+    "text": "She's here, but not like this."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 2,
+    "text": "You're protecting her from herself."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 2,
+    "text": "Still dividing what was never separate."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 2,
+    "text": "It's hard to look when the reflection speaks back."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 2,
+    "text": "You keep naming her, but you won't claim her."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 3,
+    "text": "You didn't forget. You fractured."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 3,
+    "text": "There was only ever one voice. You just kept changing the mask."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 3,
+    "text": "Stop assigning guilt to shadows. She's still you."
+  },
+  {
+    "condition": "generic_failure",
+    "tier": 3,
+    "text": "Every false face is a delay."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "The dress fit differently this time."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "Another name, same handwriting."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "A thread caught on something you couldn't see."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "The tea was still warm when you left."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "There's always one chair too many."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "A jar labeled hers was empty when opened."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "No one spoke, but you felt dismissed."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "She smiled like she knew a secret, but you already forgot it."
+  },
+  {
+    "condition": "generic_failure",
+    "style": "oblique",
+    "text": "You looked in the mirror and apologized. She didn't answer."
+  }
+] 

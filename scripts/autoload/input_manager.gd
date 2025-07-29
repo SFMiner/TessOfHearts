@@ -62,7 +62,10 @@ func start_touch(position: Vector2) -> void:
 	touched_objects.clear()
 	
 	# Convert to world coordinates before emitting
-	var world_position = get_viewport().get_camera_2d().get_global_mouse_position()
+	var camera = get_viewport().get_camera_2d()
+	var world_position = position  # Default to screen position
+	if camera:
+		world_position = camera.get_global_mouse_position()
 	touch_started.emit(world_position)  # Emit world coordinates instead of screen
 	
 	# Find all objects at touch position using world coordinates
@@ -76,19 +79,37 @@ func end_touch(position: Vector2) -> void:
 	touch_ended.emit(position)
 
 func find_touched_objects(position: Vector2) -> void:
+	print("=== INPUT MANAGER FINDING TOUCHED OBJECTS ===")
+	print("Touch position: ", position)
+	
 	var space_state = get_viewport().world_2d.direct_space_state
 	var query = PhysicsPointQueryParameters2D.new()
 	query.position = position
 	query.collision_mask = 0b1111  # Check multiple layers
 	
 	var results = space_state.intersect_point(query)
+	print("Found ", results.size(), " objects at touch position")
 	
 	for result in results:
 		var collider = result.collider
-		var body = collider.get_parent()
+		var body = collider
+		
+		# If the collider is a CharacterBody2D, use it directly
+		# If it's an Area2D, use its parent
+		if collider is CharacterBody2D:
+			body = collider
+		elif collider is Area2D:
+			body = collider.get_parent()
+		else:
+			body = collider.get_parent()
+		
+		print("  - Collider: ", collider.name, " (", collider.get_class(), ")")
+		print("  - Body: ", body.name if body else "null", " (", body.get_class() if body else "null", ")")
+		print("  - Body groups: ", body.get_groups() if body else "[]")
 		
 		if body and body not in touched_objects:
 			touched_objects.append(body)
+			print("  - Emitting object_touched for: ", body.name)
 			object_touched.emit(body, position)
 			
 			# Check energy before allowing interaction

@@ -26,10 +26,21 @@ func _ready() -> void:
 		InputManager.object_touched.connect(_on_object_touched)
 
 func _on_object_touched(object: Node2D, position: Vector2) -> void:
+	print("=== TOUCH RESPONDER OBJECT TOUCHED ===")
+	print("Object: ", object.name, " (", object.get_class(), ")")
+	print("Parent node: ", parent_node.name if parent_node else "null", " (", parent_node.get_class() if parent_node else "null", ")")
+	print("Object == parent_node: ", object == parent_node)
+	
 	if object == parent_node:
+		print("Handling touch for parent node")
 		handle_touch(position)
+	else:
+		print("Ignoring touch - object is not parent node")
 
 func handle_touch(position: Vector2) -> void:
+	print("=== TOUCH RESPONDER HANDLE TOUCH ===")
+	print("Position: ", position)
+	print("Emitting touched signal")
 	touched.emit(position)
 	
 	if highlight_on_touch:

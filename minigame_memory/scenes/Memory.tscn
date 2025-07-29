@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://bqxvn8yqxqxqx"]
+
+[ext_resource type="Script" uid="uid://wxhnb6xj2dsw" path="res://minigame_memory/scripts/memory.gd" id="1_0x0x0"]
+[ext_resource type="Texture2D" uid="uid://bwp6unglw1qf7" path="res://textures/placeholders/blue_rect.png" id="2_0x0x0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(100, 100)
+
+[node name="Memory" type="Area2D"]
+script = ExtResource("1_0x0x0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_0x0x0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -25.0
+offset_right = 50.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Memory Fragment"
+horizontal_alignment = 1
+vertical_alignment = 1
