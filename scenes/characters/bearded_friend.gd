@@ -28,6 +28,7 @@ var back_to_points: Array[Vector2] = []
 var last_position: Vector2 = Vector2.ZERO
 var half_screen_distance: float = 0.0
 var is_departing: bool = false
+var has_departed: bool = false
 
 # Navigation system
 var navigation_agent: NavigationAgent2D = null
@@ -89,14 +90,15 @@ func track_movement_for_back_to_points() -> void:
 	
 	# Debug movement tracking
 	if distance_moved > 10.0:  # Only print for significant movement
-		print("Movement tracking - Distance moved: ", distance_moved, " / ", half_screen_distance)
+		if debug: print("Movement tracking - Distance moved: ", distance_moved, " / ", half_screen_distance)
 	
 	# If we've moved more than half a screen distance, create a back-to point
 	if distance_moved >= half_screen_distance:
-		print("=== CREATING BACK-TO POINT ===")
-		print("Distance moved: ", distance_moved)
-		print("Current position: ", global_position)
-		print("Last position: ", last_position)
+		if debug: 
+			print("=== CREATING BACK-TO POINT ===")
+			print("Distance moved: ", distance_moved)
+			print("Current position: ", global_position)
+			print("Last position: ", last_position)
 		
 		# Add current position as a back-to point
 		back_to_points.append(global_position)
@@ -183,8 +185,8 @@ func handle_friend_personality() -> void:
 	follow_tess()
 
 func follow_tess() -> void:
-	# Don't follow if departing
-	if is_departing:
+	# Don't follow if departing or has departed
+	if is_departing or has_departed:
 		return
 	
 	# Get Tess's current position
@@ -297,6 +299,8 @@ func move_towards_target_friend() -> void:
 		if is_departing:
 			if debug: print("Friend reached departure target!")
 			is_departing = false
+			# Set a flag to prevent following Tess after departure
+			has_departed = true
 
 func _on_character_touched(position: Vector2) -> void:
 	if debug: 
