@@ -13,6 +13,9 @@ var anim : AnimationPlayer = null
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var touch_area: Area2D = $TouchArea
 
+const scr_debug : bool = false
+var debug : bool
+
 var target_position: Vector2
 var is_moving: bool = false
 var is_highlighted: bool = false
@@ -21,11 +24,13 @@ var last_direction: String = "left"
 var base_movement_speed: float = 200.0
 
 func _ready() -> void:
-	print("=== CHARACTER SETUP ===")
-	print(character_name, " _ready() called")
-	print("Position: ", global_position)
-	print("Can move: ", can_move)
-	print("Uses energy: ", uses_energy)
+	debug = scr_debug or GameData.sys_debug
+	if debug: 
+		print("=== CHARACTER SETUP ===")
+		print(character_name, " _ready() called")
+		print("Position: ", global_position)
+		print("Can move: ", can_move)
+		print("Uses energy: ", uses_energy)
 	
 	target_position = global_position
 	original_modulate = modulate
@@ -121,6 +126,13 @@ func _physics_process(delta: float) -> void:
 	
 	if is_moving and can_move:
 		move_towards_target()
+
+func stop_movement() -> void:
+	"""Stop the character's movement immediately"""
+	is_moving = false
+	velocity = Vector2.ZERO
+	target_position = global_position
+	if debug: print(character_name, " movement stopped")
 
 func move_to(new_position: Vector2) -> void:
 	if not can_move:
@@ -223,10 +235,11 @@ func remove_highlight() -> void:
 		tween.tween_property(self, "modulate", original_modulate, 0.15)
 
 func _on_character_touched(position: Vector2) -> void:
-	print("=== CHARACTER TOUCHED DEBUG ===")
-	print(character_name, " was touched at position: ", position)
-	print("can_move: ", can_move)
-	print("is_moving: ", is_moving)
+	if debug:
+		print("=== CHARACTER TOUCHED DEBUG ===")
+		print(character_name, " was touched at position: ", position)
+		print("can_move: ", can_move)
+		print("is_moving: ", is_moving)
 	
 	# Spend energy for interaction
 	if uses_energy:

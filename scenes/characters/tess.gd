@@ -4,9 +4,6 @@
 
 extends Character
 
-const scr_debug : bool = false 
-var debug : bool
-
 signal interacted()
 
 @onready var camera : Camera2D = get_node_or_null("Camera2D")

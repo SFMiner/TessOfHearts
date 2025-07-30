@@ -335,9 +335,11 @@ func trigger_cookie_effects() -> void:
 	var comfort_value = 4.5
 	print("Cookie comfort value: ", comfort_value)
 	
-	# TODO: Add comfort/healing effects to Tess
-	# For now, just print the effect
-	print("Tess feels comforted by the cookies")
+	# Consume a cookie from inventory
+	if GameManager.consume_cookie():
+		print("Tess feels comforted by the cookies")
+	else:
+		print("ERROR: No cookies available to consume")
 
 func trigger_whiskey_effects() -> void:
 	print("=== TRIGGERING WHISKEY EFFECTS ===")
@@ -345,9 +347,11 @@ func trigger_whiskey_effects() -> void:
 	var healing_amount = 7.5
 	print("Whiskey healing amount: ", healing_amount)
 	
-	# TODO: Add healing effects to Tess
-	# For now, just print the effect
-	print("Tess feels warmed by the whiskey")
+	# Consume whiskey from inventory
+	if GameManager.consume_whiskey():
+		print("Tess feels warmed by the whiskey")
+	else:
+		print("ERROR: No whiskey available to consume")
 
 func trigger_excuse_friend_effects() -> void:
 	print("=== TRIGGERING EXCUSE FRIEND EFFECTS ===")

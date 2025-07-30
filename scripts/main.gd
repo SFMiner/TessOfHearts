@@ -129,10 +129,24 @@ func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("=== TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
 	
-	# Check if click is on dialogue choice UI
-	if is_click_on_dialogue_choice(position):
-		if debug: print("Click is on dialogue choice UI - ignoring movement")
+	# Check if click is on any UI element
+	if is_click_on_ui_element(position):
+		if debug: print("Click is on UI element - ignoring movement")
 		return
+	
+	# Also check if click is in the UI layer area (fallback)
+	var viewport_size = get_viewport().get_visible_rect().size
+	var ui_area_rect = Rect2(Vector2(0, 0), viewport_size)
+	if ui_area_rect.has_point(position):
+		# Check if there are any UI elements at this position
+		var ui_layer = get_tree().get_root().get_node_or_null("UI")
+		if ui_layer:
+			if debug: print("Click is in UI layer area - checking for UI elements")
+			# For now, let's be more conservative and check if click is in the inventory area
+			var inventory_area = Rect2(Vector2(0, viewport_size.y - 400), Vector2(400, 400))
+			if inventory_area.has_point(position):
+				if debug: print("Click is in inventory area - preventing movement")
+				return
 	
 	tess = GameManager.get_tess()
 	if not tess:
@@ -177,7 +191,10 @@ func is_tess_in_interactive_area() -> bool:
 			return true
 	return false
 
-func is_click_on_dialogue_choice(click_position: Vector2) -> bool:
+func is_click_on_ui_element(click_position: Vector2) -> bool:
+	if debug: print("=== CHECKING UI CLICK ===")
+	if debug: print("Click position: ", click_position)
+	
 	# Check if the click position is on any dialogue choice UI element
 	var choice_ui_nodes = get_tree().get_nodes_in_group("dialogue_choice_ui")
 	for choice_ui in choice_ui_nodes:
@@ -197,6 +214,40 @@ func is_click_on_dialogue_choice(click_position: Vector2) -> bool:
 						if debug: print("Click is on dialogue choice button")
 						return true
 	
+	# Check if click is on any UI buttons (consumption, crafting, etc.)
+	var all_buttons = get_tree().get_nodes_in_group("ui_buttons")
+	if debug: print("Found ", all_buttons.size(), " UI buttons in group")
+	
+	for button in all_buttons:
+		if button.visible and not button.disabled:
+			var button_rect = Rect2(button.global_position, button.size)
+			if debug: print("Button ", button.name, " - pos: ", button.global_position, " size: ", button.size)
+			if button_rect.has_point(click_position):
+				if debug: print("Click is on UI button: ", button.name)
+				return true
+	
+	# Check specific UI elements by name (fallback for buttons not in groups)
+	var ui_elements_to_check = [
+		"ConsumeCookieButton",
+		"ConsumeWhiskeyButton", 
+		"CraftTapeHeartButton",
+		"CraftWireHeartButton",
+		"CraftSewnHeartButton",
+		"Settings"
+	]
+	
+	for element_name in ui_elements_to_check:
+		var element = get_tree().get_nodes_in_group(element_name)
+		if element.size() > 0:
+			var ui_element = element[0]
+			if ui_element.visible and not ui_element.disabled:
+				var element_rect = Rect2(ui_element.global_position, ui_element.size)
+				if debug: print("UI element ", element_name, " - pos: ", ui_element.global_position, " size: ", ui_element.size)
+				if element_rect.has_point(click_position):
+					if debug: print("Click is on UI element: ", element_name)
+					return true
+	
+	if debug: print("No UI element clicked")
 	return false
 
 func is_moving_toward_friend(target_position: Vector2) -> bool:

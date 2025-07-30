@@ -38,6 +38,7 @@ func _ready() -> void:
 	update_energy_display()
 	update_courage_display()
 	setup_consumption_buttons()
+	setup_ui_groups()
 	
 	# Connect to energy changes if GameManager is available
 	if GameManager:
@@ -120,28 +121,33 @@ func setup_consumption_buttons() -> void:
 	if consume_cookie_button:
 		consume_cookie_button.pressed.connect(_on_consume_cookie_pressed)
 		consume_cookie_button.text = "Eat Cookie (+25 Energy)"
+		consume_cookie_button.add_to_group("ui_buttons")
 		update_consumption_buttons()
 	
 	# Set up whiskey consumption button
 	if consume_whiskey_button:
 		consume_whiskey_button.pressed.connect(_on_consume_whiskey_pressed)
 		consume_whiskey_button.text = "Drink Whiskey (+30 Courage)"
+		consume_whiskey_button.add_to_group("ui_buttons")
 		update_consumption_buttons()
 	
 	# Set up heart crafting buttons
 	if craft_tape_heart_button:
 		craft_tape_heart_button.pressed.connect(_on_craft_tape_heart_pressed)
 		craft_tape_heart_button.text = "Craft Tape Heart"
+		craft_tape_heart_button.add_to_group("ui_buttons")
 		update_crafting_buttons()
 	
 	if craft_wire_heart_button:
 		craft_wire_heart_button.pressed.connect(_on_craft_wire_heart_pressed)
 		craft_wire_heart_button.text = "Craft Wire Heart"
+		craft_wire_heart_button.add_to_group("ui_buttons")
 		update_crafting_buttons()
 	
 	if craft_sewn_heart_button:
 		craft_sewn_heart_button.pressed.connect(_on_craft_sewn_heart_pressed)
 		craft_sewn_heart_button.text = "Craft Sewn Heart"
+		craft_sewn_heart_button.add_to_group("ui_buttons")
 		update_crafting_buttons()
 
 func update_consumption_buttons() -> void:
@@ -167,32 +173,76 @@ func update_crafting_buttons() -> void:
 		craft_sewn_heart_button.modulate = Color.WHITE if GameManager.can_craft_with_sutures() else Color.GRAY
 
 func _on_consume_cookie_pressed() -> void:
+	# Stop any ongoing movement immediately
+	stop_tess_movement()
+	
 	if GameManager.consume_cookie():
 		update_consumption_buttons()
 		if debug: print("Cookie consumed via button")
 
 func _on_consume_whiskey_pressed() -> void:
+	# Stop any ongoing movement immediately
+	stop_tess_movement()
+	
 	if GameManager.consume_whiskey():
 		update_consumption_buttons()
 		if debug: print("Whiskey consumed via button")
 
 func _on_craft_tape_heart_pressed() -> void:
+	# Stop any ongoing movement immediately
+	stop_tess_movement()
+	
 	if GameManager.craft_heart_with_tape():
 		update_crafting_buttons()
 		set_hearts()
 		if debug: print("Tape Heart crafted via button")
 
 func _on_craft_wire_heart_pressed() -> void:
+	# Stop any ongoing movement immediately
+	stop_tess_movement()
+	
 	if GameManager.craft_heart_with_barbed_wire():
 		update_crafting_buttons()
 		set_hearts()
 		if debug: print("Wire Heart crafted via button")
 
 func _on_craft_sewn_heart_pressed() -> void:
+	# Stop any ongoing movement immediately
+	stop_tess_movement()
+	
 	if GameManager.craft_heart_with_sutures():
 		update_crafting_buttons()
 		set_hearts()
 		if debug: print("Sewn Heart crafted via button")
+
+func stop_tess_movement() -> void:
+	# Find Tess and stop her movement immediately
+	var tess_nodes = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess = tess_nodes[0]
+		if tess.has_method("stop_movement"):
+			tess.stop_movement()
+			if debug: print("Stopped Tess movement via UI button")
+		else:
+			# Fallback: set target to current position
+			tess.target_position = tess.global_position
+			tess.is_moving = false
+			if debug: print("Stopped Tess movement via fallback method")
+
+func setup_ui_groups() -> void:
+	# Add any other UI elements to groups for click detection
+	var settings_button = get_node_or_null("VBoxContainer2/InventoryContainer/Inventory/Settings")
+	if settings_button:
+		settings_button.add_to_group("ui_buttons")
+		if debug: print("Settings button added to ui_buttons group")
+	else:
+		if debug: print("Settings button not found")
+	
+	# Debug: Check how many UI buttons are in the group
+	var ui_buttons = get_tree().get_nodes_in_group("ui_buttons")
+	if debug: print("Total UI buttons in group: ", ui_buttons.size())
+	for button in ui_buttons:
+		if debug: print("  - ", button.name, " (", button.get_class(), ")")
 
 
 	

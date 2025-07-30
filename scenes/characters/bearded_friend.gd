@@ -4,8 +4,6 @@
 
 extends Character
 
-const scr_debug : bool = false
-var debug : bool
 
 # Friend personality variables
 var wander_timer: float = 0.0
@@ -626,6 +624,42 @@ func determine_edge_departure_target() -> Vector2:
 	print("Edge departure target: ", off_screen_target)
 	return off_screen_target
 
+func build_available_choices() -> Array[Dictionary]:
+	var choices: Array[Dictionary] = []
+	
+	# Check inventory for cookies and whiskey
+	var has_cookies = GameData.num_cookies > 0
+	var has_whiskey = GameData.num_whiskey > 0
+	
+	if debug: 
+		print("=== BUILDING AVAILABLE CHOICES ===")
+		print("Cookies in inventory: ", GameData.num_cookies)
+		print("Whiskey in inventory: ", GameData.num_whiskey)
+		print("Has cookies: ", has_cookies)
+		print("Has whiskey: ", has_whiskey)
+	
+	# Add cookie option only if Tess has cookies
+	if has_cookies:
+		choices.append({"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"})
+		if debug: print("Added cookie choice")
+	
+	# Add whiskey option only if Tess has whiskey
+	if has_whiskey:
+		choices.append({"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"})
+		if debug: print("Added whiskey choice")
+	
+	# Add cookies and whiskey option only if Tess has both
+	if has_cookies and has_whiskey:
+		choices.append({"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"})
+		if debug: print("Added cookies and whiskey choice")
+	
+	# Always add excuse me and never mind options
+	choices.append({"text": "Would you excuse me for a bit?", "key": "excuse_me", "texture": "tess_excuse_me"})
+	choices.append({"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"})
+	
+	if debug: print("Total choices available: ", choices.size())
+	return choices
+
 func _on_touched(position: Vector2) -> void:
 	if debug: 
 		print("=== FRIEND _ON_TOUCHED DEBUG ===")
@@ -679,13 +713,7 @@ func _on_touched(position: Vector2) -> void:
 			if tess_nodes_response.size() > 0:
 				var tess = tess_nodes_response[0]
 				if tess.has_method("show_dialogue_choices"):
-					var choices: Array[Dictionary] = [
-						{"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"},
-						{"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"},
-						{"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"},
-						{"text": "Would you excuse me for a bit?", "key": "excuse_me", "texture": "tess_excuse_me"},
-						{"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"}
-					]
+					var choices: Array[Dictionary] = build_available_choices()
 					tess.show_dialogue_choices(choices)
 				else:
 					if debug: print("ERROR: Tess doesn't have show_dialogue_choices method")
