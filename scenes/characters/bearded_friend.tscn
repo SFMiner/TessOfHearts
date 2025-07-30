@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://nc8oahsbvoh0" path="res://scenes/characters/bearded_friend.gd" id="1_pnylu"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/click_dialogue_trigger.tscn" id="2_mogrr"]
-[ext_resource type="Texture2D" uid="uid://bwp6unglw1qf7" path="res://textures/placeholders/blue_rect.png" id="2_pnylu"]
+[ext_resource type="Texture2D" uid="uid://df2ag1jj2jg6r" path="res://assets/spritesheets/friend-Sheet.png" id="3_mogrr"]
 [ext_resource type="Script" uid="uid://cwv12xqiufji8" path="res://scripts/base/touch_responder.gd" id="3_touch_responder"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j30s1"]
@@ -38,7 +38,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [0]
+"values": [4]
 }
 
 [sub_resource type="Animation" id="Animation_mc2s7"]
@@ -53,11 +53,11 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [4]
+"values": [0]
 }
 
 [sub_resource type="Animation" id="Animation_cctbo"]
-resource_name = "walk_left"
+resource_name = "walk_right"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -72,7 +72,7 @@ tracks/0/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_xyejk"]
-resource_name = "walk_right"
+resource_name = "walk_left"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -91,8 +91,8 @@ _data = {
 &"RESET": SubResource("Animation_bxk6a"),
 &"idle_left": SubResource("Animation_3cpho"),
 &"idle_right": SubResource("Animation_mc2s7"),
-&"walk_left": SubResource("Animation_cctbo"),
-&"walk_right": SubResource("Animation_xyejk")
+&"walk_left": SubResource("Animation_xyejk"),
+&"walk_right": SubResource("Animation_cctbo")
 }
 
 [node name="BeardedFriend" type="CharacterBody2D"]
@@ -104,7 +104,10 @@ script = ExtResource("1_pnylu")
 dialogue_key = "friend_hey_there"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_pnylu")
+position = Vector2(-1, 1.54445)
+scale = Vector2(0.266667, 0.266667)
+texture = ExtResource("3_mogrr")
+hframes = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_j30s1")

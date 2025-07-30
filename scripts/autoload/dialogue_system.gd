@@ -75,7 +75,7 @@ func setup_dialogue_container() -> void:
 	
 	print("Manual setup complete - text_display: ", text_display)
 
-func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO) -> void:
+func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
 	print("=== SHOWING DIALOGUE ===")
 	print("Dialogue key: ", dialogue_key)
 	print("Speaker position: ", speaker_position)
@@ -108,7 +108,9 @@ func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZER
 		# Also resize the background to match
 		if background:
 			background.size = scaled_size
+			background.color = background_color
 			print("Resized background to: ", background.size)
+			print("Set background color to: ", background_color)
 		
 		# Scale the text display to match
 		text_display.scale = Vector2(0.5, 0.5)
@@ -155,13 +157,26 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	var viewport_size = get_viewport().get_visible_rect().size
 	var dialogue_size = dialogue_container.size
 	
-	# For UI elements, we can position relative to the viewport center
-	# Let's try positioning it at a fixed offset from the viewport center
-	var viewport_center = viewport_size / 2
+	# Convert world position to viewport position
+	var camera = get_viewport().get_camera_2d()
+	var viewport_pos = speaker_pos
+	if camera:
+		viewport_pos = camera.get_screen_center_position()
+	
+	# Position near the actual speaker
 	var dialogue_pos = Vector2(
-		viewport_center.x - (dialogue_size.x / 2),  # Center horizontally in viewport
-		viewport_center.y - dialogue_size.y - 100   # Position above center with gap
+		viewport_pos.x - (dialogue_size.x / 2),  # Center on speaker horizontally
+		viewport_pos.y - dialogue_size.y - 50    # Position above speaker
 	)
+	
+	# OLD CODE (commented out):
+	# # For UI elements, we can position relative to the viewport center
+	# # Let's try positioning it at a fixed offset from the viewport center
+	# var viewport_center = viewport_size / 2
+	# var dialogue_pos = Vector2(
+	# 	viewport_center.x - (dialogue_size.x / 2),  # Center horizontally in viewport
+	# 	viewport_center.y - dialogue_size.y - 100   # Position above center with gap
+	# )
 	
 	# Ensure dialogue stays within viewport bounds
 	dialogue_pos.x = clamp(dialogue_pos.x, 0, viewport_size.x - dialogue_size.x)
@@ -177,7 +192,7 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 		text_display.size = dialogue_container.size
 	
 	print("Viewport size: ", viewport_size)
-	print("Viewport center: ", viewport_center)
+	print("Viewport center: ", viewport_pos) # Changed from viewport_center to viewport_pos
 	print("Dialogue positioned at: ", dialogue_pos)
 	print("Dialogue container size: ", dialogue_container.size)
 	print("Speaker position: ", speaker_pos)
@@ -199,23 +214,25 @@ func say_dialogue(dialogue_key: String) -> void:
 		for child in get_tree().current_scene.get_children():
 			print("  - ", child.name, " (", child.get_class(), ")")
 
-func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO) -> void:
+func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO, choice_speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
 	print("=== SHOWING DIALOGUE WITH CHOICES ===")
 	print("Dialogue key: ", dialogue_key)
 	print("Number of choices: ", choices.size())
 	
 	# Show the dialogue first (without auto-hide)
-	show_dialogue_manual(dialogue_key, speaker_position)
+	show_dialogue_manual(dialogue_key, speaker_position, background_color)
 	
 	# Wait a moment, then show choices
 	await get_tree().create_timer(1.0).timeout
 	
 	if choice_ui:
-		choice_ui.show_choices(choices, speaker_position)
+		# Use choice_speaker_position if provided, otherwise fall back to speaker_position
+		var choice_pos = choice_speaker_position if choice_speaker_position != Vector2.ZERO else speaker_position
+		choice_ui.show_choices(choices, choice_pos)
 	else:
 		print("ERROR: Choice UI not available")
 
-func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO) -> void:
+func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
 	print("=== SHOWING DIALOGUE MANUAL ===")
 	print("Dialogue key: ", dialogue_key)
 	print("Speaker position: ", speaker_position)
@@ -248,7 +265,9 @@ func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vect
 		# Also resize the background to match
 		if background:
 			background.size = scaled_size
+			background.color = background_color
 			print("Resized background to: ", background.size)
+			print("Set background color to: ", background_color)
 		
 		# Scale the text display to match
 		text_display.scale = Vector2(0.5, 0.5)

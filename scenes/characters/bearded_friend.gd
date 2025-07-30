@@ -394,22 +394,32 @@ func _on_touched(position: Vector2) -> void:
 	if tess_in_interaction_area or tess_in_range:
 		print("BeardedFriend: 'Hey there, friend.'")
 		
-		# Show dialogue choices for Tess
+		# Show bearded friend's dialogue first
 		var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 		if dialogue_system:
-			# Get Tess's position for the dialogue choices
-			var tess_position = Vector2.ZERO
-			var tess_nodes_choice = get_tree().get_nodes_in_group("Tess")
-			if tess_nodes_choice.size() > 0:
-				tess_position = tess_nodes_choice[0].global_position
+			# Use bearded friend's position for his dialogue
+			var friend_background_color = Color(0.73, 0.94, 0.96, 0.9)  # Light cyan background
+			dialogue_system.show_dialogue_manual("friend_hey_there", global_position, friend_background_color)
 			
-			var choices: Array[Dictionary] = [
-				{"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"},
-				{"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"},
-				{"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"},
-				{"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"}
-			]
-			dialogue_system.show_dialogue_with_choices("friend_hey_there", choices, tess_position)
+			# Wait a moment, then have Tess show her dialogue choices
+			await get_tree().create_timer(1.0).timeout
+			
+			# Get Tess and have her show the dialogue choices
+			var tess_nodes_response = get_tree().get_nodes_in_group("Tess")
+			if tess_nodes_response.size() > 0:
+				var tess = tess_nodes_response[0]
+				if tess.has_method("show_dialogue_choices"):
+					var choices: Array[Dictionary] = [
+						{"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"},
+						{"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"},
+						{"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"},
+						{"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"}
+					]
+					tess.show_dialogue_choices(choices)
+				else:
+					print("ERROR: Tess doesn't have show_dialogue_choices method")
+			else:
+				print("ERROR: Tess not found")
 		else:
 			print("ERROR: Dialogue system not found")
 			print("Available children: ")

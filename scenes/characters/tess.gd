@@ -72,3 +72,11 @@ func _physics_process(delta: float) -> void:
 	
 	# Call parent physics process
 	super._physics_process(delta)
+
+func show_dialogue_choices(choices: Array[Dictionary]) -> void:
+	# Get the choice UI and show Tess's dialogue choices
+	var choice_ui = get_tree().current_scene.get_node_or_null("UI/DialogueChoiceUI")
+	if choice_ui:
+		choice_ui.show_choices(choices, global_position)
+	else:
+		print("ERROR: Choice UI not found")
