@@ -432,12 +432,13 @@ func setup_interaction_area() -> void:
 	print("Interaction area collision_layer: ", interaction_area.collision_layer, " collision_mask: ", interaction_area.collision_mask)
 	
 	# Create collision shape
-	var collision_shape = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-	shape.size = Vector2(100, 100)  # 100x100 pixel interaction area
-	collision_shape.shape = shape
-	interaction_area.add_child(collision_shape)
-	if debug: print("Added collision shape with size: ", shape.size)
+	#var collision_shape = CollisionShape2D.new()
+	#var shape = RectangleShape2D.new()
+	#shape.size = Vector2(100, 100)  # 100x100 pixel interaction area
+	#collision_shape.shape = shape
+	#interaction_area.add_child(collision_shape)
+	#if debug: print("Added collision shape with size: ", shape.size)
+	
 	
 	# Connect signals
 	interaction_area.body_entered.connect(_on_interaction_area_body_entered)

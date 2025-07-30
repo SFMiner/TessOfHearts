@@ -128,6 +128,12 @@ func setup_global_input_handling() -> void:
 func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("=== TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
+	
+	# Check if click is on dialogue choice UI
+	if is_click_on_dialogue_choice(position):
+		if debug: print("Click is on dialogue choice UI - ignoring movement")
+		return
+	
 	tess = GameManager.get_tess()
 	if not tess:
 		if debug: print("ERROR: No Tess to move!")
@@ -154,6 +160,12 @@ func _on_global_touch_started(position: Vector2) -> void:
 		else:
 			if debug: print("Click far enough to exit area - allowing movement")
 	
+	# Check if Tess is moving toward the friend and should stop at interaction area
+	if is_moving_toward_friend(world_position):
+		if debug: print("Tess is moving toward friend - will stop at interaction area")
+		# Don't call tess.move_to() - let the friend's interaction area handle stopping
+		return
+	
 	if debug: print("Calling tess.move_to() with: ", world_position)
 	tess.move_to(world_position)
 
@@ -163,6 +175,50 @@ func is_tess_in_interactive_area() -> bool:
 	for area in interactive_areas:
 		if area.player_has:  # Assuming your areas have this variable
 			return true
+	return false
+
+func is_click_on_dialogue_choice(click_position: Vector2) -> bool:
+	# Check if the click position is on any dialogue choice UI element
+	var choice_ui_nodes = get_tree().get_nodes_in_group("dialogue_choice_ui")
+	for choice_ui in choice_ui_nodes:
+		if choice_ui.visible and choice_ui.is_showing:
+			# Check if click is within the choice UI bounds
+			var choice_rect = Rect2(choice_ui.global_position, choice_ui.size)
+			if choice_rect.has_point(click_position):
+				if debug: print("Click is within dialogue choice UI bounds")
+				return true
+			
+			# Also check individual choice buttons
+			if choice_ui.has_method("get_choice_buttons"):
+				var buttons = choice_ui.get_choice_buttons()
+				for button in buttons:
+					var button_rect = Rect2(button.global_position, button.size)
+					if button_rect.has_point(click_position):
+						if debug: print("Click is on dialogue choice button")
+						return true
+	
+	return false
+
+func is_moving_toward_friend(target_position: Vector2) -> bool:
+	# Check if the target position overlaps with the friend's collision areas
+	var friend_nodes = get_tree().get_nodes_in_group("Friend")
+	if friend_nodes.size() > 0:
+		var friend = friend_nodes[0]
+		
+		# Check if target position overlaps with friend's collision shapes
+		var space_state = get_viewport().world_2d.direct_space_state
+		var query = PhysicsPointQueryParameters2D.new()
+		query.position = target_position
+		query.collision_mask = 2  # Friend's collision layer
+		
+		var results = space_state.intersect_point(query)
+		for result in results:
+			var collider = result.collider
+			# Check if this collider belongs to the friend
+			if collider.get_parent() == friend or collider == friend:
+				if debug: print("Target position overlaps with friend's collision area")
+				return true
+	
 	return false
 
 func is_position_over_interactive_area(world_pos: Vector2) -> bool:

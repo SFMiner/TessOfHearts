@@ -209,6 +209,9 @@ func hide_choices() -> void:
 	
 	is_showing = false
 
+func get_choice_buttons() -> Array[Button]:
+	return choice_buttons
+
 func _on_choice_selected(choice_key: String) -> void:
 	print("=== CHOICE SELECTED ===")
 	print("Choice key: ", choice_key)
