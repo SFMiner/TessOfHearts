@@ -71,18 +71,17 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 			sprite.size = image_size
 			sprite.position = Vector2(margin, margin)
 			
-			# Adjust container size to match scaled image
-			var scaled_container_size = scaled_image_size + Vector2(margin * 2, margin * 2)
-			choice_container.custom_minimum_size = scaled_container_size
-			background.size = scaled_container_size
+			# Use the same scaling approach as regular dialogue system
+			choice_container.custom_minimum_size = scaled_image_size + Vector2(margin * 2, margin * 2)
+			background.size = choice_container.custom_minimum_size
 			
 			print("Image size: ", image_size)
 			print("Scaled image size: ", scaled_image_size)
-			print("Container size: ", scaled_container_size)
+			print("Container size: ", choice_container.custom_minimum_size)
 			print("Sprite positioned at: ", sprite.position)
 		else:
-			print("ERROR: Could not load texture: ", texture_path)
-			# Fallback to text
+			print("WARNING: Could not load texture: ", texture_path)
+			# Fallback to simple text for now
 			choice_container.custom_minimum_size = Vector2(200, 50)
 			background.size = Vector2(200, 50)
 		
@@ -93,12 +92,20 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 		# Create button overlay for interaction
 		var button = Button.new()
 		button.flat = true  # Make button transparent
-		button.mouse_filter = Control.MOUSE_FILTER_PASS  # Let clicks pass through
+		button.mouse_filter = Control.MOUSE_FILTER_STOP  # Stop clicks here
 		button.size = choice_container.custom_minimum_size
-		button.z_index = 0  # Draw behind sprite
+		button.z_index = 2  # Draw on top of sprite
+		
+		# Ensure button is properly sized and positioned
+		button.custom_minimum_size = choice_container.custom_minimum_size
+		button.position = Vector2.ZERO
 		
 		# Connect button signal
 		var choice_key = choice.get("key", "")
+		print("Connecting button for choice: ", choice_key)
+		print("Button size: ", button.size)
+		print("Button custom_minimum_size: ", button.custom_minimum_size)
+		print("Choice container size: ", choice_container.custom_minimum_size)
 		button.pressed.connect(func(): _on_choice_selected(choice_key))
 		
 		choice_container.add_child(button)
@@ -134,6 +141,22 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 	
 	is_showing = true
 	print("Dialogue choices displayed")
+	
+	# Add a test button to manually trigger excuse me
+	add_test_button()
+
+func add_test_button():
+	# Create a test button to manually trigger excuse me
+	var test_button = Button.new()
+	test_button.text = "TEST: Excuse Me"
+	test_button.position = Vector2(10, 10)
+	test_button.size = Vector2(150, 30)
+	add_child(test_button)
+	
+	test_button.pressed.connect(func():
+		print("=== TEST BUTTON PRESSED ===")
+		_on_choice_selected("excuse_me")
+	)
 
 func position_choices_above_speaker(speaker_pos: Vector2) -> void:
 	print("=== POSITIONING CHOICES ===")
@@ -189,8 +212,13 @@ func hide_choices() -> void:
 func _on_choice_selected(choice_key: String) -> void:
 	print("=== CHOICE SELECTED ===")
 	print("Choice key: ", choice_key)
+	print("Emitting choice_selected signal with key: ", choice_key)
+	print("Choice UI visible: ", visible)
+	print("Choice container visible: ", choice_container.visible)
 	choice_selected.emit(choice_key)
 	hide_choices()
+
+
 
 func create_button_style(color: Color = Color.WHITE) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()

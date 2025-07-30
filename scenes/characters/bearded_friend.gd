@@ -23,6 +23,15 @@ var is_drifting: bool = false
 var drift_direction: Vector2 = Vector2.ZERO
 var drift_duration: float = 0.0
 
+# Back-to point system for retracing path
+var back_to_points: Array[Vector2] = []
+var last_position: Vector2 = Vector2.ZERO
+var half_screen_distance: float = 0.0
+var is_departing: bool = false
+
+# Navigation system
+var navigation_agent: NavigationAgent2D = null
+
 # Interaction area system
 var tess_in_interaction_area: bool = false
 var interaction_area: Area2D = null
@@ -37,6 +46,18 @@ func _ready() -> void:
 	setup_interaction_area()
 	setup_touch_responder()
 	super._ready()
+	
+	# Initialize back-to point system
+	last_position = global_position
+	half_screen_distance = get_viewport().get_visible_rect().size.x * 0.5  # Half screen width
+	print("Half screen distance: ", half_screen_distance)
+	
+	# Add starting position as first back-to point
+	back_to_points.append(global_position)
+	print("Added starting position as first back-to point: ", global_position)
+	
+	# Setup navigation agent (temporarily disabled)
+	# setup_navigation_agent()
 	
 	# Debug check
 	print("=== FRIEND READY DEBUG ===")
@@ -58,11 +79,61 @@ func create_placeholder_texture(color: Color) -> void:
 	texture.set_image(image)
 	sprite.texture = texture
 
+func track_movement_for_back_to_points() -> void:
+	# Don't track if departing
+	if is_departing:
+		return
+		
+	# Calculate distance moved since last position
+	var distance_moved = global_position.distance_to(last_position)
+	
+	# Debug movement tracking
+	if distance_moved > 10.0:  # Only print for significant movement
+		print("Movement tracking - Distance moved: ", distance_moved, " / ", half_screen_distance)
+	
+	# If we've moved more than half a screen distance, create a back-to point
+	if distance_moved >= half_screen_distance:
+		print("=== CREATING BACK-TO POINT ===")
+		print("Distance moved: ", distance_moved)
+		print("Current position: ", global_position)
+		print("Last position: ", last_position)
+		
+		# Add current position as a back-to point
+		back_to_points.append(global_position)
+		
+		# Keep only the latest two points
+		if back_to_points.size() > 2:
+			back_to_points.remove_at(0)  # Remove oldest point
+		
+		print("Back-to points: ", back_to_points)
+		
+		# Update last position
+		last_position = global_position
+
+func setup_navigation_agent() -> void:
+	print("=== SETTING UP NAVIGATION AGENT ===")
+	
+	# Create navigation agent
+	navigation_agent = NavigationAgent2D.new()
+	add_child(navigation_agent)
+	
+	# Configure navigation agent
+	navigation_agent.radius = 16.0  # Friend's collision radius
+	navigation_agent.target_desired_distance = 5.0  # How close to get to target
+	navigation_agent.path_max_distance = 1000.0  # Maximum path length
+	navigation_agent.path_metadata_flags = 0  # No metadata needed
+	
+	print("Navigation agent created with radius: ", navigation_agent.radius)
+	print("Target desired distance: ", navigation_agent.target_desired_distance)
+
 func _physics_process(delta: float) -> void:
 	# Update timers
 	wander_timer -= delta
 	pause_timer -= delta
 	drift_timer -= delta
+	
+	# Track movement for back-to points
+	track_movement_for_back_to_points()
 	
 	# Handle friend's personality and movement
 	handle_friend_personality()
@@ -72,6 +143,10 @@ func _physics_process(delta: float) -> void:
 		move_towards_target_friend()
 
 func handle_friend_personality() -> void:
+	# Don't handle personality if departing
+	if is_departing:
+		return
+		
 	var tess_pos = GameData.get_tess_position()
 	var tess_is_moving = GameData.is_tess_moving()
 	
@@ -108,6 +183,10 @@ func handle_friend_personality() -> void:
 	follow_tess()
 
 func follow_tess() -> void:
+	# Don't follow if departing
+	if is_departing:
+		return
+	
 	# Get Tess's current position
 	var tess_pos = GameData.get_tess_position()
 	
@@ -121,10 +200,15 @@ func follow_tess() -> void:
 	
 	# Move towards Tess's position
 	var distance_to_tess = global_position.distance_to(tess_pos)
-	if distance_to_tess > 50.0:  # Only move if more than 50 pixels away (increased minimum distance)
+	if distance_to_tess > 50.0 and distance_to_tess < half_screen_distance:  # Only move if within reasonable range
 		target_position = tess_pos
 		is_moving = true
 		if debug: print("Friend moving to Tess at: ", tess_pos, " (distance: ", distance_to_tess, ")")
+	elif distance_to_tess >= half_screen_distance:
+		# Too far away, stop following
+		is_moving = false
+		velocity = Vector2.ZERO
+		if debug: print("Friend stopped following - too far away (distance: ", distance_to_tess, ")")
 	else:
 		# Within reasonable distance, still move but with natural drift
 		target_position = tess_pos
@@ -141,9 +225,17 @@ func is_colliding_with_tess() -> bool:
 func move_towards_target_friend() -> void:
 	# Friend-specific movement without energy costs
 	var distance = global_position.distance_to(target_position)
+	
+	# Debug departure movement
+	if is_departing:
+		print("Friend departing - Distance to target: ", distance, " Target: ", target_position, " Position: ", global_position)
+	
 	if distance > 5.0:
-		var direction = (target_position - global_position).normalized()
+		var direction: Vector2
 		var speed_multiplier = 1.0
+		
+		# Direct movement (temporarily remove navigation to fix syntax error)
+		direction = (target_position - global_position).normalized()
 		
 		# Reduce speed as we get closer to Tess (smoother following)
 		var tess_pos = GameData.get_tess_position()
@@ -153,8 +245,8 @@ func move_towards_target_friend() -> void:
 			speed_multiplier *= speed_factor
 			if debug: print("Friend speed factor: ", speed_factor, " (distance: ", distance_to_tess, ")")
 		
-		# Apply drift if currently drifting
-		if is_drifting:
+		# Apply drift if currently drifting (only when following, not departing)
+		if is_drifting and not is_departing:
 			var original_direction = direction
 			# Add drift direction to create sustained path variation
 			direction = (direction + drift_direction * 0.5).normalized()  # 50% drift influence
@@ -171,6 +263,10 @@ func move_towards_target_friend() -> void:
 		# Use base movement speed with potential speed multiplier
 		velocity = direction * movement_speed * speed_multiplier
 		
+		# Debug departure velocity
+		if is_departing:
+			print("Friend departure velocity: ", velocity, " Speed: ", movement_speed, " Multiplier: ", speed_multiplier)
+		
 		# Handle animations if available
 		if anim:
 			if velocity == Vector2.ZERO:
@@ -184,11 +280,20 @@ func move_towards_target_friend() -> void:
 		
 		# Move the character
 		move_and_slide()
+		
+		# Debug stuck detection for departure
+		if is_departing and velocity.length() > 0.1:
+			print("Friend moving with velocity: ", velocity, " Position: ", global_position)
 	else:
 		# Reached target
 		global_position = target_position
 		velocity = Vector2.ZERO
 		is_moving = false
+		
+		# Debug target reached
+		if is_departing:
+			print("Friend reached departure target!")
+			is_departing = false
 
 func _on_character_touched(position: Vector2) -> void:
 	print("=== FRIEND CHARACTER TOUCHED DEBUG ===")
@@ -364,6 +469,116 @@ func _on_interaction_area_body_exited(body: Node2D) -> void:
 	else:
 		print("Body exited interaction area: ", body.name, " (not Tess)")
 
+func depart_from_screen() -> void:
+	print("=== FRIEND DEPARTING FROM SCREEN ===")
+	print("Friend position: ", global_position)
+	print("Friend visible: ", visible)
+	print("Back-to points available: ", back_to_points.size())
+	
+	# Stop all current behaviors
+	is_wandering = false
+	is_paused = false
+	is_drifting = false
+	is_moving = false
+	is_departing = true
+	velocity = Vector2.ZERO
+	
+	# Set a flag to prevent normal following behavior
+	is_departing = true
+	
+	# Determine departure target using back-to point system
+	var departure_target = determine_departure_target()
+	print("Departure target: ", departure_target)
+	
+	# Move towards the departure target
+	target_position = departure_target
+	is_moving = true
+	print("Friend is now departing to: ", departure_target)
+	print("Friend is_departing: ", is_departing)
+	
+	# Set a timer to hide the friend when they reach the target
+	var departure_timer = get_tree().create_timer(10.0)  # 10 seconds max (increased from 5)
+	departure_timer.timeout.connect(func(): 
+		if is_moving and is_departing:
+			print("Friend departure timeout - hiding friend")
+			print("Final position: ", global_position)
+			print("Target was: ", departure_target)
+			print("Distance to target: ", global_position.distance_to(departure_target))
+			
+			# If we're close enough to target, consider it reached
+			if global_position.distance_to(departure_target) < 50.0:
+				print("Friend close enough to target, considering reached")
+				is_departing = false
+				is_moving = false
+			else:
+				print("Friend too far from target, hiding")
+				visible = false
+				is_moving = false
+				is_departing = false
+	)
+
+func determine_departure_target() -> Vector2:
+	print("=== DETERMINING DEPARTURE TARGET ===")
+	print("Back-to points: ", back_to_points)
+	print("Back-to points size: ", back_to_points.size())
+	
+	# Debug each back-to point
+	for i in range(back_to_points.size()):
+		print("Back-to point ", i, ": ", back_to_points[i])
+	
+	# If we have back-to points, use the less recent one (first in array)
+	if back_to_points.size() >= 2:
+		var back_to_target = back_to_points[0]  # Less recent point
+		print("Using back-to point (retracing path): ", back_to_target)
+		print("Current position: ", global_position)
+		print("Distance to back-to point: ", global_position.distance_to(back_to_target))
+		return back_to_target
+	elif back_to_points.size() == 1:
+		var back_to_target = back_to_points[0]  # Only one point
+		print("Using single back-to point: ", back_to_target)
+		print("Current position: ", global_position)
+		print("Distance to back-to point: ", global_position.distance_to(back_to_target))
+		return back_to_target
+	else:
+		# No back-to points available, fall back to edge-based departure
+		print("No back-to points available, using edge-based departure")
+		return determine_edge_departure_target()
+
+func determine_edge_departure_target() -> Vector2:
+	print("=== DETERMINING EDGE DEPARTURE TARGET ===")
+	
+	# Get viewport size
+	var viewport_size = get_viewport().get_visible_rect().size
+	
+	# Calculate distances to each edge
+	var distance_to_left = global_position.x
+	var distance_to_right = viewport_size.x - global_position.x
+	var distance_to_top = global_position.y
+	var distance_to_bottom = viewport_size.y - global_position.y
+	
+	print("Current position: ", global_position)
+	print("Viewport size: ", viewport_size)
+	print("Distance to left: ", distance_to_left)
+	print("Distance to right: ", distance_to_right)
+	print("Distance to top: ", distance_to_top)
+	print("Distance to bottom: ", distance_to_bottom)
+	
+	# Find the closest edge
+	var min_distance = min(distance_to_left, distance_to_right, distance_to_top, distance_to_bottom)
+	
+	var off_screen_target: Vector2
+	if min_distance == distance_to_left:
+		off_screen_target = Vector2(-100, global_position.y)
+	elif min_distance == distance_to_right:
+		off_screen_target = Vector2(viewport_size.x + 100, global_position.y)
+	elif min_distance == distance_to_top:
+		off_screen_target = Vector2(global_position.x, -100)
+	else:
+		off_screen_target = Vector2(global_position.x, viewport_size.y + 100)
+	
+	print("Edge departure target: ", off_screen_target)
+	return off_screen_target
+
 func _on_touched(position: Vector2) -> void:
 	print("=== FRIEND _ON_TOUCHED DEBUG ===")
 	print("Position: ", position)
@@ -397,9 +612,10 @@ func _on_touched(position: Vector2) -> void:
 		# Show bearded friend's dialogue first
 		var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 		if dialogue_system:
-			# Use bearded friend's position for his dialogue
+			# Use DialoguePoint as the speaker node for dialogue positioning
+			var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
 			var friend_background_color = Color(0.73, 0.94, 0.96, 0.9)  # Light cyan background
-			dialogue_system.show_dialogue_manual("friend_hey_there", global_position, friend_background_color)
+			dialogue_system.show_dialogue("friend_hey_there", dialogue_point, friend_background_color, 0.25)
 			
 			# Wait a moment, then have Tess show her dialogue choices
 			await get_tree().create_timer(1.0).timeout
@@ -413,6 +629,7 @@ func _on_touched(position: Vector2) -> void:
 						{"text": "Eat cookies with me", "key": "eat_cookies", "texture": "tess.eat_cookies_with_me"},
 						{"text": "Let's have a drink", "key": "drink_whiskey", "texture": "tess_lets_have_a_drink"},
 						{"text": "Let's have whiskey and cookies", "key": "cookies_and_whiskey", "texture": "tess_lets_have_whiskey_and_cookies"},
+						{"text": "Would you excuse me for a bit?", "key": "excuse_me", "texture": "tess_excuse_me"},
 						{"text": "Never mind.", "key": "never_mind", "texture": "tess_never_mind"}
 					]
 					tess.show_dialogue_choices(choices)

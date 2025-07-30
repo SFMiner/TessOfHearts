@@ -8,6 +8,7 @@ class_name DialogueTrigger
 @export var dialogue_key: String = "tess_what_is_it"
 @export var trigger_once: bool = true
 @export var trigger_distance: float = 100.0
+@export var fade_duration: float = 5.0
 
 var has_triggered: bool = false
 var dialogue_system: Node
@@ -49,8 +50,8 @@ func _on_body_entered(body: Node2D) -> void:
 		print("Dialogue key: ", dialogue_key)
 		print("Speaker position: ", body.global_position)
 		
-		# Show dialogue
-		dialogue_system.show_dialogue(dialogue_key, body.global_position)
+		# Show dialogue positioned at the trigger area (not moving with the character)
+		dialogue_system.show_dialogue(dialogue_key, self, Color(1, 0.98, 0.8, 0.9), 0.2, fade_duration)
 		
 		has_triggered = true
 		

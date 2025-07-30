@@ -75,53 +75,58 @@ func setup_dialogue_container() -> void:
 	
 	print("Manual setup complete - text_display: ", text_display)
 
-func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
+func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0, fade_duration: float = 5.0) -> void:
 	print("=== SHOWING DIALOGUE ===")
 	print("Dialogue key: ", dialogue_key)
-	print("Speaker position: ", speaker_position)
+	print("Speaker node: ", speaker_node.name if speaker_node else "null")
 	
-	# Ensure we have the text display
-	if not text_display:
-		print("ERROR: text_display is null! Trying to find it again...")
-		text_display = dialogue_container.get_node_or_null("HandwrittenLabel")
-		if not text_display:
-			print("ERROR: Still can't find HandwrittenLabel, creating new one")
-			text_display = HandwrittenLabel.new()
-			text_display.name = "HandwrittenLabel"
-			dialogue_container.add_child(text_display)
+	# If no speaker node provided, use the current scene
+	if not speaker_node:
+		speaker_node = get_tree().current_scene
+	
+	# Create dialogue as child of speaker
+	var dialogue_container = Control.new()
+	dialogue_container.name = "DialogueContainer"
+	speaker_node.add_child(dialogue_container)
+	
+	# Create background
+	var background = ColorRect.new()
+	background.name = "Background"
+	background.color = background_color
+	dialogue_container.add_child(background)
+	
+	# Create text display
+	var text_display = HandwrittenLabel.new()
+	text_display.name = "HandwrittenLabel"
+	dialogue_container.add_child(text_display)
 	
 	# Set the handwritten text
-	if text_display:
-		print("text_display found, setting text...")
-		text_display.set_handwritten_text("dialogue", dialogue_key)
-		
-		# Use the HandwrittenLabel's size (which includes margins) and scale it down
-		var label_size = text_display.custom_minimum_size
-		var scaled_size = label_size * 0.5  # Scale to half size
-		print("HandwrittenLabel size: ", label_size)
-		print("Scaled size: ", scaled_size)
-		
-		# Resize the dialogue container to match the scaled label size
-		dialogue_container.size = scaled_size
-		print("Resized dialogue container to: ", dialogue_container.size)
-		
-		# Also resize the background to match
-		if background:
-			background.size = scaled_size
-			background.color = background_color
-			print("Resized background to: ", background.size)
-			print("Set background color to: ", background_color)
-		
-		# Scale the text display to match
-		text_display.scale = Vector2(0.5, 0.5)
-		print("Scaled text display to: ", text_display.scale)
-	else:
-		print("ERROR: text_display is still null!")
-		return
+	text_display.set_handwritten_text("dialogue", dialogue_key)
 	
-	# Position near speaker
-	if speaker_position != Vector2.ZERO:
-		position_dialogue_near_speaker(speaker_position)
+	# Use the HandwrittenLabel's size with scaling
+	var label_size = text_display.custom_minimum_size
+	var scaled_size = label_size * scale_factor
+	print("HandwrittenLabel size: ", label_size)
+	print("Scale factor: ", scale_factor)
+	print("Scaled size: ", scaled_size)
+	
+	# Resize the dialogue container to match the scaled label size
+	dialogue_container.size = scaled_size
+	print("Resized dialogue container to: ", dialogue_container.size)
+	
+	# Also resize the background to match
+	background.size = scaled_size
+	print("Resized background to: ", background.size)
+	
+	# Scale the text display
+	text_display.scale = Vector2(scale_factor, scale_factor)
+	print("Text display scale: ", text_display.scale)
+	
+	# Position dialogue above the speaker
+	dialogue_container.position = Vector2(
+		-(scaled_size.x / 2),  # Center horizontally on speaker
+		-scaled_size.y - 20    # Position above speaker
+	)
 	
 	# Show with animation
 	dialogue_container.visible = true
@@ -130,11 +135,12 @@ func show_dialogue(dialogue_key: String, speaker_position: Vector2 = Vector2.ZER
 	var tween = create_tween()
 	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
-	is_showing = true
-	
-	# Auto-hide after a few seconds (only for regular dialogue, not choice dialogue)
-	if not choice_ui or not choice_ui.is_showing:
-		get_tree().create_timer(3.0).timeout.connect(hide_dialogue)
+	# Auto-hide after specified duration (for all dialogue except choice dialogue)
+	get_tree().create_timer(fade_duration).timeout.connect(func(): 
+		var hide_tween = create_tween()
+		hide_tween.tween_property(dialogue_container, "modulate", Color.TRANSPARENT, 0.3)
+		hide_tween.tween_callback(func(): dialogue_container.queue_free())
+	)
 	
 	print("Dialogue display complete")
 
@@ -158,10 +164,9 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	var dialogue_size = dialogue_container.size
 	
 	# Convert world position to viewport position
-	var camera = get_viewport().get_camera_2d()
 	var viewport_pos = speaker_pos
-	if camera:
-		viewport_pos = camera.get_screen_center_position()
+	var canvas_transform = get_viewport().get_canvas_transform()
+	viewport_pos = canvas_transform * speaker_pos
 	
 	# Position near the actual speaker
 	var dialogue_pos = Vector2(
@@ -183,7 +188,7 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	dialogue_pos.y = clamp(dialogue_pos.y, 0, viewport_size.y - dialogue_size.y)
 	
 	# Set global position of the dialogue container
-	dialogue_container.global_position = dialogue_pos
+	dialogue_container.global_position = dialogue_pos 
 	
 	# Make sure the HandwrittenLabel is properly positioned within the container
 	if text_display:
@@ -214,71 +219,78 @@ func say_dialogue(dialogue_key: String) -> void:
 		for child in get_tree().current_scene.get_children():
 			print("  - ", child.name, " (", child.get_class(), ")")
 
-func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO, choice_speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
+func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_node: Node = null, choice_speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
 	print("=== SHOWING DIALOGUE WITH CHOICES ===")
 	print("Dialogue key: ", dialogue_key)
 	print("Number of choices: ", choices.size())
 	
 	# Show the dialogue first (without auto-hide)
-	show_dialogue_manual(dialogue_key, speaker_position, background_color)
+	show_dialogue_manual(dialogue_key, speaker_node, background_color)
 	
 	# Wait a moment, then show choices
 	await get_tree().create_timer(1.0).timeout
 	
 	if choice_ui:
-		# Use choice_speaker_position if provided, otherwise fall back to speaker_position
-		var choice_pos = choice_speaker_position if choice_speaker_position != Vector2.ZERO else speaker_position
+		# Use choice_speaker_position if provided, otherwise use speaker_node position
+		var choice_pos = choice_speaker_position
+		if choice_pos == Vector2.ZERO and speaker_node:
+			choice_pos = speaker_node.global_position
 		choice_ui.show_choices(choices, choice_pos)
 	else:
 		print("ERROR: Choice UI not available")
 
-func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
+func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0) -> void:
 	print("=== SHOWING DIALOGUE MANUAL ===")
 	print("Dialogue key: ", dialogue_key)
-	print("Speaker position: ", speaker_position)
+	print("Speaker node: ", speaker_node.name if speaker_node else "null")
 	
-	# Ensure we have the text display
-	if not text_display:
-		print("ERROR: text_display is null! Trying to find it again...")
-		text_display = dialogue_container.get_node_or_null("HandwrittenLabel")
-		if not text_display:
-			print("ERROR: Still can't find HandwrittenLabel, creating new one")
-			text_display = HandwrittenLabel.new()
-			text_display.name = "HandwrittenLabel"
-			dialogue_container.add_child(text_display)
+	# If no speaker node provided, use the current scene
+	if not speaker_node:
+		speaker_node = get_tree().current_scene
+	
+	# Create dialogue as child of speaker
+	var dialogue_container = Control.new()
+	dialogue_container.name = "DialogueContainer"
+	speaker_node.add_child(dialogue_container)
+	
+	# Create background
+	var background = ColorRect.new()
+	background.name = "Background"
+	background.color = background_color
+	dialogue_container.add_child(background)
+	
+	# Create text display
+	var text_display = HandwrittenLabel.new()
+	text_display.name = "HandwrittenLabel"
+	dialogue_container.add_child(text_display)
 	
 	# Set the handwritten text
-	if text_display:
-		print("text_display found, setting text...")
-		text_display.set_handwritten_text("dialogue", dialogue_key)
-		
-		# Use the HandwrittenLabel's size (which includes margins) and scale it down
-		var label_size = text_display.custom_minimum_size
-		var scaled_size = label_size * 0.5  # Scale to half size
-		print("HandwrittenLabel size: ", label_size)
-		print("Scaled size: ", scaled_size)
-		
-		# Resize the dialogue container to match the scaled label size
-		dialogue_container.size = scaled_size
-		print("Resized dialogue container to: ", dialogue_container.size)
-		
-		# Also resize the background to match
-		if background:
-			background.size = scaled_size
-			background.color = background_color
-			print("Resized background to: ", background.size)
-			print("Set background color to: ", background_color)
-		
-		# Scale the text display to match
-		text_display.scale = Vector2(0.5, 0.5)
-		print("Scaled text display to: ", text_display.scale)
-	else:
-		print("ERROR: text_display is still null!")
-		return
+	text_display.set_handwritten_text("dialogue", dialogue_key)
 	
-	# Position near speaker
-	if speaker_position != Vector2.ZERO:
-		position_dialogue_near_speaker(speaker_position)
+	# Use the HandwrittenLabel's size with scaling
+	var label_size = text_display.custom_minimum_size
+	var scaled_size = label_size * scale_factor
+	print("HandwrittenLabel size: ", label_size)
+	print("Scale factor: ", scale_factor)
+	print("Scaled size: ", scaled_size)
+	
+	# Resize the dialogue container to match the scaled label size
+	dialogue_container.size = scaled_size
+	print("Resized dialogue container to: ", dialogue_container.size)
+	
+	# Also resize the background to match
+	background.size = scaled_size
+	print("Resized background to: ", background.size)
+	
+	# Scale the text display
+	text_display.scale = Vector2(scale_factor, scale_factor)
+	print("Text display scale: ", text_display.scale)
+	
+	# Position dialogue above the speaker
+	dialogue_container.position = Vector2(
+		-(scaled_size.x / 2),  # Center horizontally on speaker
+		-scaled_size.y - 20    # Position above speaker
+	)
 	
 	# Show with animation
 	dialogue_container.visible = true
@@ -287,13 +299,12 @@ func show_dialogue_manual(dialogue_key: String, speaker_position: Vector2 = Vect
 	var tween = create_tween()
 	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
-	is_showing = true
-	
 	print("Dialogue display complete (manual - no auto-hide)")
 
 func _on_choice_selected(choice_key: String) -> void:
 	print("=== DIALOGUE CHOICE SELECTED ===")
 	print("Choice key: ", choice_key)
+	print("Choice UI found: ", choice_ui != null)
 	
 	# Hide the dialogue when a choice is made
 	hide_dialogue()
@@ -310,6 +321,9 @@ func _on_choice_selected(choice_key: String) -> void:
 			print("Tess chose cookies and whiskey")
 			trigger_cookie_effects()
 			trigger_whiskey_effects()
+		"excuse_me":
+			print("Tess chose to excuse the friend")
+			trigger_excuse_friend_effects()
 		"never_mind":
 			print("Tess chose to do nothing")
 		_:
@@ -334,3 +348,29 @@ func trigger_whiskey_effects() -> void:
 	# TODO: Add healing effects to Tess
 	# For now, just print the effect
 	print("Tess feels warmed by the whiskey")
+
+func trigger_excuse_friend_effects() -> void:
+	print("=== TRIGGERING EXCUSE FRIEND EFFECTS ===")
+	
+	# Find the friend and send them off screen
+	var friend_nodes = get_tree().get_nodes_in_group("Friend")
+	print("Found ", friend_nodes.size(), " friend nodes")
+	
+	if friend_nodes.size() > 0:
+		var friend = friend_nodes[0]
+		print("Friend name: ", friend.name)
+		print("Friend has depart_from_screen method: ", friend.has_method("depart_from_screen"))
+		
+		if friend.has_method("depart_from_screen"):
+			friend.depart_from_screen()
+			print("Friend is departing from screen")
+		else:
+			print("ERROR: Friend doesn't have depart_from_screen method")
+	else:
+		print("ERROR: No friend found in scene")
+		print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
+
+# Test function to manually trigger excuse me
+func test_excuse_me() -> void:
+	print("=== TESTING EXCUSE ME MANUALLY ===")
+	trigger_excuse_friend_effects()
