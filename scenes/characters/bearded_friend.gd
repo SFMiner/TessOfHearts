@@ -4,7 +4,7 @@
 
 extends Character
 
-const scr_debug : bool = true
+const scr_debug : bool = false
 var debug : bool
 
 # Friend personality variables
@@ -50,11 +50,11 @@ func _ready() -> void:
 	# Initialize back-to point system
 	last_position = global_position
 	half_screen_distance = get_viewport().get_visible_rect().size.x * 0.5  # Half screen width
-	print("Half screen distance: ", half_screen_distance)
+	if debug: print("Half screen distance: ", half_screen_distance)
 	
 	# Add starting position as first back-to point
 	back_to_points.append(global_position)
-	print("Added starting position as first back-to point: ", global_position)
+	if debug: print("Added starting position as first back-to point: ", global_position)
 	
 	# Setup navigation agent (temporarily disabled)
 	# setup_navigation_agent()
@@ -111,7 +111,7 @@ func track_movement_for_back_to_points() -> void:
 		last_position = global_position
 
 func setup_navigation_agent() -> void:
-	print("=== SETTING UP NAVIGATION AGENT ===")
+	if debug: print("=== SETTING UP NAVIGATION AGENT ===")
 	
 	# Create navigation agent
 	navigation_agent = NavigationAgent2D.new()
@@ -123,8 +123,8 @@ func setup_navigation_agent() -> void:
 	navigation_agent.path_max_distance = 1000.0  # Maximum path length
 	navigation_agent.path_metadata_flags = 0  # No metadata needed
 	
-	print("Navigation agent created with radius: ", navigation_agent.radius)
-	print("Target desired distance: ", navigation_agent.target_desired_distance)
+	if debug: print("Navigation agent created with radius: ", navigation_agent.radius)
+	if debug: print("Target desired distance: ", navigation_agent.target_desired_distance)
 
 func _physics_process(delta: float) -> void:
 	# Update timers
@@ -227,8 +227,9 @@ func move_towards_target_friend() -> void:
 	var distance = global_position.distance_to(target_position)
 	
 	# Debug departure movement
-	if is_departing:
-		print("Friend departing - Distance to target: ", distance, " Target: ", target_position, " Position: ", global_position)
+	if debug:
+		if is_departing:
+			print("Friend departing - Distance to target: ", distance, " Target: ", target_position, " Position: ", global_position)
 	
 	if distance > 5.0:
 		var direction: Vector2
@@ -264,8 +265,9 @@ func move_towards_target_friend() -> void:
 		velocity = direction * movement_speed * speed_multiplier
 		
 		# Debug departure velocity
-		if is_departing:
-			print("Friend departure velocity: ", velocity, " Speed: ", movement_speed, " Multiplier: ", speed_multiplier)
+		if debug:
+			if is_departing:
+				print("Friend departure velocity: ", velocity, " Speed: ", movement_speed, " Multiplier: ", speed_multiplier)
 		
 		# Handle animations if available
 		if anim:
@@ -282,8 +284,9 @@ func move_towards_target_friend() -> void:
 		move_and_slide()
 		
 		# Debug stuck detection for departure
-		if is_departing and velocity.length() > 0.1:
-			print("Friend moving with velocity: ", velocity, " Position: ", global_position)
+		if debug:
+			if is_departing and velocity.length() > 0.1:
+				print("Friend moving with velocity: ", velocity, " Position: ", global_position)
 	else:
 		# Reached target
 		global_position = target_position
@@ -292,18 +295,19 @@ func move_towards_target_friend() -> void:
 		
 		# Debug target reached
 		if is_departing:
-			print("Friend reached departure target!")
+			if debug: print("Friend reached departure target!")
 			is_departing = false
 
 func _on_character_touched(position: Vector2) -> void:
-	print("=== FRIEND CHARACTER TOUCHED DEBUG ===")
-	print("Position: ", position)
-	print("Tess in interaction area: ", tess_in_interaction_area)
-	print("Interaction area exists: ", interaction_area != null)
-	
+	if debug: 
+		print("=== FRIEND CHARACTER TOUCHED DEBUG ===")
+		print("Position: ", position)
+		print("Tess in interaction area: ", tess_in_interaction_area)
+		print("Interaction area exists: ", interaction_area != null)
+		
 	# Check if Tess is in interaction area
 	if tess_in_interaction_area:
-		print("BeardedFriend: 'Hey there, friend.'")
+		if debug: print("BeardedFriend: 'Hey there, friend.'")
 		say_dialogue("friend_hey_there")
 		if debug: print("Friend interaction - Tess in interaction area")
 		# DO NOT call super - prevent any movement
@@ -380,15 +384,15 @@ func setup_touch_responder() -> void:
 	# Also check TouchArea setup
 	var touch_area = $TouchArea
 	if touch_area:
-		print("TouchArea found - collision_layer: ", touch_area.collision_layer, " collision_mask: ", touch_area.collision_mask)
-		print("TouchArea children: ", touch_area.get_child_count())
+		if debug: print("TouchArea found - collision_layer: ", touch_area.collision_layer, " collision_mask: ", touch_area.collision_mask)
+		if debug: print("TouchArea children: ", touch_area.get_child_count())
 		for child in touch_area.get_children():
-			print("  - ", child.name, " (", child.get_class(), ")")
+			if debug: print("  - ", child.name, " (", child.get_class(), ")")
 	else:
-		print("ERROR: TouchArea not found")
+		if debug: print("ERROR: TouchArea not found")
 
 func setup_interaction_area() -> void:
-	print("=== SETTING UP FRIEND INTERACTION AREA ===")
+	if debug: print("=== SETTING UP FRIEND INTERACTION AREA ===")
 	
 	# Create interaction area
 	interaction_area = Area2D.new()
@@ -403,32 +407,33 @@ func setup_interaction_area() -> void:
 	shape.size = Vector2(100, 100)  # 100x100 pixel interaction area
 	collision_shape.shape = shape
 	interaction_area.add_child(collision_shape)
-	print("Added collision shape with size: ", shape.size)
+	if debug: print("Added collision shape with size: ", shape.size)
 	
 	# Connect signals
 	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
 	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
-	print("Connected interaction area signals")
+	if debug: print("Connected interaction area signals")
 	
 	# Add to interactable_areas group for input manager
 	interaction_area.add_to_group("interactable_areas")
-	print("Added to interactable_areas group")
+	if debug: print("Added to interactable_areas group")
 	
 	# Set collision layer/mask to detect Tess
 	interaction_area.collision_layer = 0  # Don't collide with anything
 	interaction_area.collision_mask = 4   # Detect layer 2 (2^2 = 4) - Tess's layer
-	print("Set collision layer: ", interaction_area.collision_layer, " mask: ", interaction_area.collision_mask)
+	if debug: print("Set collision layer: ", interaction_area.collision_layer, " mask: ", interaction_area.collision_mask)
 	
 	# Debug: Check what Tess's collision layer actually is
 	var tess_nodes = get_tree().get_nodes_in_group("Tess")
 	if tess_nodes.size() > 0:
 		var tess = tess_nodes[0]
-		print("Tess collision_layer: ", tess.collision_layer)
-		print("Tess collision_mask: ", tess.collision_mask)
-		print("Tess groups: ", tess.get_groups())
-	
-	if debug: print("Friend interaction area setup complete")
-	print("=== INTERACTION AREA SETUP COMPLETE ===")
+		if debug: 
+			print("Tess collision_layer: ", tess.collision_layer)
+			print("Tess collision_mask: ", tess.collision_mask)
+			print("Tess groups: ", tess.get_groups())
+		
+			print("Friend interaction area setup complete")
+			print("=== INTERACTION AREA SETUP COMPLETE ===")
 	
 	# Check if Tess is already in the interaction area
 	await get_tree().process_frame  # Wait a frame for physics to update
@@ -436,45 +441,50 @@ func setup_interaction_area() -> void:
 	if tess_nodes_check.size() > 0:
 		var tess_check = tess_nodes_check[0]
 		var distance = global_position.distance_to(tess_check.global_position)
-		print("Tess distance after setup: ", distance)
+		if debug: print("Tess distance after setup: ", distance)
 		if distance < 50:  # Within interaction area
-			print("Tess is already within interaction area - manually setting tess_in_interaction_area")
+			if debug: print("Tess is already within interaction area - manually setting tess_in_interaction_area")
 			tess_in_interaction_area = true
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:
-	print("=== INTERACTION AREA BODY ENTERED ===")
-	print("Body name: ", body.name)
-	print("Body class: ", body.get_class())
-	print("Body groups: ", body.get_groups())
-	print("Body is in Tess group: ", body.is_in_group("Tess"))
+	if debug: 
+		print("=== INTERACTION AREA BODY ENTERED ===")
+		print("Body name: ", body.name)
+		print("Body class: ", body.get_class())
+		print("Body groups: ", body.get_groups())
+		print("Body is in Tess group: ", body.is_in_group("Tess"))
 	
 	if body.is_in_group("Tess"):
 		tess_in_interaction_area = true
-		print("=== INTERACTION AREA DEBUG ===")
-		print("Tess entered friend interaction area")
-		print("tess_in_interaction_area set to: ", tess_in_interaction_area)
+		if debug: 
+			print("=== INTERACTION AREA DEBUG ===")
+			print("Tess entered friend interaction area")
+			print("tess_in_interaction_area set to: ", tess_in_interaction_area)
 	else:
-		print("Body entered interaction area: ", body.name, " (not Tess)")
+		if debug: print("Body entered interaction area: ", body.name, " (not Tess)")
 
 func _on_interaction_area_body_exited(body: Node2D) -> void:
-	print("=== INTERACTION AREA BODY EXITED ===")
-	print("Body name: ", body.name)
-	print("Body is in Tess group: ", body.is_in_group("Tess"))
-	
+	if debug: 	
+		print("=== INTERACTION AREA BODY EXITED ===")
+		print("Body name: ", body.name)
+		print("Body is in Tess group: ", body.is_in_group("Tess"))
+		
 	if body.is_in_group("Tess"):
 		tess_in_interaction_area = false
-		print("=== INTERACTION AREA DEBUG ===")
-		print("Tess exited friend interaction area")
-		print("tess_in_interaction_area set to: ", tess_in_interaction_area)
+		if debug: 
+			print("=== INTERACTION AREA DEBUG ===")
+			print("Tess exited friend interaction area")
+			print("tess_in_interaction_area set to: ", tess_in_interaction_area)
 	else:
-		print("Body exited interaction area: ", body.name, " (not Tess)")
+		if debug: print("Body exited interaction area: ", body.name, " (not Tess)")
 
 func depart_from_screen() -> void:
-	print("=== FRIEND DEPARTING FROM SCREEN ===")
-	print("Friend position: ", global_position)
-	print("Friend visible: ", visible)
-	print("Back-to points available: ", back_to_points.size())
-	
+	if debug: 
+		print("=== FRIEND DEPARTING FROM SCREEN ===")
+		print("Friend position: ", global_position)
+		print("Friend visible: ", visible)
+		print("Back-to points available: ", back_to_points.size())
+		
 	# Stop all current behaviors
 	is_wandering = false
 	is_paused = false
@@ -488,26 +498,28 @@ func depart_from_screen() -> void:
 	
 	# Determine departure target using back-to point system
 	var departure_target = determine_departure_target()
-	print("Departure target: ", departure_target)
+	if debug: print("Departure target: ", departure_target)
 	
 	# Move towards the departure target
 	target_position = departure_target
 	is_moving = true
-	print("Friend is now departing to: ", departure_target)
-	print("Friend is_departing: ", is_departing)
+	if debug: 
+		print("Friend is now departing to: ", departure_target)
+		print("Friend is_departing: ", is_departing)
 	
 	# Set a timer to hide the friend when they reach the target
 	var departure_timer = get_tree().create_timer(10.0)  # 10 seconds max (increased from 5)
 	departure_timer.timeout.connect(func(): 
 		if is_moving and is_departing:
-			print("Friend departure timeout - hiding friend")
-			print("Final position: ", global_position)
-			print("Target was: ", departure_target)
-			print("Distance to target: ", global_position.distance_to(departure_target))
-			
+			if debug: 
+				print("Friend departure timeout - hiding friend")
+				print("Final position: ", global_position)
+				print("Target was: ", departure_target)
+				print("Distance to target: ", global_position.distance_to(departure_target))
+				
 			# If we're close enough to target, consider it reached
 			if global_position.distance_to(departure_target) < 50.0:
-				print("Friend close enough to target, considering reached")
+				if debug: print("Friend close enough to target, considering reached")
 				is_departing = false
 				is_moving = false
 			else:
@@ -518,34 +530,37 @@ func depart_from_screen() -> void:
 	)
 
 func determine_departure_target() -> Vector2:
-	print("=== DETERMINING DEPARTURE TARGET ===")
-	print("Back-to points: ", back_to_points)
-	print("Back-to points size: ", back_to_points.size())
-	
+	if debug: 
+		print("=== DETERMINING DEPARTURE TARGET ===")
+		print("Back-to points: ", back_to_points)
+		print("Back-to points size: ", back_to_points.size())
+		
 	# Debug each back-to point
 	for i in range(back_to_points.size()):
-		print("Back-to point ", i, ": ", back_to_points[i])
+		if debug: print("Back-to point ", i, ": ", back_to_points[i])
 	
 	# If we have back-to points, use the less recent one (first in array)
 	if back_to_points.size() >= 2:
 		var back_to_target = back_to_points[0]  # Less recent point
-		print("Using back-to point (retracing path): ", back_to_target)
-		print("Current position: ", global_position)
-		print("Distance to back-to point: ", global_position.distance_to(back_to_target))
+		if debug: 
+			print("Using back-to point (retracing path): ", back_to_target)
+			print("Current position: ", global_position)
+			print("Distance to back-to point: ", global_position.distance_to(back_to_target))
 		return back_to_target
 	elif back_to_points.size() == 1:
 		var back_to_target = back_to_points[0]  # Only one point
-		print("Using single back-to point: ", back_to_target)
-		print("Current position: ", global_position)
-		print("Distance to back-to point: ", global_position.distance_to(back_to_target))
+		if debug: 
+			print("Using single back-to point: ", back_to_target)
+			print("Current position: ", global_position)
+			print("Distance to back-to point: ", global_position.distance_to(back_to_target))
 		return back_to_target
 	else:
 		# No back-to points available, fall back to edge-based departure
-		print("No back-to points available, using edge-based departure")
+		if debug: print("No back-to points available, using edge-based departure")
 		return determine_edge_departure_target()
 
 func determine_edge_departure_target() -> Vector2:
-	print("=== DETERMINING EDGE DEPARTURE TARGET ===")
+	if debug: print("=== DETERMINING EDGE DEPARTURE TARGET ===")
 	
 	# Get viewport size
 	var viewport_size = get_viewport().get_visible_rect().size
@@ -556,12 +571,13 @@ func determine_edge_departure_target() -> Vector2:
 	var distance_to_top = global_position.y
 	var distance_to_bottom = viewport_size.y - global_position.y
 	
-	print("Current position: ", global_position)
-	print("Viewport size: ", viewport_size)
-	print("Distance to left: ", distance_to_left)
-	print("Distance to right: ", distance_to_right)
-	print("Distance to top: ", distance_to_top)
-	print("Distance to bottom: ", distance_to_bottom)
+	if debug: 
+		print("Current position: ", global_position)
+		print("Viewport size: ", viewport_size)
+		print("Distance to left: ", distance_to_left)
+		print("Distance to right: ", distance_to_right)
+		print("Distance to top: ", distance_to_top)
+		print("Distance to bottom: ", distance_to_bottom)
 	
 	# Find the closest edge
 	var min_distance = min(distance_to_left, distance_to_right, distance_to_top, distance_to_bottom)
@@ -580,22 +596,24 @@ func determine_edge_departure_target() -> Vector2:
 	return off_screen_target
 
 func _on_touched(position: Vector2) -> void:
-	print("=== FRIEND _ON_TOUCHED DEBUG ===")
-	print("Position: ", position)
-	print("Tess in interaction area: ", tess_in_interaction_area)
-	print("Interaction area exists: ", interaction_area != null)
+	if debug: 
+		print("=== FRIEND _ON_TOUCHED DEBUG ===")
+		print("Position: ", position)
+		print("Tess in interaction area: ", tess_in_interaction_area)
+		print("Interaction area exists: ", interaction_area != null)
 	
 	# Debug Tess position and distance
 	var tess_nodes = get_tree().get_nodes_in_group("Tess")
 	if tess_nodes.size() > 0:
 		var tess = tess_nodes[0]
 		var distance = global_position.distance_to(tess.global_position)
-		print("Tess position: ", tess.global_position)
-		print("Friend position: ", global_position)
-		print("Distance to Tess: ", distance)
-		print("Interaction area size: 100x100 pixels")
+		if debug: 
+			print("Tess position: ", tess.global_position)
+			print("Friend position: ", global_position)
+			print("Distance to Tess: ", distance)
+			print("Interaction area size: 100x100 pixels")
 	else:
-		print("No Tess found in scene!")
+		if debug: print("No Tess found in scene!")
 	
 	# Check if Tess is in interaction area (both the stored state and current distance)
 	var tess_nodes_range = get_tree().get_nodes_in_group("Tess")
@@ -604,18 +622,23 @@ func _on_touched(position: Vector2) -> void:
 		var tess_range = tess_nodes_range[0]
 		var distance = global_position.distance_to(tess_range.global_position)
 		tess_in_range = distance < 50  # 50 pixel radius for 100x100 area
-		print("Distance check: ", distance, " < 50 = ", tess_in_range)
+		if debug: print("Distance check: ", distance, " < 50 = ", tess_in_range)
 	
 	if tess_in_interaction_area or tess_in_range:
-		print("BeardedFriend: 'Hey there, friend.'")
+		if debug: print("BeardedFriend: 'Hey there, friend.'")
 		
-		# Show bearded friend's dialogue first
+		# Show bearded friend's dialogue first (randomized response)
 		var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 		if dialogue_system:
 			# Use DialoguePoint as the speaker node for dialogue positioning
 			var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
 			var friend_background_color = Color(0.73, 0.94, 0.96, 0.9)  # Light cyan background
-			dialogue_system.show_dialogue("friend_hey_there", dialogue_point, friend_background_color, 0.25)
+			
+			# Randomize between two possible responses
+			var possible_responses = ["friend_hey_there", "tess_what_is_it"]
+			var random_response = possible_responses[randi() % possible_responses.size()]
+			
+			dialogue_system.show_dialogue(random_response, dialogue_point, friend_background_color, 0.25)
 			
 			# Wait a moment, then have Tess show her dialogue choices
 			await get_tree().create_timer(1.0).timeout
@@ -634,14 +657,15 @@ func _on_touched(position: Vector2) -> void:
 					]
 					tess.show_dialogue_choices(choices)
 				else:
-					print("ERROR: Tess doesn't have show_dialogue_choices method")
+					if debug: print("ERROR: Tess doesn't have show_dialogue_choices method")
 			else:
-				print("ERROR: Tess not found")
+				if debug: print("ERROR: Tess not found")
 		else:
-			print("ERROR: Dialogue system not found")
-			print("Available children: ")
+			if debug: 
+				print("ERROR: Dialogue system not found")
+				print("Available children: ")
 			for child in get_tree().current_scene.get_children():
-				print("  - ", child.name, " (", child.get_class(), ")")
+				if debug: print("  - ", child.name, " (", child.get_class(), ")")
 		
 		if debug: print("Friend interaction - Tess in interaction area")
 		# DO NOT allow movement - return without doing anything

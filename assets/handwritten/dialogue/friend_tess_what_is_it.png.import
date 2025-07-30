@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbde1pa53g23t"
-path="res://.godot/imported/tess_what_is_it.png-db507070d161b67b56842b4acc79ee7e.ctex"
+path="res://.godot/imported/friend_tess_what_is_it.png-f159c06f8e3a59e33292055bbd28e693.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/handwritten/dialogue/tess_what_is_it.png"
-dest_files=["res://.godot/imported/tess_what_is_it.png-db507070d161b67b56842b4acc79ee7e.ctex"]
+source_file="res://assets/handwritten/dialogue/friend_tess_what_is_it.png"
+dest_files=["res://.godot/imported/friend_tess_what_is_it.png-f159c06f8e3a59e33292055bbd28e693.ctex"]
 
 [params]
 

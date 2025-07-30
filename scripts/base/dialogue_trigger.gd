@@ -51,7 +51,7 @@ func _on_body_entered(body: Node2D) -> void:
 		print("Speaker position: ", body.global_position)
 		
 		# Show dialogue positioned at the trigger area (not moving with the character)
-		dialogue_system.show_dialogue(dialogue_key, self, Color(1, 0.98, 0.8, 0.9), 0.2, fade_duration)
+		dialogue_system.show_dialogue(dialogue_key, self, Color(1, 0.98, 0.8, 0.9), 0.25, fade_duration)
 		
 		has_triggered = true
 		
