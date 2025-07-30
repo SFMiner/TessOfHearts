@@ -32,7 +32,8 @@ var handwritten_assets: Dictionary = {
 		"tess_what_is_it": preload("res://assets/handwritten/dialogue/friend_tess_what_is_it.png"),
 		"friend_hey_there": preload("res://assets/handwritten/dialogue/friend_hey_there.png"),
 		"cat_wisdom": preload("res://assets/handwritten/dialogue/cat_wisdom.png"),
-		"still_doesnt_like_ants": preload("res://assets/handwritten/dialogue/still_doesnt_like_ants.png")
+		"still_doesnt_like_ants": preload("res://assets/handwritten/dialogue/still_doesnt_like_ants.png"),
+		"tess_come_over_here": preload("res://assets/handwritten/dialogue/tess_come_over_here.png")
 	},
 	
 	# === MESSAGES (expanded) ===

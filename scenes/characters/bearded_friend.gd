@@ -29,6 +29,7 @@ var last_position: Vector2 = Vector2.ZERO
 var half_screen_distance: float = 0.0
 var is_departing: bool = false
 var has_departed: bool = false
+var is_summoned: bool = false
 
 # Navigation system
 var navigation_agent: NavigationAgent2D = null
@@ -299,8 +300,9 @@ func move_towards_target_friend() -> void:
 		if is_departing:
 			if debug: print("Friend reached departure target!")
 			is_departing = false
-			# Set a flag to prevent following Tess after departure
-			has_departed = true
+					# Set a flag to prevent following Tess after departure
+		has_departed = true
+		is_summoned = false  # Reset summon state when departing
 
 func _on_character_touched(position: Vector2) -> void:
 	if debug: 
@@ -321,6 +323,30 @@ func _on_character_touched(position: Vector2) -> void:
 		if debug: print("Friend touched but Tess not in interaction area - allowing movement")
 		# Call super to allow normal movement behavior
 		super._on_character_touched(position)
+
+func summon_friend() -> void:
+	print("=== SUMMONING FRIEND ===")
+	print("Friend current state - has_departed: ", has_departed, " is_departing: ", is_departing, " is_summoned: ", is_summoned)
+	
+	# Reset departure state
+	has_departed = false
+	is_departing = false
+	is_summoned = true
+	
+	# Get Tess's position
+	var tess_nodes = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess = tess_nodes[0]
+		var tess_position = tess.global_position
+		
+		# Move friend to Tess's position
+		target_position = tess_position
+		is_moving = true
+		
+		print("Friend summoned to Tess at: ", tess_position)
+		print("Friend will now follow Tess again")
+	else:
+		print("ERROR: Tess not found for summoning")
 
 func start_wandering() -> void:
 	is_wandering = true
@@ -625,7 +651,7 @@ func _on_touched(position: Vector2) -> void:
 	if tess_nodes_range.size() > 0:
 		var tess_range = tess_nodes_range[0]
 		var distance = global_position.distance_to(tess_range.global_position)
-		tess_in_range = distance < 50  # 50 pixel radius for 100x100 area
+		tess_in_range = distance < 65  # 65 pixel radius for 100x100 area
 		if debug: print("Distance check: ", distance, " < 50 = ", tess_in_range)
 	
 	if tess_in_interaction_area or tess_in_range:

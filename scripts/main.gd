@@ -214,6 +214,12 @@ func _on_global_touch_started_old(position: Vector2) -> void:
 	print("Tess is_moving: ", tess.is_moving)
 '''
 func _input(event: InputEvent) -> void:
+	# Handle call friend input
+	if event.is_action_pressed("call_friend"):
+		if debug: print("=== CALL FRIEND ACTION DETECTED ===")
+		call_friend()
+		return
+	
 	# Backup input handling if InputManager fails
 	if event is InputEventScreenTouch:
 		if event.pressed:
@@ -252,3 +258,37 @@ func test_simple_movement() -> void:
 		if debug: print("is_moving: ", tess.is_moving)
 	else:
 		if debug: print("ERROR: Tess not found!")
+
+func call_friend() -> void:
+	if debug: print("=== CALLING FRIEND ===")
+
+	var tess = get_tree().get_nodes_in_group("Tess")[0]
+	
+	# Play the call animation
+	tess.anim.play("call_friend")
+	
+	# Wait 1.5 seconds, then show Tess's dialogue
+	await get_tree().create_timer(1.5).timeout
+	tess.call_friend_dialogue()
+	
+	# Wait for animation to complete or timeout after 4 seconds
+	var animation_timer = get_tree().create_timer(4.0)
+	animation_timer.timeout.connect(func():
+		if debug: print("Call animation completed or timed out")
+	)
+	
+	# Wait for either animation to finish or timeout
+	await animation_timer.timeout
+#	tess.anim.play("idle_right")
+	# Find the friend in the scene
+	var friend_nodes = get_tree().get_nodes_in_group("Friend")
+	if friend_nodes.size() > 0:
+		var friend = friend_nodes[0]
+		if friend.has_method("summon_friend"):
+			friend.summon_friend()
+			if debug: print("Friend summoned successfully")
+		else:
+			if debug: print("ERROR: Friend doesn't have summon_friend method")
+	else:
+		if debug: print("ERROR: No friend found in scene")
+		if debug: print("Available groups: ", get_tree().get_nodes_in_group("Friend"))

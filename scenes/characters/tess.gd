@@ -49,8 +49,8 @@ func _on_character_touched(position: Vector2) -> void:
 	say_dialogue("tess_what_is_it")
 	
 func interact():
-	emit_signal("interacted")
-	
+	emit_signal("interacted")	
+
 func set_camera_limits():
 	camera.limit_right = GameData.camera_limit_right
 	camera.limit_bottom = GameData.camera_limit_bottom
@@ -80,3 +80,14 @@ func show_dialogue_choices(choices: Array[Dictionary]) -> void:
 		choice_ui.show_choices(choices, global_position)
 	else:
 		print("ERROR: Choice UI not found")
+
+func call_friend_dialogue() -> void:
+	# Show Tess's dialogue during the call animation
+	var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
+	if dialogue_system:
+		# Use Tess's DialoguePoint for positioning
+		var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
+		var tess_background_color = Color(1, 0.98, 0.8, 0.9)  # Yellowish off-white background
+		dialogue_system.show_dialogue("tess_come_over_here", dialogue_point, tess_background_color, 0.25)
+	else:
+		print("ERROR: Dialogue system not found")

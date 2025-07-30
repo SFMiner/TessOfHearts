@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://d1l80sh4u51vd"]
+[gd_scene load_steps=12 format=3 uid="uid://d1l80sh4u51vd"]
 
 [ext_resource type="Script" uid="uid://bs4fmp38adl2f" path="res://scenes/characters/tess.gd" id="1_xqbcu"]
 [ext_resource type="Texture2D" uid="uid://c7yxi581cgiat" path="res://assets/spritesheets/Tess_sprite-Sheet.png" id="2_bxk6a"]
@@ -24,8 +24,25 @@ tracks/0/keys = {
 "values": [0]
 }
 
+[sub_resource type="Animation" id="Animation_dpfd3"]
+resource_name = "call_friend"
+length = 3.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 2.76667, 3.01667, 3.26667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [4, 8, 9, 10, 11, 12, 14, 15, 16]
+}
+
 [sub_resource type="Animation" id="Animation_3cpho"]
 resource_name = "idle_left"
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -41,6 +58,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_mc2s7"]
 resource_name = "idle_right"
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -87,6 +105,7 @@ tracks/0/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xyejk"]
 _data = {
 &"RESET": SubResource("Animation_bxk6a"),
+&"call_friend": SubResource("Animation_dpfd3"),
 &"idle_left": SubResource("Animation_3cpho"),
 &"idle_right": SubResource("Animation_mc2s7"),
 &"walk_left": SubResource("Animation_cctbo"),
@@ -123,7 +142,8 @@ z_index = 100
 position = Vector2(-9.53674e-07, -1)
 scale = Vector2(0.24, 0.24)
 texture = ExtResource("2_bxk6a")
-hframes = 8
+hframes = 9
+vframes = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-5, -1)

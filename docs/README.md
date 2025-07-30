@@ -267,9 +267,25 @@ TessOfHearts/
 - **Proximity-based dialogue**: Friend speaks when clicked while Tess is within 50 pixels
 - **Direct distance checking**: Reliable detection using real-time distance calculation
 - **Touch input integration**: Works with both touch and mouse input
-- **Dialogue key**: "friend_hey_there" - Friend greets Tess when in range
+- **Randomized responses**: Friend randomly chooses between "Hey there!" and "Tess, what is it?" when clicked
 - **No energy cost**: Dialogue interactions don't consume energy
 - **Visual feedback**: Friend flashes when touched to indicate interaction
+- **Auto-fade dialogue**: Friend's dialogue automatically fades after 5 seconds
+
+**Friend Departure System ("Excuse Me"):**
+- **Dialogue choice**: Tess can say "Would you excuse me for a bit?" to dismiss the friend
+- **Back-to point system**: Friend retraces their path to a previous stopping point (currently always returns to starting position)
+- **Movement tracking**: Friend records stopping points when moving more than half-screen distance
+- **Departure state**: Friend stops following Tess and stays at the back-to point
+- **Departure timeout**: Friend automatically hides if they don't reach the target within 10 seconds
+- **Close-enough detection**: Friend considers target reached if within 50 pixels
+
+**Friend Summoning System (Phone Call):**
+- **Keyboard input**: Press 'C' key to summon the friend (mapped to "call_friend" action)
+- **Universal summoning**: Works regardless of friend's current state (following, departed, or off-screen)
+- **State reset**: Resets departure flags and moves friend to Tess's position
+- **Resume following**: Friend will follow Tess normally after being summoned
+- **Phone call concept**: Thematic integration with the game's narrative
 
 ### ✅ **Heart Repair System** (Fully Implemented)
 - **Material-based repair mechanics** with multiplier system
