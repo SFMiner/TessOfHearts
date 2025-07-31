@@ -122,10 +122,20 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	text_display.scale = Vector2(scale_factor, scale_factor)
 	print("Text display scale: ", text_display.scale)
 	
+	# Set z_index to be 10 above the speaker
+	if speaker_node:
+		dialogue_container.z_index = speaker_node.z_index + 10
+	
 	# Position dialogue above the speaker
+	var y_offset = -scaled_size.y - 20  # Default offset
+	
+	# Move Tess's dialogue up by 30 pixels
+	if speaker_node and speaker_node.is_in_group("Tess"):
+		y_offset -= 30
+	
 	dialogue_container.position = Vector2(
 		-(scaled_size.x / 2),  # Center horizontally on speaker
-		-scaled_size.y - 20    # Position above speaker
+		y_offset                # Position above speaker
 	)
 	
 	# Show with animation
@@ -286,10 +296,20 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	text_display.scale = Vector2(scale_factor, scale_factor)
 	print("Text display scale: ", text_display.scale)
 	
+	# Set z_index to be 10 above the speaker
+	if speaker_node:
+		dialogue_container.z_index = speaker_node.z_index + 10
+	
 	# Position dialogue above the speaker
+	var y_offset = -scaled_size.y - 20  # Default offset
+	
+	# Move Tess's dialogue up by 30 pixels
+	if speaker_node and speaker_node.is_in_group("Tess"):
+		y_offset -= 30
+	
 	dialogue_container.position = Vector2(
 		-(scaled_size.x / 2),  # Center horizontally on speaker
-		-scaled_size.y - 20    # Position above speaker
+		y_offset                # Position above speaker
 	)
 	
 	# Show with animation
@@ -378,3 +398,8 @@ func trigger_excuse_friend_effects() -> void:
 func test_excuse_me() -> void:
 	print("=== TESTING EXCUSE ME MANUALLY ===")
 	trigger_excuse_friend_effects()
+
+# Test function to manually trigger dialogue choice selection (to fix input)
+func test_dialogue_choice_fix() -> void:
+	print("=== TESTING DIALOGUE CHOICE FIX ===")
+	_on_choice_selected("never_mind")

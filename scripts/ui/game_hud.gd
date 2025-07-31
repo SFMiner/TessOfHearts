@@ -16,7 +16,7 @@ extends Control
 @onready var tape_hearts : Label = %TapeHearts
 @onready var sewn_hearts : Label = %SewnHearts
 @onready var wire_hearts : Label = %WireHearts
-@onready var scarred_hearts : Label = %WireHearts2
+@onready var scarred_hearts : Label = %ScarredHearts
 @onready var scarred_tape_hearts : Label = %ScarredTapeHearts
 @onready var scarred_sewn_hearts : Label = %ScarredSewnHearts
 @onready var scarred_wire_hearts : Label = %ScarredWireHearts
@@ -49,6 +49,36 @@ func _ready() -> void:
 	if GameData:
 		GameData.courage_changed.connect(_on_courage_changed)
 		if debug: print("Connected to GameData courage_changed signal")
+	ensure_ui_buttons_clickable()
+	mouse_filter = Control.MOUSE_FILTER_PASS  # This allows children to receive input, but parent can also process it
+	
+func _gui_input(event: InputEvent) -> void:
+	# Consume any input that happens within the GameHUD area
+	if event is InputEventMouseButton and event.pressed:
+		print("GameHUD consumed mouse click - preventing movement")
+		accept_event()  # Prevent event from reaching main.gd
+	elif event is InputEventScreenTouch and event.pressed:
+		print("GameHUD consumed touch - preventing movement")
+		accept_event()  # Prevent event from reaching main.gd
+
+
+func ensure_ui_buttons_clickable() -> void:
+	# Force all UI buttons to have proper mouse filter settings
+	var ui_buttons = [
+		consume_cookie_button,
+		consume_whiskey_button,
+		craft_tape_heart_button,
+		craft_wire_heart_button,
+		craft_sewn_heart_button
+	]
+	for button in ui_buttons:
+		if button:
+			button.mouse_filter = Control.MOUSE_FILTER_STOP
+			print("Ensured ", button.name, " is clickable")
+	
+	# Also ensure the main UI container doesn't block input
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	print("UI buttons accessibility ensured")
 
 func set_inventory():
 	unbroken_hearts_collected.text = "Unbroken Hearts: " + str(GameData.num_hearts_whole)
@@ -69,10 +99,10 @@ func set_hearts():
 	tape_hearts.text = "Tape Hearts: " + str(GameData.num_tape_hearts)
 	sewn_hearts.text = "Sewn Hearts: " + str(GameData.num_sewn_hearts)
 	wire_hearts.text = "Wire Hearts: " + str(GameData.num_wire_hearts)
-	scarred_hearts.text = "    Scarred: " + str(GameData.num_scarred_hearts)
-	scarred_tape_hearts.text = "    Tape: " + str(GameData.num_scarred_tape_hearts)
-	scarred_sewn_hearts.text = "    Wewn: " + str(GameData.num_scarred_sewn_hearts)
-	scarred_wire_hearts.text = "    Wire: " + str(GameData.num_scarred_wire_hearts)
+	scarred_hearts.text = "   Scarred: " + str(GameData.num_scarred_hearts)
+	scarred_tape_hearts.text = "   Tape: " + str(GameData.num_scarred_tape_hearts)
+	scarred_sewn_hearts.text = "   Sewn: " + str(GameData.num_scarred_sewn_hearts)
+	scarred_wire_hearts.text = "   Wire: " + str(GameData.num_scarred_wire_hearts)
 	kintsugi_hearts.text = "Kintsugi: " + str(GameData.num_kintsugi_hearts)
 
 
@@ -122,6 +152,7 @@ func setup_consumption_buttons() -> void:
 		consume_cookie_button.pressed.connect(_on_consume_cookie_pressed)
 		consume_cookie_button.text = "Eat Cookie (+25 Energy)"
 		consume_cookie_button.add_to_group("ui_buttons")
+		consume_cookie_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_consumption_buttons()
 	
 	# Set up whiskey consumption button
@@ -129,6 +160,7 @@ func setup_consumption_buttons() -> void:
 		consume_whiskey_button.pressed.connect(_on_consume_whiskey_pressed)
 		consume_whiskey_button.text = "Drink Whiskey (+30 Courage)"
 		consume_whiskey_button.add_to_group("ui_buttons")
+		consume_whiskey_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_consumption_buttons()
 	
 	# Set up heart crafting buttons
@@ -136,28 +168,35 @@ func setup_consumption_buttons() -> void:
 		craft_tape_heart_button.pressed.connect(_on_craft_tape_heart_pressed)
 		craft_tape_heart_button.text = "Craft Tape Heart"
 		craft_tape_heart_button.add_to_group("ui_buttons")
+		craft_tape_heart_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_crafting_buttons()
 	
 	if craft_wire_heart_button:
 		craft_wire_heart_button.pressed.connect(_on_craft_wire_heart_pressed)
 		craft_wire_heart_button.text = "Craft Wire Heart"
 		craft_wire_heart_button.add_to_group("ui_buttons")
+		craft_wire_heart_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_crafting_buttons()
 	
 	if craft_sewn_heart_button:
 		craft_sewn_heart_button.pressed.connect(_on_craft_sewn_heart_pressed)
 		craft_sewn_heart_button.text = "Craft Sewn Heart"
 		craft_sewn_heart_button.add_to_group("ui_buttons")
+		craft_sewn_heart_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_crafting_buttons()
 
 func update_consumption_buttons() -> void:
 	if consume_cookie_button:
-		consume_cookie_button.disabled = not GameManager.can_consume_cookie()
-		consume_cookie_button.modulate = Color.WHITE if GameManager.can_consume_cookie() else Color.GRAY
+		var can_consume = GameManager.can_consume_cookie()
+		consume_cookie_button.disabled = not can_consume
+		consume_cookie_button.modulate = Color.WHITE if can_consume else Color.GRAY
+		if debug: print("Cookie button - disabled: ", not can_consume, " mouse_filter: ", consume_cookie_button.mouse_filter)
 	
 	if consume_whiskey_button:
-		consume_whiskey_button.disabled = not GameManager.can_consume_whiskey()
-		consume_whiskey_button.modulate = Color.WHITE if GameManager.can_consume_whiskey() else Color.GRAY
+		var can_consume = GameManager.can_consume_whiskey()
+		consume_whiskey_button.disabled = not can_consume
+		consume_whiskey_button.modulate = Color.WHITE if can_consume else Color.GRAY
+		if debug: print("Whiskey button - disabled: ", not can_consume, " mouse_filter: ", consume_whiskey_button.mouse_filter)
 
 func update_crafting_buttons() -> void:
 	if craft_tape_heart_button:

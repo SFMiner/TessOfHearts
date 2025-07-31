@@ -1,7 +1,6 @@
-[gd_scene load_steps=13 format=3 uid="uid://uki6q3e7spy8"]
+[gd_scene load_steps=12 format=3 uid="uid://uki6q3e7spy8"]
 
 [ext_resource type="Script" uid="uid://nc8oahsbvoh0" path="res://scenes/characters/bearded_friend.gd" id="1_pnylu"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/click_dialogue_trigger.tscn" id="2_mogrr"]
 [ext_resource type="Texture2D" uid="uid://df2ag1jj2jg6r" path="res://assets/spritesheets/friend-Sheet.png" id="3_mogrr"]
 [ext_resource type="Script" uid="uid://cwv12xqiufji8" path="res://scripts/base/touch_responder.gd" id="3_touch_responder"]
 
@@ -96,14 +95,10 @@ _data = {
 }
 
 [node name="BeardedFriend" type="CharacterBody2D"]
-y_sort_enabled = true
+z_as_relative = false
 collision_layer = 2
 collision_mask = 8
 script = ExtResource("1_pnylu")
-
-[node name="DialogueTrigger" parent="." instance=ExtResource("2_mogrr")]
-scale = Vector2(0.388064, 0.685843)
-dialogue_key = "friend_hey_there"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(-1, 1.54445)
@@ -126,9 +121,23 @@ shape = SubResource("RectangleShape2D_pnylu")
 script = ExtResource("3_touch_responder")
 
 [node name="DialoguePoint" type="Marker2D" parent="."]
-position = Vector2(0, -40)
+position = Vector2(-52, -30)
+
+[node name="ColorRect" type="ColorRect" parent="DialoguePoint"]
+visible = false
+offset_left = -1.0
+offset_right = 7.0
+offset_bottom = 8.0
+color = Color(3.36915e-06, 0.651515, 0.720447, 1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_xyejk")
 }
+
+[node name="Label" type="Label" parent="."]
+visible = false
+offset_left = 31.0573
+offset_top = -22.9137
+offset_right = 71.0573
+offset_bottom = 0.0863152

@@ -1,0 +1,166 @@
+# ===========================================
+# SMART INTERACTABLE BASE CLASS
+# ===========================================
+
+extends Area2D
+class_name SmartInteractable
+
+signal interacted()
+signal collected()
+
+@export var interaction_type: String = "default"
+@export var can_interact: bool = true
+@export var destroy_on_interact: bool = false
+@export var interaction_text: String = ""
+@export var uses_energy: bool = true  # Whether this interactable uses energy
+
+@onready var area_2d: Area2D = $Area2D
+@onready var visual: ColorRect = $Visual
+
+var interaction_data: Dictionary = {}
+var is_highlighted: bool = false
+var original_modulate: Color
+
+
+@export var interaction_range: float = 50.0  # Pixels
+@export var auto_collect_on_enter: bool = false  # Some items auto-collect, others need click
+@export var energy_cost: int = 1
+
+var tess_in_interaction_area: bool = false
+var interaction_area: Area2D = null
+
+const scr_debug: bool = false
+var debug: bool
+
+func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
+	
+	add_to_group("collectables")
+	add_to_group("interactables")
+	add_to_group("interactive_areas")
+	
+	setup_interaction_area()
+	setup_touch_detection()
+	
+	if InputManager:
+		InputManager.touch_started.connect(_on_global_touch)
+
+func setup_interaction_area() -> void:
+	if debug: print("=== SETTING UP INTERACTION AREA FOR: ", name, " ===")
+	
+	# Create interaction area
+	interaction_area = Area2D.new()
+	interaction_area.name = "InteractionArea"
+	add_child(interaction_area)
+	
+	# Create collision shape for interaction range
+	var collision_shape = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = interaction_range
+	collision_shape.shape = shape
+	interaction_area.add_child(collision_shape)
+	
+	# Connect signals
+	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
+	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
+	
+	# Set collision layer/mask to detect Tess (layer 2)
+	interaction_area.collision_layer = 0  # Don't collide with anything
+	interaction_area.collision_mask = 2   # Detect Tess's layer
+	
+	if debug: print("Interaction area setup complete for: ", name)
+
+func setup_touch_detection() -> void:
+	# Connect to this interactable's input events
+	input_event.connect(_on_area_input_event)
+
+func _on_interaction_area_body_entered(body: Node2D) -> void:
+	if debug: print("=== INTERACTION AREA BODY ENTERED: ", name, " ===")
+	if debug: print("Body name: ", body.name)
+	
+	if body.is_in_group("Tess"):
+		tess_in_interaction_area = true
+		if debug: print("Tess entered interaction area for: ", name)
+		
+		# Auto-collect if enabled
+		if auto_collect_on_enter:
+			perform_interaction()
+
+func _on_interaction_area_body_exited(body: Node2D) -> void:
+	if debug: print("=== INTERACTION AREA BODY EXITED: ", name, " ===")
+	
+	if body.is_in_group("Tess"):
+		tess_in_interaction_area = false
+		if debug: print("Tess exited interaction area for: ", name)
+
+func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	if debug: print("=== INTERACTABLE INPUT EVENT: ", name, " ===")
+	if debug: print("Event type: ", event.get_class())
+	
+	if event is InputEventScreenTouch and event.pressed:
+		_on_interactable_touched(event.position)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_on_interactable_touched(event.position)
+
+func _on_global_touch(position: Vector2) -> void:
+	if not tess_in_interaction_area:
+		return
+	
+	# Convert to local coordinates and check if touch is on this interactable
+	var local_position = to_local(position)
+	var distance = local_position.length()
+	
+	if distance <= interaction_range:
+		if debug: print("Global touch detected on interactable: ", name)
+		_on_interactable_touched(position)
+
+func _on_interactable_touched(position: Vector2) -> void:
+	if debug: print("=== INTERACTABLE TOUCHED: ", name, " ===")
+	if debug: print("Tess in interaction area: ", tess_in_interaction_area)
+	
+	# If Tess is in interaction area, interact instead of moving
+	if tess_in_interaction_area:
+		if debug: print("Tess in range - performing interaction instead of movement")
+		perform_interaction()
+		# Don't allow this to propagate to movement system
+		return
+	else:
+		# Tess is not in range, allow normal movement toward the interactable
+		if debug: print("Tess not in range - allowing movement toward interactable")
+		# Let the click propagate to the movement system
+		pass
+
+func perform_interaction() -> void:
+	if debug: print("=== PERFORMING INTERACTION: ", name, " ===")
+	
+	# Check energy
+	var current_energy = GameManager.get_energy()
+	if current_energy < energy_cost:
+		if debug: print("Cannot interact - insufficient energy (", current_energy, " < ", energy_cost, ")")
+		return
+	
+	# Spend energy
+	GameManager.spend_energy(energy_cost)
+	if debug: print("Spent ", energy_cost, " energy. Remaining: ", GameManager.get_energy())
+	
+	# Call the specific interaction behavior (override in derived classes)
+	handle_interaction()
+	
+	# Emit signals
+	interacted.emit()
+
+# Override this in derived classes for specific behavior
+func handle_interaction() -> void:
+	if debug: print("Base interaction for: ", name)
+	# Default behavior - just remove the interactable
+	collected.emit()
+	queue_free()
+
+# Helper function to check if Tess is in range without the area system
+func is_tess_in_range() -> bool:
+	var tess_nodes = get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess = tess_nodes[0]
+		var distance = global_position.distance_to(tess.global_position)
+		return distance <= interaction_range
+	return false

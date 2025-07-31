@@ -41,10 +41,10 @@ func _on_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		print("=== CLICK DIALOGUE TRIGGER ACTIVATED ===")
 		print("Dialogue key: ", dialogue_key)
-		dialogue_system.show_dialogue(dialogue_key, global_position)
+		dialogue_system.show_dialogue(dialogue_key, self)
 		has_triggered = true
 	elif event is InputEventScreenTouch and event.pressed:
 		print("=== CLICK DIALOGUE TRIGGER ACTIVATED (TOUCH) ===")
 		print("Dialogue key: ", dialogue_key)
-		dialogue_system.show_dialogue(dialogue_key, global_position)
+		dialogue_system.show_dialogue(dialogue_key, self)
 		has_triggered = true 

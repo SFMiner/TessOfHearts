@@ -6,6 +6,8 @@ extends Character
 
 
 # Friend personality variables
+var dialog_point_pos_right : Vector2
+var dialog_point_pos_left : Vector2
 var wander_timer: float = 0.0
 var pause_timer: float = 0.0
 var is_wandering: bool = false
@@ -29,6 +31,8 @@ var is_departing: bool = false
 var has_departed: bool = false
 var is_summoned: bool = false
 
+
+
 # Navigation system
 var navigation_agent: NavigationAgent2D = null
 
@@ -36,9 +40,13 @@ var navigation_agent: NavigationAgent2D = null
 var tess_in_interaction_area: bool = false
 var interaction_area: Area2D = null
 
+@onready var dialog_point : Marker2D = $DialoguePoint
+
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	character_name = "Bearded Friend"
+	dialog_point_pos_right = $DialoguePoint.position
+	dialog_point_pos_left = Vector2(-dialog_point_pos_right.x, dialog_point_pos_right.y)
 	uses_energy = false  # Dialogue interactions don't use energy
 	can_move = true  # Friend can move to follow Tess
 	anim = get_node_or_null("AnimationPlayer")
@@ -60,18 +68,38 @@ func _ready() -> void:
 	# setup_navigation_agent()
 	
 	# Debug check
-	print("=== FRIEND READY DEBUG ===")
-	print("Interaction area exists: ", interaction_area != null)
-	if interaction_area:
-		print("Interaction area children: ", interaction_area.get_child_count())
-		print("Interaction area collision mask: ", interaction_area.collision_mask)
-		print("Interaction area collision layer: ", interaction_area.collision_layer)
-	print("=== FRIEND READY COMPLETE ===")
+	if debug:
+		print("=== FRIEND READY DEBUG ===")
+		print("Interaction area exists: ", interaction_area != null)
+		if interaction_area:
+			print("Interaction area children: ", interaction_area.get_child_count())
+			print("Interaction area collision mask: ", interaction_area.collision_mask)
+			print("Interaction area collision layer: ", interaction_area.collision_layer)
+			print("=== FRIEND READY COMPLETE ===")
 	
+	# Debug state flags
+	print("=== FRIEND INITIAL STATE ===")
+	print("is_departing: ", is_departing)
+	print("has_departed: ", has_departed)
+	print("is_summoned: ", is_summoned)
+	print("can_move: ", can_move)
+	print("is_moving: ", is_moving)
+	print("visible: ", visible)
+	print("process_mode: ", process_mode)
+	print("input_pickable: ", input_pickable)
+	print("z_index: ", z_index)
+	print("z_as_relative: ", z_as_relative)
+		
 func setup_character() -> void:
 	if sprite:
 		create_placeholder_texture(Color("#4C8CB8"))  # Blue
 
+func set_dialog_point():
+	if direction.x > 0:
+		dialog_point.position = dialog_point_pos_right
+	if direction.x < 0:
+		dialog_point.position = dialog_point_pos_left
+	
 func create_placeholder_texture(color: Color) -> void:
 	var image = Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	image.fill(color)
@@ -106,7 +134,7 @@ func track_movement_for_back_to_points() -> void:
 		if back_to_points.size() > 2:
 			back_to_points.remove_at(0)  # Remove oldest point
 		
-		print("Back-to points: ", back_to_points)
+		if debug: print("Back-to points: ", back_to_points)
 		
 		# Update last position
 		last_position = global_position
@@ -128,11 +156,15 @@ func setup_navigation_agent() -> void:
 	if debug: print("Target desired distance: ", navigation_agent.target_desired_distance)
 
 func _physics_process(delta: float) -> void:
+	# Call parent physics process for proper physics handling
+	super._physics_process(delta)
+	
 	# Update timers
 	wander_timer -= delta
 	pause_timer -= delta
 	drift_timer -= delta
-	
+	z_index = get_global_position().y/5  # Temporarily disabled to test UI interaction
+	# $Label.text = str(direction)
 	# Track movement for back-to points
 	track_movement_for_back_to_points()
 	
@@ -226,14 +258,13 @@ func is_colliding_with_tess() -> bool:
 func move_towards_target_friend() -> void:
 	# Friend-specific movement without energy costs
 	var distance = global_position.distance_to(target_position)
-	
+	set_dialog_point()
 	# Debug departure movement
 	if debug:
 		if is_departing:
 			print("Friend departing - Distance to target: ", distance, " Target: ", target_position, " Position: ", global_position)
 	
 	if distance > 5.0:
-		var direction: Vector2
 		var speed_multiplier = 1.0
 		
 		# Direct movement (temporarily remove navigation to fix syntax error)
@@ -343,6 +374,19 @@ func summon_friend() -> void:
 		
 		print("Friend summoned to Tess at: ", tess_position)
 		print("Friend will now follow Tess again")
+		
+		# Debug state after summon
+		print("=== FRIEND STATE AFTER SUMMON ===")
+		print("is_departing: ", is_departing)
+		print("has_departed: ", has_departed)
+		print("is_summoned: ", is_summoned)
+		print("can_move: ", can_move)
+		print("is_moving: ", is_moving)
+		print("visible: ", visible)
+		print("process_mode: ", process_mode)
+		print("input_pickable: ", input_pickable)
+		print("z_index: ", z_index)
+		print("z_as_relative: ", z_as_relative)
 	else:
 		print("ERROR: Tess not found for summoning")
 

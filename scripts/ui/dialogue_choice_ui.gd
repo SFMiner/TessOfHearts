@@ -16,7 +16,19 @@ var is_showing: bool = false
 func _ready() -> void:
 	print("=== DIALOGUE CHOICE UI SETUP ===")
 	add_to_group("dialogue_choice_ui")
+	
+	# CRITICAL FIX: Ensure proper initial state
 	hide_choices()
+	
+	# CRITICAL FIX: Set proper mouse filters from the start
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	choice_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# CRITICAL FIX: Ensure background doesn't block input
+	if background:
+		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	print("Initial mouse filters set - UI buttons should be clickable")
 
 func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO) -> void:
 	print("=== SHOWING DIALOGUE CHOICES ===")
@@ -132,9 +144,24 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 		)
 		choice_container.global_position = center_pos
 	
+	# Set z_index to be 10 above the speaker (if speaker position is provided)
+	if speaker_position != Vector2.ZERO:
+		# Find the speaker node to get its z_index
+		var speaker_node = find_speaker_node(speaker_position)
+		if speaker_node:
+			z_index = speaker_node.z_index + 10
+			print("Set dialogue choice UI z_index to: ", z_index)
+	
+	# Temporarily disable z_index to test if it's causing input interference
+	# z_index = 0
+	
 	# Show with animation
 	visible = true
 	modulate = Color(1, 1, 1, 1)  # Ensure full opacity
+	
+	# Set mouse_filter to stop when showing choices
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	choice_container.mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color(1, 1, 1, 1), 0.3)
@@ -143,7 +170,7 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 	print("Dialogue choices displayed")
 	
 	# Add a test button to manually trigger excuse me
-	add_test_button()
+#	add_test_button()
 
 func add_test_button():
 	# Create a test button to manually trigger excuse me
@@ -180,11 +207,14 @@ func position_choices_above_speaker(speaker_pos: Vector2) -> void:
 		choice_size = Vector2(max_width, total_height)
 		print("Calculated choice size from children: ", choice_size)
 	
-	# Position relative to viewport center (like regular dialogue system)
-	var viewport_center = viewport_size / 2
+	# Convert world position to screen position
+	var canvas_transform = get_viewport().get_canvas_transform()
+	var screen_pos = canvas_transform * speaker_pos
+	
+	# Position choices with bottom at the speaker (expanding upward)
 	var choice_pos = Vector2(
-		viewport_center.x - (choice_size.x / 2) + 200,  # Center horizontally + 200px right
-		viewport_center.y - choice_size.y - 100 + 50     # Position above center with gap + 50px lower
+		screen_pos.x - (choice_size.x / 2),  # Center horizontally on speaker
+		screen_pos.y - choice_size.y          # Bottom of choices at speaker position
 	)
 	
 	# Ensure choices stay within viewport bounds
@@ -195,19 +225,43 @@ func position_choices_above_speaker(speaker_pos: Vector2) -> void:
 	choice_container.global_position = choice_pos
 	
 	print("Viewport size: ", viewport_size)
-	print("Viewport center: ", viewport_center)
+	print("Speaker screen position: ", screen_pos)
 	print("Final choice size: ", choice_size)
 	print("Choice positioned at: ", choice_pos)
 
 func hide_choices() -> void:
 	if not is_showing:
 		return
-		
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.TRANSPARENT, 0.3)
-	tween.tween_callback(func(): visible = false)
-	
+	tween.tween_callback(func():
+		visible = false
+		# --- BEGIN: Input unblocking patch ---
+		for child in choice_container.get_children():
+			if child.has_method("get_children"):
+				for grandchild in child.get_children():
+					if grandchild is Button:
+						grandchild.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			child.queue_free()
+		choice_buttons.clear()
+		# --- END: Input unblocking patch ---
+		
+		# Set mouse_filter back to ignore when hiding
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		choice_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	)
 	is_showing = false
+
+func find_speaker_node(speaker_position: Vector2) -> Node:
+	# Try to find the speaker node by checking all nodes in the scene
+	var all_nodes = get_tree().get_nodes_in_group("Tess")
+	all_nodes.append_array(get_tree().get_nodes_in_group("Friend"))
+	
+	for node in all_nodes:
+		if node.global_position.distance_to(speaker_position) < 50:  # Within 50 pixels
+			return node
+	
+	return null
 
 func get_choice_buttons() -> Array[Button]:
 	return choice_buttons

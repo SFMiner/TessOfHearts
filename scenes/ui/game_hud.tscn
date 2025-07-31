@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://6ws07pmaahf"]
+[gd_scene load_steps=13 format=3 uid="uid://6ws07pmaahf"]
 
 [ext_resource type="Script" uid="uid://c8g4y1riulr52" path="res://scripts/ui/game_hud.gd" id="1_el006"]
 [ext_resource type="FontFile" uid="uid://3310jk62iv68" path="res://assets/fonts/black-window-font/BlackWindow-WEyG.ttf" id="2_8n052"]
@@ -7,6 +7,27 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8n052"]
 bg_color = Color(1, 1, 1, 0.301961)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ehshv"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4qk33"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tldsg"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_acb04"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_20ki6"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n5j44"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x6mpk"]
+bg_color = Color(0.978, 0.978, 0.978, 0.453)
 
 [node name="GameHUD" type="Control"]
 layout_mode = 3
@@ -149,6 +170,9 @@ theme_override_colors/font_focus_color = Color(0.436345, 0.281546, 0.15891, 1)
 theme_override_colors/font_pressed_color = Color(0.436345, 0.281546, 0.15891, 1)
 theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_ehshv")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_4qk33")
+theme_override_styles/normal = SubResource("StyleBoxFlat_tldsg")
 text = "Eat Cookie (+25 Energy)"
 flat = true
 
@@ -201,6 +225,10 @@ theme_override_colors/font_focus_color = Color(0.361961, 4.22347e-06, 0.131989, 
 theme_override_colors/font_pressed_color = Color(0.361961, 4.22347e-06, 0.131989, 1)
 theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 18
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_acb04")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_20ki6")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_n5j44")
+theme_override_styles/normal = SubResource("StyleBoxFlat_x6mpk")
 text = "Craft Sewn Heart"
 flat = true
 
@@ -299,7 +327,7 @@ theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
 text = "Wire  Hearts: 0"
 
-[node name="WireHearts2" type="Label" parent="HeartsInventory/Inventory"]
+[node name="ScarredHeartsLabel" type="Label" parent="HeartsInventory/Inventory"]
 unique_name_in_owner = true
 modulate = Color(0.580642, 0.487289, 0.814387, 1)
 layout_mode = 2
@@ -310,6 +338,7 @@ theme_override_font_sizes/font_size = 26
 text = "Scarred Hearts"
 
 [node name="ScarredHearts" type="Label" parent="HeartsInventory/Inventory"]
+unique_name_in_owner = true
 modulate = Color(0.601602, 0.568793, 1.92523e-07, 1)
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -325,7 +354,7 @@ layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("3_acb04")
 theme_override_font_sizes/font_size = 26
-text = "   Tapedtext 0"
+text = "   Taped: 0"
 
 [node name="ScarredSewnHearts" type="Label" parent="HeartsInventory/Inventory"]
 unique_name_in_owner = true

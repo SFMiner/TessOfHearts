@@ -35,6 +35,16 @@ func _ready() -> void:
 	if debug: print("=== GATHER HEARTS - SCENE SYSTEM ===")
 	setup_game()
 	load_initial_scene()
+	
+	# Fix friend's initial state by programmatically dismissing and recalling
+	await get_tree().process_frame  # Wait for scene to be ready
+	fix_friend_initial_state()
+	
+	# Test: Try to fix input issue by triggering dialogue choice selection
+	await get_tree().create_timer(1.0).timeout  # Wait a bit longer
+	test_dialogue_input_fix()
+
+
 
 #func set_tess(tess_node : Character) -> void:
 #	tess = tess_node
@@ -129,10 +139,16 @@ func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("=== TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
 	
-	# Check if click is on any UI element
+	# CRITICAL: Check UI elements BEFORE doing anything else
 	if is_click_on_ui_element(position):
-		if debug: print("Click is on UI element - ignoring movement")
+		if debug: print("Click is on UI element - completely ignoring")
 		return
+	
+	# NEW: Check if click is on an interactable that Tess is already in range of
+	if is_click_on_interactable_in_range(position):
+		if debug: print("Click is on interactable in range - letting interactable handle it")
+		return
+		
 	
 	# Also check if click is in the UI layer area (fallback)
 	var viewport_size = get_viewport().get_visible_rect().size
@@ -183,6 +199,23 @@ func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("Calling tess.move_to() with: ", world_position)
 	tess.move_to(world_position)
 
+
+func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
+	if debug: print("=== CHECKING SMART INTERACTABLE CLICK ===")
+	
+	# Get all smart interactables
+	var smart_interactables = get_tree().get_nodes_in_group("interactables")
+	
+	for interactable in smart_interactables:
+		if interactable.has_method("is_tess_in_range") and interactable.tess_in_interaction_area:
+			# Check if click is on this interactable
+			var distance = interactable.global_position.distance_to(get_global_mouse_position())
+			if distance <= interactable.interaction_range:
+				if debug: print("Click is on interactable in range: ", interactable.name)
+				return true
+	
+	return false
+
 func is_tess_in_interactive_area() -> bool:
 	# Simple check - you could make this more sophisticated
 	var interactive_areas = get_tree().get_nodes_in_group("interactive_areas")
@@ -195,60 +228,78 @@ func is_click_on_ui_element(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING UI CLICK ===")
 	if debug: print("Click position: ", click_position)
 	
-	# Check if the click position is on any dialogue choice UI element
+	# Check dialogue choice UI first
 	var choice_ui_nodes = get_tree().get_nodes_in_group("dialogue_choice_ui")
 	for choice_ui in choice_ui_nodes:
 		if choice_ui.visible and choice_ui.is_showing:
-			# Check if click is within the choice UI bounds
 			var choice_rect = Rect2(choice_ui.global_position, choice_ui.size)
 			if choice_rect.has_point(click_position):
 				if debug: print("Click is within dialogue choice UI bounds")
 				return true
-			
-			# Also check individual choice buttons
-			if choice_ui.has_method("get_choice_buttons"):
-				var buttons = choice_ui.get_choice_buttons()
-				for button in buttons:
-					var button_rect = Rect2(button.global_position, button.size)
-					if button_rect.has_point(click_position):
-						if debug: print("Click is on dialogue choice button")
-						return true
 	
-	# Check if click is on any UI buttons (consumption, crafting, etc.)
+	# Check specific UI buttons by finding them directly in the scene tree
+	var game_hud = get_tree().current_scene.get_node_or_null("UI/GameHUD")
+	if game_hud:
+		# List of button paths within GameHUD
+		var button_paths = [
+			"VBoxContainer2/InventoryContainer/Inventory/ConsumeCookieButton",
+			"VBoxContainer2/InventoryContainer/Inventory/ConsumeWhiskeyButton",
+			"VBoxContainer2/InventoryContainer/Inventory/CraftTapeHeartButton",
+			"VBoxContainer2/InventoryContainer/Inventory/CraftWireHeartButton",
+			"VBoxContainer2/InventoryContainer/Inventory/CraftSewnHeartButton",
+			"VBoxContainer2/InventoryContainer/Inventory/Settings"
+		]
+		
+		for button_path in button_paths:
+			var button = game_hud.get_node_or_null(button_path)
+			if button and button.visible and not button.disabled:
+				# Get the button's global rect
+				var button_rect = Rect2(button.global_position, button.size)
+				if button_rect.has_point(click_position):
+					if debug: print("Click is on UI button: ", button.name, " at ", button.global_position, " size ", button.size)
+					return true
+	
+	# Check buttons in ui_buttons group as fallback
 	var all_buttons = get_tree().get_nodes_in_group("ui_buttons")
-	if debug: print("Found ", all_buttons.size(), " UI buttons in group")
-	
 	for button in all_buttons:
 		if button.visible and not button.disabled:
 			var button_rect = Rect2(button.global_position, button.size)
-			if debug: print("Button ", button.name, " - pos: ", button.global_position, " size: ", button.size)
 			if button_rect.has_point(click_position):
-				if debug: print("Click is on UI button: ", button.name)
+				if debug: print("Click is on grouped UI button: ", button.name)
 				return true
 	
-	# Check specific UI elements by name (fallback for buttons not in groups)
-	var ui_elements_to_check = [
-		"ConsumeCookieButton",
-		"ConsumeWhiskeyButton", 
-		"CraftTapeHeartButton",
-		"CraftWireHeartButton",
-		"CraftSewnHeartButton",
-		"Settings"
-	]
-	
-	for element_name in ui_elements_to_check:
-		var element = get_tree().get_nodes_in_group(element_name)
-		if element.size() > 0:
-			var ui_element = element[0]
-			if ui_element.visible and not ui_element.disabled:
-				var element_rect = Rect2(ui_element.global_position, ui_element.size)
-				if debug: print("UI element ", element_name, " - pos: ", ui_element.global_position, " size: ", ui_element.size)
-				if element_rect.has_point(click_position):
-					if debug: print("Click is on UI element: ", element_name)
-					return true
+	# ADDITIONAL CHECK: Look for any Control with mouse_filter = STOP that contains the click
+	var ui_root = get_tree().current_scene.get_node_or_null("UI")
+	if ui_root:
+		var blocking_control = find_blocking_control_at_position(ui_root, click_position)
+		if blocking_control:
+			if debug: print("Click blocked by control: ", blocking_control.name)
+			return true
 	
 	if debug: print("No UI element clicked")
 	return false
+
+# Helper function to find any Control that should block clicks at a position
+func find_blocking_control_at_position(node: Node, position: Vector2) -> Control:
+	# Check if this node is a blocking Control
+	if node is Control:
+		var control = node as Control
+		# Only consider visible controls that explicitly stop input
+		if control.visible and control.mouse_filter == Control.MOUSE_FILTER_STOP:
+			var control_rect = Rect2(control.global_position, control.size)
+			if control_rect.has_point(position):
+				# Additional check: make sure it's actually a UI element we care about
+				if control is Button or control is Panel or control.name.contains("Button"):
+					return control
+	
+	# Recursively check children
+	for child in node.get_children():
+		var result = find_blocking_control_at_position(child, position)
+		if result:
+			return result
+	
+	return null
+
 
 func is_moving_toward_friend(target_position: Vector2) -> bool:
 	# Check if the target position overlaps with the friend's collision areas
@@ -379,7 +430,7 @@ func call_friend() -> void:
 	tess.call_friend_dialogue()
 	
 	# Wait for animation to complete or timeout after 4 seconds
-	var animation_timer = get_tree().create_timer(4.0)
+	var animation_timer = get_tree().create_timer(3.0)
 	animation_timer.timeout.connect(func():
 		if debug: print("Call animation completed or timed out")
 	)
@@ -399,3 +450,44 @@ func call_friend() -> void:
 	else:
 		if debug: print("ERROR: No friend found in scene")
 		if debug: print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
+
+func fix_friend_initial_state() -> void:
+	if debug: print("=== FIXING FRIEND INITIAL STATE ===")
+	
+	# Find the friend
+	var friend_nodes = get_tree().get_nodes_in_group("Friend")
+	if friend_nodes.size() == 0:
+		if debug: print("ERROR: No friend found for state fix")
+		return
+	var friend = friend_nodes[0]
+	
+	if debug: print("Found friend: ", friend.name)
+	
+	# Programmatically dismiss the friend (without dialogue)
+	if friend.has_method("depart_from_screen"):
+		if debug: print("Dismissing friend...")
+		friend.depart_from_screen()
+		
+		# Wait a moment for departure to start
+		await get_tree().create_timer(0.5).timeout
+		
+		# Then immediately summon them back
+		if friend.has_method("summon_friend"):
+			if debug: print("Summoning friend back...")
+			friend.summon_friend()
+			if debug: print("Friend initial state fixed")
+		else:
+			if debug: print("ERROR: Friend doesn't have summon_friend method")
+	else:
+		if debug: print("ERROR: Friend doesn't have depart_from_screen method")
+
+func test_dialogue_input_fix() -> void:
+	if debug: print("=== TESTING DIALOGUE INPUT FIX ===")
+	
+	# Try to trigger the dialogue choice selection process to fix input
+	var dialogue_system = get_tree().current_scene.get_node_or_null("DialogueSystem")
+	if dialogue_system and dialogue_system.has_method("test_dialogue_choice_fix"):
+		if debug: print("Calling dialogue choice fix...")
+		dialogue_system.test_dialogue_choice_fix()
+	else:
+		if debug: print("ERROR: Dialogue system not found or missing test method")

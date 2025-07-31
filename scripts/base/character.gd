@@ -15,7 +15,7 @@ var anim : AnimationPlayer = null
 
 const scr_debug : bool = false
 var debug : bool
-
+var direction : Vector2
 var target_position: Vector2
 var is_moving: bool = false
 var is_highlighted: bool = false
@@ -97,7 +97,7 @@ func say_dialogue(dialogue_key: String) -> void:
 	print("Dialogue key: ", dialogue_key)
 	
 	var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
-	var speaker_position = dialogue_point.global_position
+	var speaker_position = dialogue_point #.global_position
 	
 	print("Speaker position: ", speaker_position)
 	
@@ -113,12 +113,11 @@ func setup_touch_detection() -> void:
 		touch_area.input_event.connect(_on_area_input_event)
 		touch_area.mouse_entered.connect(_on_mouse_entered)
 		touch_area.mouse_exited.connect(_on_mouse_exited)
-
+ 
 func _physics_process(delta: float) -> void:
 	# Debug visibility
 	if not visible:
 		print("WARNING: ", character_name, " is not visible!")
-	
 	# Debug position
 	var viewport_size = get_viewport().get_visible_rect().size
 	if global_position.x < 0 or global_position.x > viewport_size.x or global_position.y < 0 or global_position.y > viewport_size.y:
@@ -135,6 +134,7 @@ func stop_movement() -> void:
 	if debug: print(character_name, " movement stopped")
 
 func move_to(new_position: Vector2) -> void:
+	
 	if not can_move:
 		print(character_name, " cannot move - movement disabled")
 		return
@@ -167,7 +167,7 @@ func move_towards_target() -> void:
 	
 	var distance = global_position.distance_to(target_position)
 	if distance > 5.0:
-		var direction = (target_position - global_position).normalized()
+		direction = (target_position - global_position).normalized()
 		#print("Direction: ", direction)
 		
 		# Use effective movement speed based on energy

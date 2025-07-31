@@ -190,18 +190,31 @@ TessOfHearts/
 - **Debug output** for troubleshooting and development
 - **Auto-hide functionality** with fade animations
 - **No energy cost** for dialogue interactions
+- **Dialogue choice system** with handwritten button options
+- **Dynamic choice availability** based on player inventory
+- **Proper input handling** with mouse filter settings to prevent interference
 
 **Available Dialogue:**
 - `"tess_what_is_it"` - Tess asking what something is
 - `"friend_hey_there"` - Friend greeting (proximity-based, 50 pixel range)
 - `"cat_wisdom"` - Cat giving wisdom
 - `"still_doesnt_like_ants"` - Something about not liking ants
+- `"tess_come_over_here"` - Tess calling the friend during phone call animation
+
+**Dialogue Choices:**
+- `"eat_cookies"` - Eat cookies with the friend (requires cookies in inventory)
+- `"drink_whiskey"` - Drink whiskey with the friend (requires whiskey in inventory)
+- `"cookies_and_whiskey"` - Share both cookies and whiskey (requires both items)
+- `"excuse_me"` - Ask the friend to leave temporarily
+- `"never_mind"` - Cancel the dialogue interaction
 
 **Usage:**
 - Add `dialogue_trigger.tscn` to scenes and set dialogue keys
 - Characters can trigger dialogue via `say_dialogue()` method
 - Direct system calls via `DialogueSystem.show_dialogue()`
 - Friend dialogue: Click friend while Tess is within 50 pixels
+- Dialogue choices: Available options appear based on inventory and context
+- Item consumption: Selecting certain choices consumes items from inventory
 
 ### ✅ **Energy Management System** (Fully Implemented)
 - **Energy costs for actions**: Movement, interactions, and item collection
@@ -252,6 +265,7 @@ TessOfHearts/
 - **Energy cost integration** for movement and interactions
 - **Movement speed scaling** based on energy levels
 - **Friend movement echo system** with configurable delay
+- **Visual feedback system** with hover highlighting and click animations
 
 **Friend Movement System:**
 - **Personality-based following**: Friend follows Tess with natural personality quirks
@@ -271,6 +285,14 @@ TessOfHearts/
 - **No energy cost**: Dialogue interactions don't consume energy
 - **Visual feedback**: Friend flashes when touched to indicate interaction
 - **Auto-fade dialogue**: Friend's dialogue automatically fades after 5 seconds
+- **Dynamic dialogue options**: Shows available choices based on Tess's inventory (cookies, whiskey, etc.)
+- **Item consumption**: Selecting dialogue options can consume items from inventory
+
+**Character Visual Feedback:**
+- **Hover highlighting**: Characters brighten (30% modulation) when mouse hovers over them
+- **Click animations**: Characters briefly scale up (10%) and brighten (50%) when clicked
+- **Visual feedback**: Helps players understand characters are interactive entities
+- **Temporary effects**: All visual feedback is brief and non-intrusive
 
 **Friend Departure System ("Excuse Me"):**
 - **Dialogue choice**: Tess can say "Would you excuse me for a bit?" to dismiss the friend
@@ -286,6 +308,8 @@ TessOfHearts/
 - **State reset**: Resets departure flags and moves friend to Tess's position
 - **Resume following**: Friend will follow Tess normally after being summoned
 - **Phone call concept**: Thematic integration with the game's narrative
+- **Call animation**: Tess plays a phone call animation when summoning the friend
+- **Dialogue during call**: Tess displays "Come over here" dialogue during the call animation
 
 ### ✅ **Heart Repair System** (Fully Implemented)
 - **Material-based repair mechanics** with multiplier system
@@ -312,6 +336,9 @@ TessOfHearts/
 - **Handwritten text integration** for authentic aesthetic
 - **Responsive design** for different screen sizes
 - **Debug information** for development and testing
+- **UI button accessibility** with proper mouse filter settings for input detection
+- **Consumption and crafting buttons** for item usage and heart repair
+- **Dynamic button enabling/disabling** based on available resources
 
 ---
 
@@ -335,6 +362,7 @@ TessOfHearts/
 - Level design and progression
 - Web export optimization
 - Energy restoration mechanics (items, rest areas, etc.)
+- Additional dialogue content and character interactions
 
 ---
 

@@ -1,14 +1,14 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://dx0aqohjhybuq"]
 
-[ext_resource type="Script" path="res://scripts/base/click_dialogue_trigger.gd" id="1_click_dialogue_trigger"]
+[ext_resource type="Script" uid="uid://5torvbl0p0v7" path="res://scripts/base/click_dialogue_trigger.gd" id="1_click_dialogue_trigger"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_click"]
-size = Vector2(100, 100)
+size = Vector2(61, 100)
 
 [node name="ClickDialogueTrigger" type="Area2D"]
-script = ExtResource("1_click_dialogue_trigger")
 collision_layer = 2
-collision_mask = 1
+script = ExtResource("1_click_dialogue_trigger")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_click") 
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_click")
