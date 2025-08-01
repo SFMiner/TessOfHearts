@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/ROSES.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.ROSE_THORNS
 @export var beauty_pain_balance: float = 0.75

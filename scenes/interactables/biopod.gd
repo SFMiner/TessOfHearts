@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/BIOPOD.GD
 # ===========================================
 
-extends Interactable
+extends SmartInteractable
 
 @export var pod_type: String = "healing"
 @export var organic_value: float = 15.0

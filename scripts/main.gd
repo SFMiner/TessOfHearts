@@ -4,7 +4,7 @@
 
 extends Node2D
 
-const scr_debug : bool = false 
+const scr_debug : bool = true 
 var debug : bool
 
 @onready var scene_holder: Node2D = $SceneHolder
@@ -44,7 +44,7 @@ func _ready() -> void:
 	await get_tree().create_timer(1.0).timeout  # Wait a bit longer
 	test_dialogue_input_fix()
 
-
+	setup_global_input_handling()
 
 #func set_tess(tess_node : Character) -> void:
 #	tess = tess_node
@@ -130,24 +130,34 @@ func setup_global_input_handling() -> void:
 	
 	# Connect to InputManager if available
 	if InputManager:
-		InputManager.touch_started.connect(_on_global_touch_started)
-		if debug: print("InputManager connected")
+		# Check if already connected to avoid duplicate connections
+		if not InputManager.touch_started.is_connected(_on_global_touch_started):
+			InputManager.touch_started.connect(_on_global_touch_started)
+			if debug: print("InputManager touch_started signal connected to main.gd")
+		else:
+			if debug: print("InputManager touch_started signal already connected")
 	else:
 		if debug: print("ERROR: InputManager not found!")
 
+# Also add this to double-check the connection:
 func _on_global_touch_started(position: Vector2) -> void:
-	if debug: print("=== TOUCH DETECTED ===")
+	if debug: print("=== MAIN TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
+	if debug: print("Signal connection working!")
 	
 	# CRITICAL: Check UI elements BEFORE doing anything else
 	if is_click_on_ui_element(position):
-		if debug: print("Click is on UI element - completely ignoring")
+		if debug: print("MAIN: Click is on UI element - completely ignoring")
 		return
+	else:
+		if debug: print("MAIN: Click is NOT on UI element")
 	
 	# NEW: Check if click is on an interactable that Tess is already in range of
 	if is_click_on_interactable_in_range(position):
-		if debug: print("Click is on interactable in range - letting interactable handle it")
+		if debug: print("MAIN: Click is on interactable in range - letting interactable handle it")
 		return
+	else:
+		if debug: print("MAIN: Click is NOT on interactable in range")
 		
 	
 	# Also check if click is in the UI layer area (fallback)
@@ -181,14 +191,14 @@ func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("World position (converted): ", world_position)
 	
 	# Check if Tess is in an interactive area
-	if is_tess_in_interactive_area():
-		# Only allow movement if click is far enough away to exit the area
-		var distance_to_click = tess.global_position.distance_to(world_position)
-		if distance_to_click < 100:  # Adjust this threshold as needed
-			if debug: print("Click too close while in interactive area - ignoring")
-			return
-		else:
-			if debug: print("Click far enough to exit area - allowing movement")
+#	if is_tess_in_interactive_area():
+#		# Only allow movement if click is far enough away to exit the area
+#		var distance_to_click = tess.global_position.distance_to(world_position)
+#		if distance_to_click < 100:  # Adjust this threshold as needed
+#			if debug: print("Click too close while in interactive area - ignoring")
+#			return
+#		else:
+#			if debug: print("Click far enough to exit area - allowing movement")
 	
 	# Check if Tess is moving toward the friend and should stop at interaction area
 	if is_moving_toward_friend(world_position):
@@ -203,19 +213,51 @@ func _on_global_touch_started(position: Vector2) -> void:
 func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING SMART INTERACTABLE CLICK ===")
 	
+	# Convert click position to world coordinates
+	var world_click_position = get_global_mouse_position()
+	if debug: print("World click position: ", world_click_position)
+	
 	# Get all smart interactables
 	var smart_interactables = get_tree().get_nodes_in_group("interactables")
+	if debug: print("Found ", smart_interactables.size(), " interactables")
 	
 	for interactable in smart_interactables:
-		if interactable.has_method("is_tess_in_range") and interactable.tess_in_interaction_area:
-			# Check if click is on this interactable
-			var distance = interactable.global_position.distance_to(get_global_mouse_position())
-			if distance <= interactable.interaction_range:
-				if debug: print("Click is on interactable in range: ", interactable.name)
+		if debug: print("Checking interactable: ", interactable.name, " at position: ", interactable.global_position)
+		
+		# Check if Tess is in THIS specific interactable's area
+		var tess_in_area = false
+		if "tess_in_interaction_area" in interactable:
+			tess_in_area = interactable.tess_in_interaction_area
+		elif interactable.has_method("is_tess_in_range"):
+			tess_in_area = interactable.is_tess_in_range()
+		
+		if debug: print("  - Tess in area: ", tess_in_area)
+		
+		if tess_in_area:
+			# Get the interaction range
+			var interaction_range = 50.0  # Default
+			if interactable.has_property("interaction_range"):
+				interaction_range = interactable.interaction_range
+			elif interactable.get("interaction_range"):
+				interaction_range = interactable.get("interaction_range")
+			
+			# Calculate distance to clicked position
+			var distance_to_click = interactable.global_position.distance_to(world_click_position)
+			
+			if debug: print("  - Interaction range: ", interaction_range)
+			if debug: print("  - Distance to click: ", distance_to_click)
+			if debug: print("  - Will block movement: ", distance_to_click <= interaction_range)
+			
+			# Only block if the click is on the SAME interactable that Tess is near
+			if distance_to_click <= interaction_range:
+				if debug: print("BLOCKING MOVEMENT - Click is on interactable Tess is near: ", interactable.name)
 				return true
+			else:
+				if debug: print("ALLOWING MOVEMENT - Click is far from interactable Tess is near")
 	
+	if debug: print("ALLOWING MOVEMENT - No blocking interactables found")
 	return false
-
+	
 func is_tess_in_interactive_area() -> bool:
 	# Simple check - you could make this more sophisticated
 	var interactive_areas = get_tree().get_nodes_in_group("interactive_areas")
@@ -224,23 +266,73 @@ func is_tess_in_interactive_area() -> bool:
 			return true
 	return false
 
+# Replace your is_click_on_ui_element function with this debug version:
+
 func is_click_on_ui_element(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING UI CLICK ===")
-	if debug: print("Click position: ", click_position)
+	if debug: print("Click position (world): ", click_position)
 	
-	# Check dialogue choice UI first
+	# CRITICAL FIX: Convert world coordinates to screen coordinates for UI comparison
+	var camera = get_viewport().get_camera_2d()
+	var screen_click_position = click_position
+	if camera:
+		# Convert world position to screen position
+		var canvas_transform = get_viewport().get_canvas_transform()
+		screen_click_position = canvas_transform * click_position
+	
+	if debug: print("Click position (screen): ", screen_click_position)
+	
+	# Check dialogue choice UI first with corrected coordinates
 	var choice_ui_nodes = get_tree().get_nodes_in_group("dialogue_choice_ui")
-	for choice_ui in choice_ui_nodes:
-		if choice_ui.visible and choice_ui.is_showing:
-			var choice_rect = Rect2(choice_ui.global_position, choice_ui.size)
-			if choice_rect.has_point(click_position):
-				if debug: print("Click is within dialogue choice UI bounds")
-				return true
+	if debug: print("Found ", choice_ui_nodes.size(), " dialogue choice UI nodes")
 	
-	# Check specific UI buttons by finding them directly in the scene tree
+	for choice_ui in choice_ui_nodes:
+		if debug: print("Checking choice UI: ", choice_ui.name)
+		if debug: print("  - Visible: ", choice_ui.visible)
+		
+		if choice_ui.visible and "is_showing" in choice_ui and choice_ui.is_showing:
+			if debug: print("Found ACTIVE dialogue choice UI!")
+			
+			# Check if click is within the entire dialogue choice UI area
+			var choice_container = choice_ui.get_node_or_null("ChoiceContainer")
+			if choice_container:
+				if debug: print("  - Choice container found")
+				if debug: print("  - Container global_position: ", choice_container.global_position)
+				if debug: print("  - Container size: ", choice_container.size)
+				
+				# Use screen coordinates for comparison
+				var container_rect = Rect2(choice_container.global_position, choice_container.size)
+				if debug: print("  - Container rect: ", container_rect)
+				if debug: print("  - Screen click position: ", screen_click_position)
+				
+				if container_rect.has_point(screen_click_position):
+					if debug: print("BLOCKING CLICK - Within dialogue choice container bounds!")
+					return true
+				else:
+					if debug: print("  - Click NOT in container bounds")
+					
+					# Check individual choice children
+					if debug: print("  - Checking ", choice_container.get_child_count(), " choice container children")
+					for i in range(choice_container.get_child_count()):
+						var child = choice_container.get_child(i)
+						if debug: print("    - Child ", i, ": ", child.name, " at ", child.global_position, " size ", child.size)
+						var child_rect = Rect2(child.global_position, child.size)
+						if child_rect.has_point(screen_click_position):
+							if debug: print("BLOCKING CLICK - Within dialogue choice child bounds!")
+							return true
+			else:
+				if debug: print("  - No ChoiceContainer found in dialogue UI")
+				
+				# Fallback: check the entire dialogue UI bounds
+				var ui_rect = Rect2(choice_ui.global_position, choice_ui.size)
+				if debug: print("  - Fallback: checking entire UI rect: ", ui_rect)
+				if ui_rect.has_point(screen_click_position):
+					if debug: print("BLOCKING CLICK - Within dialogue UI bounds (fallback)!")
+					return true
+	
+	# Check GameHUD buttons (use original click_position since this was working)
 	var game_hud = get_tree().current_scene.get_node_or_null("UI/GameHUD")
 	if game_hud:
-		# List of button paths within GameHUD
 		var button_paths = [
 			"VBoxContainer2/InventoryContainer/Inventory/ConsumeCookieButton",
 			"VBoxContainer2/InventoryContainer/Inventory/ConsumeWhiskeyButton",
@@ -253,32 +345,14 @@ func is_click_on_ui_element(click_position: Vector2) -> bool:
 		for button_path in button_paths:
 			var button = game_hud.get_node_or_null(button_path)
 			if button and button.visible and not button.disabled:
-				# Get the button's global rect
 				var button_rect = Rect2(button.global_position, button.size)
-				if button_rect.has_point(click_position):
-					if debug: print("Click is on UI button: ", button.name, " at ", button.global_position, " size ", button.size)
+				if button_rect.has_point(screen_click_position):
+					if debug: print("Click is on GameHUD button: ", button.name)
 					return true
 	
-	# Check buttons in ui_buttons group as fallback
-	var all_buttons = get_tree().get_nodes_in_group("ui_buttons")
-	for button in all_buttons:
-		if button.visible and not button.disabled:
-			var button_rect = Rect2(button.global_position, button.size)
-			if button_rect.has_point(click_position):
-				if debug: print("Click is on grouped UI button: ", button.name)
-				return true
-	
-	# ADDITIONAL CHECK: Look for any Control with mouse_filter = STOP that contains the click
-	var ui_root = get_tree().current_scene.get_node_or_null("UI")
-	if ui_root:
-		var blocking_control = find_blocking_control_at_position(ui_root, click_position)
-		if blocking_control:
-			if debug: print("Click blocked by control: ", blocking_control.name)
-			return true
-	
-	if debug: print("No UI element clicked")
+	if debug: print("No UI element clicked - allowing movement")
 	return false
-
+	
 # Helper function to find any Control that should block clicks at a position
 func find_blocking_control_at_position(node: Node, position: Vector2) -> Control:
 	# Check if this node is a blocking Control

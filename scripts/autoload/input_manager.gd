@@ -119,12 +119,20 @@ func find_touched_objects(position: Vector2) -> void:
 					print("Cannot interact with ", body.name, " - no energy (", current_energy, ")")
 					continue
 			
+			# CRITICAL DEBUG: Check what happens with different object types
+			print("  - Processing interaction with: ", body.name)
+
 			# Special handling for different object types
 			if body.has_method("_on_touched"):
 				body._on_touched(position)
 			elif body.has_signal("touched"):
 				body.touched.emit(position)
-
+				
+	# CRITICAL DEBUG: Check if touch_started signal is being emitted
+	print("INPUT MANAGER: About to emit touch_started signal")
+	touch_started.emit(position)
+	print("INPUT MANAGER: touch_started signal emitted")
+	
 func get_current_touch_position() -> Vector2:
 	return current_touch_position
 

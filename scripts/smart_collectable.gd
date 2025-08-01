@@ -31,7 +31,7 @@ var loaded_texture: bool = false
 
 func _ready() -> void:
 	# Set up interaction range based on collectable size
-	interaction_range = 40.0  # Slightly larger than the sprite
+	interaction_range = -20.0  # Slightly larger than the sprite
 	
 	# Call parent setup
 	super._ready()

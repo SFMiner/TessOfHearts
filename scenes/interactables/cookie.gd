@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/COOKIE.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var cookie_type: String = "friendship"
 @export var comfort_value: float = 3.0

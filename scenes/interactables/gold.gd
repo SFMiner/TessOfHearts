@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/GOLD.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var gold_value: float = 25.0
 @export var currency_type: String = "cosmic_gold"

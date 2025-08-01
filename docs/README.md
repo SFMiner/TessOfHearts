@@ -174,10 +174,18 @@ TessOfHearts/
 │   └── ui/           # UI scenes
 ├── scripts/          # GDScript code
 │   ├── autoload/     # Singleton scripts
-│   ├── base/         # Base classes
+│   ├── base/         # Base classes (including SmartInteractable)
 │   └── ui/           # UI-specific scripts
 └── textures/         # Texture assets
 ```
+
+## Documentation
+
+- **[Smart Interactable System](Smart_Interactable_System.md)**: Complete guide to the new interactable architecture
+- **[Developer Quick Reference](Developer_Quick_Reference.md)**: Quick reference for developers working with the system
+- **[Dialogue System Usage](Dialogue_System_Usage.md)**: How to use the dialogue system
+- **[Dialogue Display System Fix](Dialogue_Display_System_Fix.md)**: Technical details about dialogue display improvements
+- **[Directory Structure](directory_structure.md)**: Detailed project file organization
 
 ---
 
@@ -323,12 +331,38 @@ TessOfHearts/
 - **UI integration** for numbers, messages, and dialogue
 - **Proper scaling and positioning** for different screen sizes
 
-### ✅ **Interaction System** (Fully Implemented)
-- **Base interactable class** with energy cost integration
-- **Openable objects** (doors, containers) with proper state management
-- **Collectable items** with energy costs and inventory integration
-- **Character interactions** with dialogue system integration
-- **Touch and mouse input** support for all interaction types
+### ✅ **Smart Interactable System** (Fully Implemented)
+- **Clean inheritance hierarchy**: SmartInteractable → SmartCollectable for inventory items
+- **Automatic interaction areas**: Circular detection zones around all interactables
+- **Smart click handling**: Distinguishes between movement vs interaction based on Tess's proximity
+- **Integrated energy management**: Automatic energy cost handling for all interactions
+- **Visual feedback system**: Highlighting, scaling, and fade effects for interactions
+- **Proper input hierarchy**: Respects UI button priority and prevents movement interference
+- **Extensible architecture**: Easy to create new interactable types with consistent behavior
+
+**Key Features**:
+- **Interaction Range System**: Each interactable has a configurable circular detection area
+- **Smart Movement Logic**: If Tess is NOT in range, click moves Tess toward the item; if Tess IS in range, click interacts with the item
+- **Energy Integration**: Automatic energy cost checking and spending for all interactions
+- **UI Click Detection**: Sophisticated system prevents UI button clicks from triggering movement
+- **Visual Feedback**: Built-in highlighting, scaling, and collection effects
+- **Debug Support**: Comprehensive logging and visual indicators for development
+
+**Architecture**:
+```
+SmartInteractable (Base Class)
+├── SmartCollectable (Inventory Items)
+├── GuideCat (Dialogue NPCs)
+├── Openable (Doors, Containers)
+└── Other Interactables (Biopods, Kilns, etc.)
+```
+
+**Fixed Issues**:
+- ✅ UI buttons work immediately at game start (no more startup delay)
+- ✅ No unwanted movement when clicking UI buttons
+- ✅ Smart interaction system prevents movement paralysis
+- ✅ Consistent behavior across all interactables
+- ✅ Proper input event hierarchy that respects UI priority
 
 ### ✅ **UI System** (Fully Implemented)
 - **Real-time resource displays** for energy and courage with color coding
@@ -339,6 +373,22 @@ TessOfHearts/
 - **UI button accessibility** with proper mouse filter settings for input detection
 - **Consumption and crafting buttons** for item usage and heart repair
 - **Dynamic button enabling/disabling** based on available resources
+
+### ✅ **Input Handling System** (Fully Implemented)
+- **Sophisticated UI click detection** that prevents movement when clicking UI elements
+- **Proper mouse filter management** ensuring UI buttons work immediately at game start
+- **Input event hierarchy** that respects UI priority over movement commands
+- **Dialogue choice UI integration** with proper input blocking when visible
+- **Touch and mouse input** support with consistent behavior across platforms
+- **Debug input tracking** for development and troubleshooting
+
+**Input Detection Hierarchy**:
+1. Dialogue choice UI bounds
+2. Specific UI button paths in GameHUD
+3. UI buttons in the `ui_buttons` group
+4. Any Control with `MOUSE_FILTER_STOP` containing interactive elements
+5. Smart interactable range detection
+6. Movement system (fallback)
 
 ---
 
@@ -363,6 +413,66 @@ TessOfHearts/
 - Web export optimization
 - Energy restoration mechanics (items, rest areas, etc.)
 - Additional dialogue content and character interactions
+
+---
+
+## Technical Improvements
+
+### Input System Enhancements
+
+**Issues Resolved**:
+1. **UI Button Startup Issue**: UI buttons (eat cookies, drink whiskey, craft hearts) were not clickable at game start until after opening and closing the dialogue choice UI
+2. **UI Button Movement Interference**: Clicking UI buttons triggered both the button action AND player movement, causing choppy visual behavior
+3. **Interactable Movement Conflict**: Clicking on interactables/collectibles caused unwanted player movement even when the player was already in interaction range
+4. **Openable Input Interference**: Openables (doors, cabinets) were triggering on mouse hover instead of clicks, causing rapid energy drain as they flashed open/closed when scanning the mouse over them
+5. **Smart Interactable Movement Blocking**: When standing near one collectable, player couldn't move to nearby collectables even when not in their interaction range, causing "movement paralysis" in areas with clustered items
+6. **Dialogue Choice Movement Interference**: Clicking on dialogue choice buttons caused player movement to the click location instead of just selecting the dialogue option
+
+**Solutions Implemented**:
+- **Enhanced UI Click Detection**: Sophisticated system in `main.gd` that checks dialogue choice UI bounds, specific UI button paths, UI buttons in groups, and any Control with `MOUSE_FILTER_STOP`
+- **Proper Mouse Filter Management**: Modified `dialogue_choice_ui.gd` to properly initialize mouse filters to `MOUSE_FILTER_IGNORE` in `_ready()` and ensure they reset correctly in `hide_choices()`
+- **Smart Interactable System**: Created clean inheritance hierarchy with automatic interaction areas and smart click handling that distinguishes between movement vs interaction
+- **Precise Input Event Filtering**: Enhanced input filtering in `openable.gd` to only respond to actual press events (InputEventScreenTouch and InputEventMouseButton with MOUSE_BUTTON_LEFT), ignoring all mouse movement and hover events
+- **Coordinate System Consistency**: Fixed coordinate conversion in `is_click_on_ui_element()` to properly convert world click positions to screen coordinates before comparing to UI bounds
+- **Legacy Code Cleanup**: Removed outdated `is_tess_in_interactive_area()` distance check from `main.gd` that was causing movement paralysis in clustered item areas
+
+### Architecture Improvements
+
+**New Smart Interactable System**:
+- **Clean Inheritance Hierarchy**: `SmartInteractable` → `SmartCollectable` for inventory items
+- **Automatic Interaction Areas**: Each interactable has a circular detection area around it
+- **Smart Click Handling**: If Tess is NOT in range, click moves Tess toward the item; if Tess IS in range, click interacts with the item
+- **Energy Management**: Automatic energy cost handling for interactions
+- **Visual Feedback**: Highlighting, scaling, and fade effects
+- **Proper Signal System**: Standardized interaction events
+
+**Benefits**:
+- **Input Hierarchy**: Proper input event handling that respects UI priority
+- **Clean Architecture**: DRY principle applied to interactable systems
+- **Energy System Integration**: Consistent energy costs across all interactions
+- **Maintainable Code**: Single source of truth for interaction logic
+- **Extensible Design**: Easy to add new interactable types
+
+**User Experience Improvements**:
+- ✅ UI buttons work immediately at game start
+- ✅ No unwanted movement when clicking UI buttons
+- ✅ Smart interaction system prevents movement paralysis
+- ✅ Smooth, professional-feeling interactions
+- ✅ Consistent behavior across all interactables
+- ✅ No more accidental openable triggering from mouse movement
+- ✅ Smooth movement between clustered interactables
+- ✅ Dialogue choices work without causing unwanted movement
+- ✅ Consistent energy usage (no more energy drain from hover events)
+- ✅ Professional-feeling input responsiveness across all game systems
+
+**Technical Achievements**:
+- **Robust Input Hierarchy**: Proper event handling that respects UI priority over movement
+- **Precise Event Filtering**: Eliminated false-positive input detection across multiple systems
+- **Coordinate System Consistency**: Proper handling of world vs screen coordinate systems for UI detection
+- **Legacy Code Cleanup**: Removed outdated movement blocking logic that interfered with new smart systems
+- **Enhanced Debug Output**: Better diagnostic information for troubleshooting input issues
+
+The game now has robust, precise input handling that correctly distinguishes between different types of interactions and prevents input interference between systems.
 
 ---
 

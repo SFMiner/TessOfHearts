@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/BARBEDWIRE.GD
 # ===========================================
 
-extends SmartCollectable #Interactable
+extends SmartCollectable
 
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.BARBED_WIRE
 @export var damage_on_touch: float = 2.0

@@ -53,14 +53,67 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS  # This allows children to receive input, but parent can also process it
 	
 func _gui_input(event: InputEvent) -> void:
-	# Consume any input that happens within the GameHUD area
+	# Only consume input that happens on actual interactive UI elements
 	if event is InputEventMouseButton and event.pressed:
-		print("GameHUD consumed mouse click - preventing movement")
-		accept_event()  # Prevent event from reaching main.gd
+		print("GameHUD _gui_input - checking if click is on actual UI button")
+		
+		# Check if the click is specifically on one of our UI buttons
+		var click_position = event.position
+		var is_on_button = false
+		
+		# Check all our UI buttons
+		var ui_buttons = [
+			consume_cookie_button,
+			consume_whiskey_button,
+			craft_tape_heart_button,
+			craft_wire_heart_button,
+			craft_sewn_heart_button
+		]
+		
+		for button in ui_buttons:
+			if button and button.visible and not button.disabled:
+				# Convert click position to button's local coordinates
+				var button_rect = Rect2(button.position, button.size)
+				if button_rect.has_point(click_position):
+					is_on_button = true
+					print("Click IS on UI button: ", button.name)
+					break
+		
+		if is_on_button:
+			print("GameHUD consumed mouse click - preventing movement")
+			accept_event()  # Only consume if actually on a button
+		else:
+			print("Click NOT on UI button - allowing movement")
+			# Don't consume the event - let it pass through to movement system
 	elif event is InputEventScreenTouch and event.pressed:
-		print("GameHUD consumed touch - preventing movement")
-		accept_event()  # Prevent event from reaching main.gd
-
+		# Same logic for touch events
+		print("GameHUD _gui_input - checking if touch is on actual UI button")
+		
+		var touch_position = event.position
+		var is_on_button = false
+		
+		var ui_buttons = [
+			consume_cookie_button,
+			consume_whiskey_button,
+			craft_tape_heart_button,
+			craft_wire_heart_button,
+			craft_sewn_heart_button
+		]
+		
+		for button in ui_buttons:
+			if button and button.visible and not button.disabled:
+				var button_rect = Rect2(button.position, button.size)
+				if button_rect.has_point(touch_position):
+					is_on_button = true
+					print("Touch IS on UI button: ", button.name)
+					break
+		
+		if is_on_button:
+			print("GameHUD consumed touch - preventing movement")
+			accept_event()  # Only consume if actually on a button
+		else:
+			print("Touch NOT on UI button - allowing movement")
+			# Don't consume the event - let it pass through to movement system
 
 func ensure_ui_buttons_clickable() -> void:
 	# Force all UI buttons to have proper mouse filter settings

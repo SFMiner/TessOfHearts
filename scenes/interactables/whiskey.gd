@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/WHISKEY.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var whiskey_type: String = "comfort"
 @export var healing_amount: float = 5.0

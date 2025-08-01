@@ -96,6 +96,7 @@
 │   │   ├── character.gd
 │   │   ├── openable_failure.gd
 │   │   ├── interactable.gd
+│   │   ├── smart_interactable.gd
 │   │   └── touch_responder.gd
 │   └── ui/
 │   │    ├── handwritten_button.gd
@@ -103,7 +104,8 @@
 │   │    ├── notebook_page.gd
 │   │    └── notebook_paper_background_system.gd
 │   ├── handwritten_game_hud.gd
-│   └── main.gd
+│   ├── main.gd
+│   └── smart_collectable.gd
 ├── textures/
 │		└─ placeholders/
 │			├── blue_rect.png

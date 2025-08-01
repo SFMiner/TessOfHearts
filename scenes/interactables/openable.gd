@@ -39,15 +39,34 @@ func _ready():
 	input_pickable = true
 	input_event.connect(_on_area_input)
 
+	# Connect input signals properly
+	input_event.connect(_on_area_input)
+	
+	# Connect mouse signals for debugging (but don't use them for interaction)
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
+	
+	# Connect to global input system
+	if InputManager:
+		InputManager.touch_started.connect(_on_global_touch)
+	
+	if debug: print("Openable input connections established for: ", name)
+	
+
 func _on_global_touch(position: Vector2) -> void:
+	if debug: print("=== OPENABLE GLOBAL TOUCH ===")
+	if debug: print("World position: ", position)
+	if debug: print("Player has: ", player_has)
+	
 	if not player_has:
+		if debug: print("Player not in range, ignoring touch")
 		return
 	
-	# Convert to world coordinates 
-	var world_position = get_global_mouse_position()
-	var local_position = to_local(world_position)
+	# Convert to local coordinates and check if touch is within bounds
+	var local_position = to_local(position)
+	if debug: print("Local position: ", local_position)
 	
-	# Check if touch is within bounds
+	# Check collision shape bounds
 	for child in get_children():
 		if child is CollisionShape2D:
 			var collision_shape = child as CollisionShape2D
@@ -55,15 +74,41 @@ func _on_global_touch(position: Vector2) -> void:
 				var shape = collision_shape.shape as RectangleShape2D
 				var half_size = shape.size / 2
 				
-				if abs(local_position.x) <= half_size.x and abs(local_position.y) <= half_size.y:
+				if abs(local_position.x - collision_shape.position.x) <= half_size.x and abs(local_position.y - collision_shape.position.y) <= half_size.y:
+					if debug: print("=== TOUCH WITHIN OPENABLE BOUNDS ===")
 					toggle_open_close()
 					return
+				else:
+					if debug: print("Touch outside bounds - half_size: ", half_size, " offset: ", Vector2(abs(local_position.x), abs(local_position.y)))
 			break
 
+func _on_mouse_entered() -> void:
+	if debug: print("=== MOUSE ENTERED OPENABLE ===")
+	# Just for debug - don't take any action
+
+func _on_mouse_exited() -> void:
+	if debug: print("=== MOUSE EXITED OPENABLE ===")
+	# Just for debug - don't take any action
+
 func _on_area_input(viewport, event: InputEvent, shape_idx: int) -> void:
-	if debug: print("Openable input detected!")
-	if player_has:
+	if debug: print("=== OPENABLE AREA INPUT EVENT ===")
+	if debug: print("Event type: ", event.get_class())
+	if debug: print("Player has: ", player_has)
+	
+	if not player_has:
+		if debug: print("Cannot interact - Tess not in range")
+		return
+	
+	# CRITICAL FIX: Only respond to actual click/touch PRESS events, not movement
+	if event is InputEventScreenTouch and event.pressed:
+		if debug: print("SCREEN TOUCH PRESS - opening/closing")
 		toggle_open_close()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if debug: print("MOUSE BUTTON PRESS - opening/closing")
+		toggle_open_close()
+	else:
+		if debug: print("Ignoring event: ", event.get_class())
+		
 
 func _process(delta):
 	if Engine.is_editor_hint():

@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/SUTURES.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.SUTURES
 @export var repair_quality: float = 0.75

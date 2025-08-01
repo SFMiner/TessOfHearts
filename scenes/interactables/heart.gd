@@ -2,7 +2,7 @@
 # SCENES/INTERACTABLES/HEART.GD
 # ===========================================
 
-extends Interactable
+extends SmartCollectable
 
 @export var heart_type: String = "broken"
 @export var base_value: float = 10.0
