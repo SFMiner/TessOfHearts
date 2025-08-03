@@ -22,6 +22,7 @@ HeartRepairSystem="*res://scripts/autoload/heart_repair_system.gd"
 InputManager="*res://scripts/autoload/input_manager.gd"
 HandwrittenTextManager="*res://scripts/autoload/handwritten_text_manager.gd"
 GameData="*res://scripts/autoload/game_data.gd"
+SaveSystem="*res://scripts/autoload/save_system.gd"
 
 [display]
 

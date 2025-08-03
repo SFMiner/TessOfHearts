@@ -6,6 +6,8 @@
 extends SmartInteractable
 class_name SmartCollectable
 
+var object_type : String = "collectable"
+
 enum CollectableType {
 	heart_whole,
 	heart_1third,
@@ -32,7 +34,8 @@ var loaded_texture: bool = false
 func _ready() -> void:
 	# Set up interaction range based on collectable size
 	interaction_range = 30.0  # Slightly larger than the sprite
-	
+	add_to_group("collectables")
+
 	# Call parent setup
 	super._ready()
 	

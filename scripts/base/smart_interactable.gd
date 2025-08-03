@@ -35,7 +35,6 @@ var debug: bool
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	
-	add_to_group("collectables")
 	add_to_group("interactables")
 	add_to_group("interactive_areas")
 	

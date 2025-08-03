@@ -5,7 +5,7 @@ extends SmartInteractable
 @onready var label: Label = $Label
 @onready var insteraction_area : CollisionShape2D = $InteractionArea
 
-
+var object_type : String = "openable"
 
 #CircleShape2D.new()
 @export var texture: Texture2D
