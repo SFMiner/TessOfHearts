@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bk4xvlepqi83s"]
+[gd_scene load_steps=7 format=3 uid="uid://bk4xvlepqi83s"]
 
 [ext_resource type="Script" uid="uid://bh70teu4eshda" path="res://scripts/main.gd" id="1_m2o5p"]
 [ext_resource type="Script" uid="uid://bdjxwf15waob" path="res://scripts/autoload/dialogue_system.gd" id="3_0bbpv"]
 [ext_resource type="PackedScene" uid="uid://co23oslvn6wq0" path="res://dialogue_container.tscn" id="4_rarhs"]
+[ext_resource type="PackedScene" uid="uid://otwlt7284w6j" path="res://scenes/ui/handwritten_label.tscn" id="5_c01mt"]
 [ext_resource type="PackedScene" uid="uid://6ws07pmaahf" path="res://scenes/ui/game_hud.tscn" id="5_nhptj"]
 [ext_resource type="PackedScene" uid="uid://c7hckahn0pod0" path="res://scenes/ui/dialogue_choice_ui.tscn" id="6_dialogue_choice_ui"]
 
@@ -31,6 +32,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="HandwrittenLabel" parent="UI/DialogueSystem" instance=ExtResource("5_c01mt")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="Background" type="ColorRect" parent="UI/DialogueSystem"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 307.0
+offset_bottom = 66.0
 
 [node name="DialogueChoiceUI" parent="UI" instance=ExtResource("6_dialogue_choice_ui")]
 unique_name_in_owner = true

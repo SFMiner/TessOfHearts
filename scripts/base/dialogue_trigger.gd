@@ -13,12 +13,17 @@ class_name DialogueTrigger
 var has_triggered: bool = false
 var dialogue_system: Node
 
+const scr_debug : bool =  false
+var debug : bool
+
 func _ready() -> void:
-	print("=== DIALOGUE TRIGGER SETUP ===")
-	print("Dialogue key: ", dialogue_key)
-	print("Trigger once: ", trigger_once)
-	print("Trigger distance: ", trigger_distance)
-	
+	debug = scr_debug or GameData.sys_debug
+	if debug: 
+		print("=== DIALOGUE TRIGGER SETUP ===")
+		print("Dialogue key: ", dialogue_key)
+		print("Trigger once: ", trigger_once)
+		print("Trigger distance: ", trigger_distance)
+		
 	# Find dialogue system in scene
 	dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 	if not dialogue_system:
@@ -32,23 +37,24 @@ func _ready() -> void:
 	collision_layer = 0  # Don't collide with anything
 	collision_mask = 2   # Only detect Tess (layer 2)
 	
-	print("Dialogue trigger setup complete")
+	if debug: print("Dialogue trigger setup complete")
 
 func _on_body_entered(body: Node2D) -> void:
 	if not dialogue_system:
-		print("ERROR: No dialogue system available")
+		if debug: print("ERROR: No dialogue system available")
 		return
 		
 	if trigger_once and has_triggered:
-		print("Dialogue already triggered once, ignoring")
+		if debug: print("Dialogue already triggered once, ignoring")
 		return
 		
 	# Check if it's Tess
 	if body.is_in_group("Player") or body.name == "Tess":
-		print("=== DIALOGUE TRIGGER ACTIVATED ===")
-		print("Speaker: ", body.name)
-		print("Dialogue key: ", dialogue_key)
-		print("Speaker position: ", body.global_position)
+		if debug: 
+			print("=== DIALOGUE TRIGGER ACTIVATED ===")
+			print("Speaker: ", body.name)
+			print("Dialogue key: ", dialogue_key)
+			print("Speaker position: ", body.global_position)
 		
 		# Show dialogue positioned at the trigger area (not moving with the character)
 		dialogue_system.show_dialogue(dialogue_key, self, Color(1, 0.98, 0.8, 0.9), 0.25, fade_duration)
@@ -56,6 +62,6 @@ func _on_body_entered(body: Node2D) -> void:
 		has_triggered = true
 		
 		if trigger_once:
-			print("Dialogue triggered once, disabling trigger")
+			if debug: print("Dialogue triggered once, disabling trigger")
 			# Optionally disable the trigger
 			# queue_free() 

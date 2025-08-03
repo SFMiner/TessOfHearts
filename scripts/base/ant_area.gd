@@ -29,10 +29,15 @@ var is_player_in_area: bool = false
 var player_node: Node2D
 var _loaded = false
 
+const scr_debug : bool =  false
+var debug : bool
+
 func _ready() -> void:
-	print("=== ANT AREA SETUP ===")
-	print("Ant count: ", ant_count)
-	print("Area size: ", area_size)
+	debug = scr_debug or GameData.sys_debug
+	if debug:  
+		print("=== ANT AREA SETUP ===")
+		print("Ant count: ", ant_count)
+		print("Area size: ", area_size)
 	
 	# Set up collision area
 	setup_collision_area()
@@ -48,7 +53,10 @@ func _ready() -> void:
 	if InputManager:
 		InputManager.touch_started.connect(_on_global_touch)
 	
-	print("Ant area setup complete")
+	add_to_group("ant_areas")
+	
+	if debug: print("Ant area setup complete")
+	
 
 func setup_collision_area() -> void:
 	if not collision_shape:
@@ -73,10 +81,10 @@ func update_visual_indicator() -> void:
 		visual_indicator.offset_top = -half_size.y
 		visual_indicator.offset_right = half_size.x
 		visual_indicator.offset_bottom = half_size.y
-		print("Visual indicator resized to: ", area_size)
+		if debug: print("Visual indicator resized to: ", area_size)
 
 func spawn_ants() -> void:
-	print("Spawning ", ant_count, " ants...")
+	if debug: print("Spawning ", ant_count, " ants...")
 	
 	# Create ant container if it doesn't exist
 	if not ant_container:
@@ -105,7 +113,7 @@ func spawn_ants() -> void:
 		var target = get_random_position_in_area()
 		ant_targets.append(target)
 		
-		print("Ant ", i, " spawned at: ", random_pos, " with target: ", target)
+		if debug: print("Ant ", i, " spawned at: ", random_pos, " with target: ", target)
 
 func create_ant() -> Node2D:
 	var ant = Node2D.new()
@@ -165,25 +173,25 @@ func _process(delta: float) -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Tess":
-		print("Tess entered ant area: ", name)
+		if debug: print("Tess entered ant area: ", name)
 		is_player_in_area = true
 		player_node = body
 		
 		# Spend courage equal to current ant count when entering
 		var courage_cost = ants.size()
 		GameData.spend_courage(courage_cost)
-		print("Courage penalty for entering area: ", courage_cost, " (", ants.size(), " ants)")
+		if debug: print("Courage penalty for entering area: ", courage_cost, " (", ants.size(), " ants)")
 		
 		update_ant_counter()
 
 func _on_body_exited(body: Node2D) -> void:
 	if body.name == "Tess":
-		print("Tess left ant area: ", name)
+		if debug: print("Tess left ant area: ", name)
 		
 		# Spend courage equal to current ant count when leaving
 		var courage_cost = ants.size()
 		GameData.spend_courage(courage_cost)
-		print("Courage penalty for leaving area: ", courage_cost, " (", ants.size(), " ants)")
+		if debug: print("Courage penalty for leaving area: ", courage_cost, " (", ants.size(), " ants)")
 		
 		is_player_in_area = false
 		player_node = null
@@ -199,7 +207,7 @@ func _on_global_touch(position: Vector2) -> void:
 	var half_size = area_size / 2
 	
 	if abs(local_pos.x) <= half_size.x and abs(local_pos.y) <= half_size.y:
-		print("Touch detected in ant area: ", name)
+		if debug: print("Touch detected in ant area: ", name)
 		check_ant_stepping(position)
 
 func check_ant_stepping(touch_position: Vector2) -> void:
@@ -249,7 +257,7 @@ func step_on_ant(ant_index: int) -> void:
 	
 	# Spend courage for stepping on ant (cost equals current ant count)
 	GameData.spend_courage(courage_cost)
-	print("Stepping on ant ", ant_index, " at position: ", ant.global_position, " - Courage cost: ", courage_cost, " (", ants.size(), " ants), Remaining courage: ", GameData.cur_courage)
+	if debug: print("Stepping on ant ", ant_index, " at position: ", ant.global_position, " - Courage cost: ", courage_cost, " (", ants.size(), " ants), Remaining courage: ", GameData.cur_courage)
 	
 	# Visual feedback for stepping
 	var step_tween = create_tween()
@@ -261,7 +269,7 @@ func step_on_ant(ant_index: int) -> void:
 		ants.remove_at(ant_index)
 		ant_targets.remove_at(ant_index)
 		
-		print("Ant removed. Remaining ants: ", ants.size())
+		if debug: print("Ant removed. Remaining ants: ", ants.size())
 		
 		# Emit signal for ant stepped on
 		ant_stepped_on.emit(self, ants.size())
@@ -275,7 +283,7 @@ func step_on_ant(ant_index: int) -> void:
 	)
 
 func on_area_cleared() -> void:
-	print("Ant area cleared: ", name)
+	if debug: print("Ant area cleared: ", name)
 	
 	# Visual feedback for cleared area
 	var clear_tween = create_tween()
@@ -309,3 +317,24 @@ func update_ant_counter() -> void:
 	if ant_counter:
 		ant_counter.text = str(ants.size()) + " ants"
 		ant_counter.visible = is_player_in_area and ants.size() > 0 
+
+func set_ant_count(new_count: int) -> void:
+	# Remove excess ants
+	while ants.size() > new_count:
+		var ant = ants.pop_back()
+		if ant:
+			ant.queue_free()
+		ant_targets.pop_back()
+	
+	# Add missing ants
+	while ants.size() < new_count:
+		var ant = create_ant()
+		ant_container.add_child(ant)
+		ants.append(ant)
+		
+		var random_pos = get_random_position_in_area()
+		ant.global_position = random_pos
+		var target = get_random_position_in_area()
+		ant_targets.append(target)
+	
+	update_ant_counter()

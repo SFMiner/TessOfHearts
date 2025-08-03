@@ -12,10 +12,10 @@ func _ready() -> void:
 	interaction_text = "Painful coping - it hurts, but it holds things together."
 	super._ready()
 
-func setup_visual() -> void:
-	if visual:
-		visual.color = Color("#808080")  # Grey
-		visual.size = Vector2(40, 16)
+#func setup_visual() -> void:
+#	if visual:
+#		visual.color = Color("#808080")  # Grey
+#		visual.size = Vector2(40, 16)
 
 func handle_interaction() -> void:
 	print("Barbed wire collected - painful but functional")

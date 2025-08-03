@@ -53,9 +53,17 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS  # This allows children to receive input, but parent can also process it
 	
 func _gui_input(event: InputEvent) -> void:
+	# Accept input events that happen within the GameHUD area to prevent movement
+	if event is InputEventMouseButton and event.pressed:
+		print("GameHUD _gui_input - consuming click to prevent movement")
+		accept_event()  # This prevents the event from reaching main.gd
+	elif event is InputEventScreenTouch and event.pressed:
+		print("GameHUD _gui_input - consuming touch to prevent movement") 
+		accept_event()  # This prevents the event from reaching main.gd
+	
 	# Only consume input that happens on actual interactive UI elements
 	if event is InputEventMouseButton and event.pressed:
-		print("GameHUD _gui_input - checking if click is on actual UI button")
+		if debug: print("GameHUD _gui_input - checking if click is on actual UI button")
 		
 		# Check if the click is specifically on one of our UI buttons
 		var click_position = event.position
@@ -80,14 +88,14 @@ func _gui_input(event: InputEvent) -> void:
 					break
 		
 		if is_on_button:
-			print("GameHUD consumed mouse click - preventing movement")
+			if debug: print("GameHUD consumed mouse click - preventing movement")
 			accept_event()  # Only consume if actually on a button
 		else:
-			print("Click NOT on UI button - allowing movement")
+			if debug: print("Click NOT on UI button - allowing movement")
 			# Don't consume the event - let it pass through to movement system
 	elif event is InputEventScreenTouch and event.pressed:
 		# Same logic for touch events
-		print("GameHUD _gui_input - checking if touch is on actual UI button")
+		if debug: print("GameHUD _gui_input - checking if touch is on actual UI button")
 		
 		var touch_position = event.position
 		var is_on_button = false
@@ -109,10 +117,10 @@ func _gui_input(event: InputEvent) -> void:
 					break
 		
 		if is_on_button:
-			print("GameHUD consumed touch - preventing movement")
+			if debug: print("GameHUD consumed touch - preventing movement")
 			accept_event()  # Only consume if actually on a button
 		else:
-			print("Touch NOT on UI button - allowing movement")
+			if debug: print("Touch NOT on UI button - allowing movement")
 			# Don't consume the event - let it pass through to movement system
 
 func ensure_ui_buttons_clickable() -> void:
@@ -127,11 +135,11 @@ func ensure_ui_buttons_clickable() -> void:
 	for button in ui_buttons:
 		if button:
 			button.mouse_filter = Control.MOUSE_FILTER_STOP
-			print("Ensured ", button.name, " is clickable")
+			if debug: print("Ensured ", button.name, " is clickable")
 	
 	# Also ensure the main UI container doesn't block input
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	print("UI buttons accessibility ensured")
+	if debug: print("UI buttons accessibility ensured")
 
 func set_inventory():
 	unbroken_hearts_collected.text = "Unbroken Hearts: " + str(GameData.num_hearts_whole)
@@ -161,7 +169,7 @@ func set_hearts():
 
 func update_energy_display() -> void:
 	var current_energy = GameManager.get_energy()
-	var max_energy = GameData.max_energy
+	const max_energy = GameData.max_energy
 	
 	# Color code the energy display based on level
 	var energy_color = Color.WHITE
@@ -181,7 +189,7 @@ func _on_energy_changed(current_energy: int, max_energy: int) -> void:
 
 func update_courage_display() -> void:
 	var current_courage = GameData.cur_courage
-	var max_courage = GameData.max_courage
+	const max_courage = GameData.max_courage
 	
 	# Color code the courage display based on level
 	var courage_color = Color.WHITE

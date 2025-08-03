@@ -14,8 +14,8 @@ signal collected()
 @export var interaction_text: String = ""
 @export var uses_energy: bool = true  # Whether this interactable uses energy
 
-@onready var area_2d: Area2D = $Area2D
-@onready var visual: ColorRect = $Visual
+#@onready var area_2d: Area2D = $Area2D
+#@onready var visual: ColorRect = $Visual
 
 var interaction_data: Dictionary = {}
 var is_highlighted: bool = false
@@ -29,7 +29,7 @@ var original_modulate: Color
 var tess_in_interaction_area: bool = false
 var interaction_area: Area2D = null
 
-const scr_debug: bool = false
+const scr_debug: bool = true
 var debug: bool
 
 func _ready() -> void:
@@ -40,10 +40,42 @@ func _ready() -> void:
 	add_to_group("interactive_areas")
 	
 	setup_interaction_area()
-	setup_touch_detection()
+	# setup_touch_detection()
 	
+	# CRITICAL: Set process priority to handle input before InputManager
+	process_priority = 100  # Higher priority than default (0)
+	
+	# Connect to InputManager with DEFERRED flag to process after area events
 	if InputManager:
-		InputManager.touch_started.connect(_on_global_touch)
+		InputManager.touch_started.connect(_on_global_touch, CONNECT_DEFERRED)
+
+func _input(event: InputEvent) -> void:
+	"""Handle input with highest priority before other systems"""
+	if not can_interact:
+		return
+		
+	# Only handle clicks when Tess is in interaction area
+	if not tess_in_interaction_area:
+		return
+		
+	var is_valid_click = false
+	if event is InputEventScreenTouch and event.pressed:
+		is_valid_click = true
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		is_valid_click = true
+	
+	if is_valid_click:
+		# Check if click is within interaction range
+		var world_position = get_global_mouse_position()
+		var distance_to_click = global_position.distance_to(world_position)
+		
+		if distance_to_click <= interaction_range:
+			if debug: print("SmartInteractable handling input with priority: ", name)
+			perform_interaction()
+			# Mark input as handled to prevent other systems from processing it
+			get_viewport().set_input_as_handled()
+			return
+
 
 func setup_interaction_area() -> void:
 	if debug: print("=== SETTING UP INTERACTION AREA FOR: ", name, " ===")
@@ -70,9 +102,9 @@ func setup_interaction_area() -> void:
 	
 	if debug: print("Interaction area setup complete for: ", name)
 
-func setup_touch_detection() -> void:
+#func setup_touch_detection() -> void:
 	# Connect to this interactable's input events
-	input_event.connect(_on_area_input_event)
+#	input_event.connect(_on_area_input_event)
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if debug: print("=== INTERACTION AREA BODY ENTERED: ", name, " ===")
@@ -93,15 +125,66 @@ func _on_interaction_area_body_exited(body: Node2D) -> void:
 		tess_in_interaction_area = false
 		if debug: print("Tess exited interaction area for: ", name)
 
-func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+
+func _on_area_input_event_old(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if debug: print("=== INTERACTABLE INPUT EVENT: ", name, " ===")
 	if debug: print("Event type: ", event.get_class())
+	if debug: print("Tess in interaction area: ", tess_in_interaction_area)
 	
 	if event is InputEventScreenTouch and event.pressed:
-		_on_interactable_touched(event.position)
+		if debug: print("CONSUMING TOUCH INPUT for: ", name)
+		get_viewport().set_input_as_handled()
+		#_on_interactable_touched(event.position)
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_on_interactable_touched(event.position)
+		if debug: print("CONSUMING MOUSE INPUT for: ", name)
+		get_viewport().set_input_as_handled()
+		#_on_interactable_touched(event.position)
 
+func _on_global_touch_old(position: Vector2) -> void:
+	if not tess_in_interaction_area:
+		return
+	
+	# Convert to local coordinates and check if touch is on this interactable
+	var local_position = to_local(position)
+	var distance = local_position.length()
+	
+	if distance <= interaction_range:
+		if debug: print("Global touch detected on interactable: ", name)
+		#_on_interactable_touched(position)
+
+#func _on_interactable_touched(position: Vector2) -> void:
+#	if debug: print("=== INTERACTABLE TOUCHED: ", name, " ===")
+#	if debug: print("Tess in interaction area: ", tess_in_interaction_area)
+	
+	# If Tess is in interaction area, interact instead of moving
+#	if tess_in_interaction_area:
+#		if debug: print("Tess in range - performing interaction instead of movement")
+#		perform_interaction()
+#		# CRITICAL: Consume the input event AFTER the interaction
+#		get_viewport().set_input_as_handled()
+#		return
+#	else:
+		# Tess is not in range, allow normal movement toward the interactable
+#		if debug: print("Tess not in range - allowing movement toward interactable")
+		# Don't consume input - let it propagate to movement system
+#		pass
+
+# Also update the area input event handler:
+#func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+#	if debug: print("=== INTERACTABLE INPUT EVENT: ", name, " ===")
+#	if debug: print("Event type: ", event.get_class())
+#	if debug: print("Tess in interaction area: ", tess_in_interaction_area)
+	
+	# Only handle actual presses, not mouse movement
+#	if event is InputEventScreenTouch and event.pressed:
+#		if debug: print("Processing touch press for: ", name)
+#		_on_interactable_touched(event.position)
+#	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+#		if debug: print("Processing mouse press for: ", name)
+#		_on_interactable_touched(event.position)
+	# Note: Input consumption now happens in _on_interactable_touched if interaction occurs
+
+# And update the global touch handler:
 func _on_global_touch(position: Vector2) -> void:
 	if not tess_in_interaction_area:
 		return
@@ -112,24 +195,9 @@ func _on_global_touch(position: Vector2) -> void:
 	
 	if distance <= interaction_range:
 		if debug: print("Global touch detected on interactable: ", name)
-		_on_interactable_touched(position)
-
-func _on_interactable_touched(position: Vector2) -> void:
-	if debug: print("=== INTERACTABLE TOUCHED: ", name, " ===")
-	if debug: print("Tess in interaction area: ", tess_in_interaction_area)
-	
-	# If Tess is in interaction area, interact instead of moving
-	if tess_in_interaction_area:
-		if debug: print("Tess in range - performing interaction instead of movement")
-		perform_interaction()
-		# Don't allow this to propagate to movement system
-		return
-	else:
-		# Tess is not in range, allow normal movement toward the interactable
-		if debug: print("Tess not in range - allowing movement toward interactable")
-		# Let the click propagate to the movement system
-		pass
-
+		#_on_interactable_touched(position)
+		# Input consumption is handled in _on_interactable_touched
+		
 func perform_interaction() -> void:
 	if debug: print("=== PERFORMING INTERACTION: ", name, " ===")
 	

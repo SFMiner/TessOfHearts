@@ -12,10 +12,10 @@ func _ready() -> void:
 	interaction_text = "Shared sweetness makes everything better."
 	super._ready()
 
-func setup_visual() -> void:
-	if visual:
-		visual.color = Color("#8B4513")  # Brown
-		visual.size = Vector2(28, 28)
+#func setup_visual() -> void:
+#	if visual:
+#		visual.color = Color("#8B4513")  # Brown
+#		visual.size = Vector2(28, 28)
 
 func handle_interaction() -> void:
 	print("Cookie shared - simple joys matter most")

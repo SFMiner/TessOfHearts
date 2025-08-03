@@ -12,10 +12,10 @@ func _ready() -> void:
 	interaction_text = "Beauty and hurt intertwined."
 	super._ready()
 
-func setup_visual() -> void:
-	if visual:
-		visual.color = Color("#FFC0CB")  # Pink
-		visual.size = Vector2(36, 36)
+#func setup_visual() -> void:
+#	if visual:
+#		visual.color = Color("#FFC0CB")  # Pink
+#		visual.size = Vector2(36, 36)
 
 func handle_interaction() -> void:
 	print("Rose collected - beauty with thorns")

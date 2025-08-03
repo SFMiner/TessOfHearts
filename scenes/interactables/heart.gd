@@ -12,10 +12,10 @@ func _ready() -> void:
 	interaction_type = "heart"
 	super._ready()
 
-func setup_visual() -> void:
-	if visual:
-		visual.color = Color("#B84C4C")  # Red
-		visual.size = Vector2(32, 32)
+#func setup_visual() -> void:
+#	if visual:
+#		visual.color = Color("#B84C4C")  # Red
+#		visual.size = Vector2(32, 32)
 
 func handle_interaction() -> void:
 	# Collect the heart

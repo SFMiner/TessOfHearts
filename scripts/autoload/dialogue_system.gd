@@ -8,8 +8,12 @@ class_name SimpleDialogueSystem
 var is_showing: bool = false
 var choice_ui: Control = null
 
+const scr_debug : bool = false 
+var debug : bool
+
 func _ready() -> void:
-	print("=== DIALOGUE SYSTEM SETUP ===")
+	debug = scr_debug or GameData.sys_debug
+	if debug: print("=== DIALOGUE SYSTEM SETUP ===")
 	
 	# Add to group for easy access
 	add_to_group("dialogue_system")
@@ -17,20 +21,22 @@ func _ready() -> void:
 	# Wait a frame to ensure all nodes are ready
 	await get_tree().process_frame
 	
-	print("DialogueSystem node: ", self.name)
-	print("DialogueSystem children: ", get_children())
+	if debug: 
+		print("DialogueSystem node: ", self.name)
+		print("DialogueSystem children: ", get_children())
 	
 	if not dialogue_container:
-		print("ERROR: No dialogue container found, setting up manually")
+		if debug: print("ERROR: No dialogue container found, setting up manually")
 		setup_dialogue_container()
 	else:
-		print("Dialogue container found: ", dialogue_container.name)
-		print("Dialogue container children: ", dialogue_container.get_children())
+		if debug: 
+			print("Dialogue container found: ", dialogue_container.name)
+			print("Dialogue container children: ", dialogue_container.get_children())
 	
 	# Try to find the HandwrittenLabel
 	if not text_display:
 		text_display = dialogue_container.get_node_or_null("HandwrittenLabel")
-		print("Looking for HandwrittenLabel in container: ", text_display != null)
+		if debug: print("Looking for HandwrittenLabel in container: ", text_display != null)
 		
 		if not text_display:
 			print("ERROR: HandwrittenLabel not found, creating manually")
@@ -40,24 +46,25 @@ func _ready() -> void:
 	
 	if not background:
 		background = dialogue_container.get_node_or_null("Background")
-		print("Background found: ", background != null)
+		if debug: print("Background found: ", background != null)
 	
-	print("text_display = " + str(text_display))
-	print("background = " + str(background))
+	if debug: 
+		print("text_display = " + str(text_display))
+		print("background = " + str(background))
 	
 	# Find choice UI
 	choice_ui = get_tree().current_scene.get_node_or_null("UI/DialogueChoiceUI")
 	if choice_ui:
-		print("Choice UI found: ", choice_ui.name)
+		if debug: print("Choice UI found: ", choice_ui.name)
 		choice_ui.choice_selected.connect(_on_choice_selected)
 	else:
-		print("WARNING: Choice UI not found")
+		if debug: print("WARNING: Choice UI not found")
 	
 	hide_dialogue()
-	print("Dialogue system setup complete")
+	if debug: print("Dialogue system setup complete")
 
 func setup_dialogue_container() -> void:
-	print("Setting up dialogue container manually")
+	if debug: print("Setting up dialogue container manually")
 	dialogue_container = Control.new()
 	dialogue_container.name = "DialogueContainer"
 	add_child(dialogue_container)
@@ -73,12 +80,13 @@ func setup_dialogue_container() -> void:
 	text_display.name = "HandwrittenLabel"
 	dialogue_container.add_child(text_display)
 	
-	print("Manual setup complete - text_display: ", text_display)
+	if debug: print("Manual setup complete - text_display: ", text_display)
 
 func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0, fade_duration: float = 5.0) -> void:
-	print("=== SHOWING DIALOGUE ===")
-	print("Dialogue key: ", dialogue_key)
-	print("Speaker node: ", speaker_node.name if speaker_node else "null")
+	if debug: 
+		print("=== SHOWING DIALOGUE ===")
+		print("Dialogue key: ", dialogue_key)
+		print("Speaker node: ", speaker_node.name if speaker_node else "null")
 	
 	# If no speaker node provided, use the current scene
 	if not speaker_node:
@@ -106,21 +114,22 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	# Use the HandwrittenLabel's size with scaling
 	var label_size = text_display.custom_minimum_size
 	var scaled_size = label_size * scale_factor
-	print("HandwrittenLabel size: ", label_size)
-	print("Scale factor: ", scale_factor)
-	print("Scaled size: ", scaled_size)
+	if debug: 
+		print("HandwrittenLabel size: ", label_size)
+		print("Scale factor: ", scale_factor)
+		print("Scaled size: ", scaled_size)
 	
 	# Resize the dialogue container to match the scaled label size
 	dialogue_container.size = scaled_size
-	print("Resized dialogue container to: ", dialogue_container.size)
+	if debug: print("Resized dialogue container to: ", dialogue_container.size)
 	
 	# Also resize the background to match
 	background.size = scaled_size
-	print("Resized background to: ", background.size)
+	if debug: print("Resized background to: ", background.size)
 	
 	# Scale the text display
 	text_display.scale = Vector2(scale_factor, scale_factor)
-	print("Text display scale: ", text_display.scale)
+	if debug: print("Text display scale: ", text_display.scale)
 	
 	# Set z_index to be 10 above the speaker
 	if speaker_node:
@@ -152,7 +161,7 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 		hide_tween.tween_callback(func(): dialogue_container.queue_free())
 	)
 	
-	print("Dialogue display complete")
+	if debug: print("Dialogue display complete")
 
 func hide_dialogue() -> void:
 	if not is_showing:
@@ -167,7 +176,7 @@ func hide_dialogue() -> void:
 func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	# Position dialogue bubble above and centered on the speaker
 	# Since this is in the UI layer, we need to use viewport coordinates
-	print("Speaker world position: ", speaker_pos)
+	if debug: print("Speaker world position: ", speaker_pos)
 	
 	# Get the viewport size and use it for positioning
 	var viewport_size = get_viewport().get_visible_rect().size
@@ -183,16 +192,7 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 		viewport_pos.x - (dialogue_size.x / 2),  # Center on speaker horizontally
 		viewport_pos.y - dialogue_size.y - 50    # Position above speaker
 	)
-	
-	# OLD CODE (commented out):
-	# # For UI elements, we can position relative to the viewport center
-	# # Let's try positioning it at a fixed offset from the viewport center
-	# var viewport_center = viewport_size / 2
-	# var dialogue_pos = Vector2(
-	# 	viewport_center.x - (dialogue_size.x / 2),  # Center horizontally in viewport
-	# 	viewport_center.y - dialogue_size.y - 100   # Position above center with gap
-	# )
-	
+
 	# Ensure dialogue stays within viewport bounds
 	dialogue_pos.x = clamp(dialogue_pos.x, 0, viewport_size.x - dialogue_size.x)
 	dialogue_pos.y = clamp(dialogue_pos.y, 0, viewport_size.y - dialogue_size.y)
@@ -206,34 +206,38 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 		text_display.position = Vector2.ZERO
 		text_display.size = dialogue_container.size
 	
-	print("Viewport size: ", viewport_size)
-	print("Viewport center: ", viewport_pos) # Changed from viewport_center to viewport_pos
-	print("Dialogue positioned at: ", dialogue_pos)
-	print("Dialogue container size: ", dialogue_container.size)
-	print("Speaker position: ", speaker_pos)
-	print("Text display position: ", text_display.position if text_display else "null")
+	if debug: 
+		print("Viewport size: ", viewport_size)
+		print("Viewport center: ", viewport_pos) # Changed from viewport_center to viewport_pos
+		print("Dialogue positioned at: ", dialogue_pos)
+		print("Dialogue container size: ", dialogue_container.size)
+		print("Speaker position: ", speaker_pos)
+		print("Text display position: ", text_display.position if text_display else "null")
 
 # Check if dialogue system is interfering:
 func say_dialogue(dialogue_key: String) -> void:
-	print("=== DIALOGUE DEBUG ===")
-	print("Looking for dialogue system...")
+	if debug: 
+		print("=== DIALOGUE DEBUG ===")
+		print("Looking for dialogue system...")
 	
 	var dialogue_system = get_tree().current_scene.find_child("SimpleDialogueSystem")
 	if dialogue_system:
-		print("Dialogue system found!")
+		if debug: print("Dialogue system found!")
 		var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
 		dialogue_system.show_dialogue(dialogue_key, dialogue_point.global_position)
 	else:
-		print("ERROR: No dialogue system found")
-		print("Current scene children: ")
+		if debug: 
+			print("ERROR: No dialogue system found")
+			print("Current scene children: ")
 		for child in get_tree().current_scene.get_children():
-			print("  - ", child.name, " (", child.get_class(), ")")
+			if debug: print("  - ", child.name, " (", child.get_class(), ")")
 
 func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_node: Node = null, choice_speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
-	print("=== SHOWING DIALOGUE WITH CHOICES ===")
-	print("Dialogue key: ", dialogue_key)
-	print("Number of choices: ", choices.size())
-	
+	if debug: 
+		print("=== SHOWING DIALOGUE WITH CHOICES ===")
+		print("Dialogue key: ", dialogue_key)
+		print("Number of choices: ", choices.size())
+		
 	# Show the dialogue first (without auto-hide)
 	show_dialogue_manual(dialogue_key, speaker_node, background_color)
 	
@@ -250,9 +254,10 @@ func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary]
 		print("ERROR: Choice UI not available")
 
 func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0) -> void:
-	print("=== SHOWING DIALOGUE MANUAL ===")
-	print("Dialogue key: ", dialogue_key)
-	print("Speaker node: ", speaker_node.name if speaker_node else "null")
+	if debug: 
+		print("=== SHOWING DIALOGUE MANUAL ===")
+		print("Dialogue key: ", dialogue_key)
+		print("Speaker node: ", speaker_node.name if speaker_node else "null")
 	
 	# If no speaker node provided, use the current scene
 	if not speaker_node:
@@ -280,21 +285,22 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	# Use the HandwrittenLabel's size with scaling
 	var label_size = text_display.custom_minimum_size
 	var scaled_size = label_size * scale_factor
-	print("HandwrittenLabel size: ", label_size)
-	print("Scale factor: ", scale_factor)
-	print("Scaled size: ", scaled_size)
-	
+	if debug: 
+		print("HandwrittenLabel size: ", label_size)
+		print("Scale factor: ", scale_factor)
+		print("Scaled size: ", scaled_size)
+		
 	# Resize the dialogue container to match the scaled label size
 	dialogue_container.size = scaled_size
-	print("Resized dialogue container to: ", dialogue_container.size)
+	if debug: print("Resized dialogue container to: ", dialogue_container.size)
 	
 	# Also resize the background to match
 	background.size = scaled_size
-	print("Resized background to: ", background.size)
+	if debug: print("Resized background to: ", background.size)
 	
 	# Scale the text display
 	text_display.scale = Vector2(scale_factor, scale_factor)
-	print("Text display scale: ", text_display.scale)
+	if debug: print("Text display scale: ", text_display.scale)
 	
 	# Set z_index to be 10 above the speaker
 	if speaker_node:
@@ -319,12 +325,13 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	var tween = create_tween()
 	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
-	print("Dialogue display complete (manual - no auto-hide)")
+	if debug: print("Dialogue display complete (manual - no auto-hide)")
 
 func _on_choice_selected(choice_key: String) -> void:
-	print("=== DIALOGUE CHOICE SELECTED ===")
-	print("Choice key: ", choice_key)
-	print("Choice UI found: ", choice_ui != null)
+	if debug: 
+		print("=== DIALOGUE CHOICE SELECTED ===")
+		print("Choice key: ", choice_key)
+		print("Choice UI found: ", choice_ui != null)
 	
 	# Hide the dialogue when a choice is made
 	hide_dialogue()
@@ -332,74 +339,76 @@ func _on_choice_selected(choice_key: String) -> void:
 	# Handle different choice responses
 	match choice_key:
 		"eat_cookies":
-			print("Tess chose to eat cookies")
+			if debug: print("Tess chose to eat cookies")
 			trigger_cookie_effects()
 		"drink_whiskey":
-			print("Tess chose to drink whiskey")
+			if debug: print("Tess chose to drink whiskey")
 			trigger_whiskey_effects()
 		"cookies_and_whiskey":
-			print("Tess chose cookies and whiskey")
+			if debug: print("Tess chose cookies and whiskey")
 			trigger_cookie_effects()
 			trigger_whiskey_effects()
 		"excuse_me":
-			print("Tess chose to excuse the friend")
+			if debug: print("Tess chose to excuse the friend")
 			trigger_excuse_friend_effects()
 		"never_mind":
-			print("Tess chose to do nothing")
+			if debug: print("Tess chose to do nothing")
 		_:
-			print("Unknown choice key: ", choice_key)
+			if debug: print("Unknown choice key: ", choice_key)
 
 func trigger_cookie_effects() -> void:
-	print("=== TRIGGERING COOKIE EFFECTS ===")
+	if debug: print("=== TRIGGERING COOKIE EFFECTS ===")
 	# Cookie effects: comfort_value = 3.0 * 1.5 = 4.5
 	var comfort_value = 4.5
-	print("Cookie comfort value: ", comfort_value)
+	if debug: print("Cookie comfort value: ", comfort_value)
 	
 	# Consume a cookie from inventory
 	if GameManager.consume_cookie():
-		print("Tess feels comforted by the cookies")
+		if debug: print("Tess feels comforted by the cookies")
 	else:
-		print("ERROR: No cookies available to consume")
+		if debug: print("ERROR: No cookies available to consume")
 
 func trigger_whiskey_effects() -> void:
-	print("=== TRIGGERING WHISKEY EFFECTS ===")
+	if debug: print("=== TRIGGERING WHISKEY EFFECTS ===")
 	# Whiskey effects: healing_amount = 5.0 * 1.5 = 7.5
 	var healing_amount = 7.5
-	print("Whiskey healing amount: ", healing_amount)
+	if debug: print("Whiskey healing amount: ", healing_amount)
 	
 	# Consume whiskey from inventory
 	if GameManager.consume_whiskey():
-		print("Tess feels warmed by the whiskey")
+		if debug: print("Tess feels warmed by the whiskey")
 	else:
-		print("ERROR: No whiskey available to consume")
+		if debug: print("ERROR: No whiskey available to consume")
 
 func trigger_excuse_friend_effects() -> void:
-	print("=== TRIGGERING EXCUSE FRIEND EFFECTS ===")
+	if debug: print("=== TRIGGERING EXCUSE FRIEND EFFECTS ===")
 	
 	# Find the friend and send them off screen
 	var friend_nodes = get_tree().get_nodes_in_group("Friend")
-	print("Found ", friend_nodes.size(), " friend nodes")
+	if debug: print("Found ", friend_nodes.size(), " friend nodes")
 	
 	if friend_nodes.size() > 0:
 		var friend = friend_nodes[0]
-		print("Friend name: ", friend.name)
-		print("Friend has depart_from_screen method: ", friend.has_method("depart_from_screen"))
+		if debug: 
+			print("Friend name: ", friend.name)
+			print("Friend has depart_from_screen method: ", friend.has_method("depart_from_screen"))
 		
 		if friend.has_method("depart_from_screen"):
 			friend.depart_from_screen()
-			print("Friend is departing from screen")
+			if debug: print("Friend is departing from screen")
 		else:
-			print("ERROR: Friend doesn't have depart_from_screen method")
+			if debug: print("ERROR: Friend doesn't have depart_from_screen method")
 	else:
-		print("ERROR: No friend found in scene")
-		print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
+		if debug: 
+			print("ERROR: No friend found in scene")
+			print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
 
 # Test function to manually trigger excuse me
 func test_excuse_me() -> void:
-	print("=== TESTING EXCUSE ME MANUALLY ===")
+	if debug: print("=== TESTING EXCUSE ME MANUALLY ===")
 	trigger_excuse_friend_effects()
 
 # Test function to manually trigger dialogue choice selection (to fix input)
 func test_dialogue_choice_fix() -> void:
-	print("=== TESTING DIALOGUE CHOICE FIX ===")
+	if debug: print("=== TESTING DIALOGUE CHOICE FIX ===")
 	_on_choice_selected("never_mind")

@@ -4,6 +4,12 @@
 
 extends Node
 
+const scr_debug : bool = false 
+var debug : bool
+
+func _ready() -> void:
+	debug = scr_debug or GameData.sys_debug
+
 # Central repository for all handwritten text assets
 var handwritten_assets: Dictionary = {
 	
@@ -51,7 +57,7 @@ func get_handwritten_texture(category: String, key: String) -> Texture2D:
 	if category in handwritten_assets and key in handwritten_assets[category]:
 		return handwritten_assets[category][key]
 	else:
-		print("Handwritten asset not found: ", category, "/", key)
+		if debug: print("Handwritten asset not found: ", category, "/", key)
 		# Return a fallback texture or create one
 		return create_fallback_texture(category + "/" + key)
 
@@ -62,7 +68,7 @@ func get_number_texture(number: int) -> Texture2D:
 
 # Create fallback texture for missing assets
 func create_fallback_texture(text: String) -> Texture2D:
-	print("Creating fallback for: ", text)
+	if debug: print("Creating fallback for: ", text)
 	
 	# Create colored rectangle with text label for testing
 	var image = Image.create(150, 40, false, Image.FORMAT_RGBA8)

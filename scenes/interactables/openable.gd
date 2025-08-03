@@ -40,7 +40,8 @@ func _ready():
 	input_event.connect(_on_area_input)
 
 	# Connect input signals properly
-	input_event.connect(_on_area_input)
+	if not input_event.is_connected(_on_area_input):
+		input_event.connect(_on_area_input)
 	
 	# Connect mouse signals for debugging (but don't use them for interaction)
 	mouse_entered.connect(_on_mouse_entered)
@@ -48,7 +49,8 @@ func _ready():
 	
 	# Connect to global input system
 	if InputManager:
-		InputManager.touch_started.connect(_on_global_touch)
+		if not InputManager.touch_started.is_connected(_on_global_touch):
+			InputManager.touch_started.connect(_on_global_touch)
 	
 	if debug: print("Openable input connections established for: ", name)
 	
@@ -105,6 +107,7 @@ func _on_area_input(viewport, event: InputEvent, shape_idx: int) -> void:
 		toggle_open_close()
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if debug: print("MOUSE BUTTON PRESS - opening/closing")
+		get_viewport().set_input_as_handled() 
 		toggle_open_close()
 	else:
 		if debug: print("Ignoring event: ", event.get_class())

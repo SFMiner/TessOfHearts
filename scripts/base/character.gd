@@ -13,8 +13,6 @@ var anim : AnimationPlayer = null
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var touch_area: Area2D = $TouchArea
 
-const scr_debug : bool = false
-var debug : bool
 var direction : Vector2
 var target_position: Vector2
 var is_moving: bool = false
@@ -22,6 +20,8 @@ var is_highlighted: bool = false
 var original_modulate: Color
 var last_direction: String = "left"
 var base_movement_speed: float = 200.0
+const scr_debug : bool =  false
+var debug : bool
 
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
@@ -38,9 +38,10 @@ func _ready() -> void:
 #	setup_character()
 	setup_touch_detection()
 	
-	print(character_name, " setup complete")
-	print("Sprite found: ", sprite != null)
-	print("TouchArea found: ", touch_area != null)
+	if debug: 
+		print(character_name, " setup complete")
+		print("Sprite found: ", sprite != null)
+		print("TouchArea found: ", touch_area != null)
 
 func setup_character() -> void:
 	# Override in derived classes to set sprite texture
@@ -63,7 +64,8 @@ func get_effective_movement_speed() -> float:
 	# Above 50 energy: full speed (100%)
 	
 	var effective_speed = base_movement_speed * speed_multiplier
-	if name != "Tess" : print("Energy: ", energy, " - Speed multiplier: ", speed_multiplier, " - Effective speed: ", effective_speed)
+	if name != "Tess": 
+		if debug: print("Energy: ", energy, " - Speed multiplier: ", speed_multiplier, " - Effective speed: ", effective_speed)
 	return effective_speed
 
 func can_move_with_energy() -> bool:
@@ -74,7 +76,7 @@ func can_move_with_energy() -> bool:
 	var can_move = energy > 0
 	
 	if not can_move:
-		print(character_name, " cannot move - no energy (", energy, ")")
+		if debug: print(character_name, " cannot move - no energy (", energy, ")")
 	
 	return can_move
 
@@ -84,29 +86,30 @@ func spend_energy_for_action(amount: int = 1) -> bool:
 	
 	var current_energy = GameManager.get_energy()
 	if current_energy < amount:
-		print(character_name, " cannot perform action - insufficient energy (", current_energy, " < ", amount, ")")
+		if debug: print(character_name, " cannot perform action - insufficient energy (", current_energy, " < ", amount, ")")
 		return false
 	
 	GameManager.spend_energy(amount)
-	print(character_name, " spent ", amount, " energy. Remaining: ", GameManager.get_energy())
+	if debug: print(character_name, " spent ", amount, " energy. Remaining: ", GameManager.get_energy())
 	return true
 
 func say_dialogue(dialogue_key: String) -> void:
-	print("=== CHARACTER SAYING DIALOGUE ===")
-	print("Character: ", character_name)
-	print("Dialogue key: ", dialogue_key)
+	if debug: 
+		print("=== CHARACTER SAYING DIALOGUE ===")
+		print("Character: ", character_name)
+		print("Dialogue key: ", dialogue_key)
 	
 	var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
 	var speaker_position = dialogue_point #.global_position
 	
-	print("Speaker position: ", speaker_position)
+	if debug: print("Speaker position: ", speaker_position)
 	
 	# Find dialogue system in scene
 	var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
 	if dialogue_system:
 		dialogue_system.show_dialogue(dialogue_key, speaker_position)
 	else:
-		print("ERROR: DialogueSystem not found in scene")
+		if debug: print("ERROR: DialogueSystem not found in scene")
 
 func setup_touch_detection() -> void:
 	if touch_area:
@@ -117,11 +120,9 @@ func setup_touch_detection() -> void:
 func _physics_process(delta: float) -> void:
 	# Debug visibility
 	if not visible:
-		print("WARNING: ", character_name, " is not visible!")
+		if debug: print("WARNING: ", character_name, " is not visible!")
 	# Debug position
 	var viewport_size = get_viewport().get_visible_rect().size
-	if global_position.x < 0 or global_position.x > viewport_size.x or global_position.y < 0 or global_position.y > viewport_size.y:
-		print("WARNING: ", character_name, " is off-screen at: ", global_position)
 	
 	if is_moving and can_move:
 		move_towards_target()
@@ -136,16 +137,16 @@ func stop_movement() -> void:
 func move_to(new_position: Vector2) -> void:
 	
 	if not can_move:
-		print(character_name, " cannot move - movement disabled")
+		if debug: print(character_name, " cannot move - movement disabled")
 		return
 	
 	if not can_move_with_energy():
-		print(character_name, " cannot move - insufficient energy")
+		if debug: print(character_name, " cannot move - insufficient energy")
 		return
 	
 	# Spend energy for movement
 	if not spend_energy_for_action(1):
-		print(character_name, " movement cancelled - no energy")
+		if debug: print(character_name, " movement cancelled - no energy")
 		return
 	
 	#print("=== MOVE DEBUG ===")
@@ -205,15 +206,16 @@ func move_towards_target() -> void:
 		is_moving = false
 '''
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	print("=== CHARACTER AREA INPUT EVENT ===")
-	print("Event type: ", event.get_class())
-	print("Event pressed: ", event.pressed if event.has_method("pressed") else "N/A")
+	if debug: 
+		print("=== CHARACTER AREA INPUT EVENT ===")
+		print("Event type: ", event.get_class())
+		print("Event pressed: ", event.pressed if event.has_method("pressed") else "N/A")
 	
 	if event is InputEventScreenTouch and event.pressed:
-		print("Screen touch detected - calling _on_character_touched")
+		if debug: print("Screen touch detected - calling _on_character_touched")
 		_on_character_touched(event.position)
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		print("Mouse button detected - calling _on_character_touched")
+		if debug: print("Mouse button detected - calling _on_character_touched")
 		_on_character_touched(event.position)
 
 func _on_mouse_entered() -> void:

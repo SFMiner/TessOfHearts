@@ -31,7 +31,7 @@ var loaded_texture: bool = false
 
 func _ready() -> void:
 	# Set up interaction range based on collectable size
-	interaction_range = -20.0  # Slightly larger than the sprite
+	interaction_range = 30.0  # Slightly larger than the sprite
 	
 	# Call parent setup
 	super._ready()
@@ -43,10 +43,11 @@ func _ready() -> void:
 	add_to_group("collectables")
 	add_to_group("interactables")
 	add_to_group("interactive_areas")
+	if debug: print("Collectable ", name, " added to interaction groups")
 	label.text = str(collectable_type)
 	sprite.scale = Vector2(scaling, scaling)
 	sprite.texture = load(set_texture())
-	if InputManager:
+	if InputManager and not InputManager.touch_started.is_connected(_on_global_touch):
 		InputManager.touch_started.connect(_on_global_touch)
 
 
@@ -214,4 +215,38 @@ func get_collected():
 	get_parent().remove_child(self)
 	self.queue_free()
 	
+func setup_interaction_area():
+	if debug: print("Setting up interaction area for: ", name)
 	
+	# Create interaction area
+	var interaction_area_node = Area2D.new()
+	interaction_area_node.name = "InteractionArea"
+	add_child(interaction_area_node)
+	
+	# Create collision shape
+	var collision_shape = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = interaction_range
+	collision_shape.shape = shape
+	interaction_area_node.add_child(collision_shape)
+	
+	# CRITICAL: Connect the signals
+	interaction_area_node.body_entered.connect(_on_interaction_area_body_entered)
+	interaction_area_node.body_exited.connect(_on_interaction_area_body_exited)
+	
+	# Set collision to detect Tess (layer 2)
+	interaction_area_node.collision_layer = 0
+	interaction_area_node.collision_mask = 2
+	
+	print("Interaction area setup complete for: ", name)
+	
+# Also make sure your interaction area detection is working:
+func _on_interaction_area_body_entered(body: Node2D):
+	if body.is_in_group("Tess"):
+		tess_in_interaction_area = true
+		print("Tess entered interaction area for: ", name)
+
+func _on_interaction_area_body_exited(body: Node2D):
+	if body.is_in_group("Tess"):
+		tess_in_interaction_area = false
+		print("Tess exited interaction area for: ", name)

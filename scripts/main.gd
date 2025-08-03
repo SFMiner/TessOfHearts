@@ -14,6 +14,8 @@ var debug : bool
 @onready var tess: Character
 @onready var friend: Character
 
+var recent_interaction_time: float = 0.0
+var interaction_cooldown: float = 0.1  # 100ms cooldown after interactions
 
 # Test heart scenes to instance
 @export var heart_scene: PackedScene = preload("res://scenes/interactables/Heart.tscn")
@@ -236,7 +238,7 @@ func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
 		if tess_in_area:
 			# Get the interaction range
 			var interaction_range = 50.0  # Default
-			if interactable.has_property("interaction_range"):
+			if "interaction_range" in interactable:
 				interaction_range = interactable.interaction_range
 			elif interactable.get("interaction_range"):
 				interaction_range = interactable.get("interaction_range")

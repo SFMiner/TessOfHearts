@@ -3,6 +3,8 @@ extends Node
 signal courage_changed(current_courage: int, max_courage: int)
 
 const sys_debug : bool = false
+const scr_debug : bool = false
+var debug : bool = false
 
 var camera_limit_top = 32
 var camera_limit_left = 0
@@ -51,18 +53,22 @@ var memory_mini_current_level := 0
 var memory_mini_total_levels := 3
 # === Memory Minigame End ===
 
+func _ready() -> void:
+	debug = scr_debug or sys_debug
+	
+
 func add_courage(amt: int) -> void:
 	cur_courage += floor(amt)
 	if cur_courage > max_courage:
 		cur_courage = max_courage
-	print("Courage added: ", amt, " (Total: ", cur_courage, ")")
+	if debug: print("Courage added: ", amt, " (Total: ", cur_courage, ")")
 	courage_changed.emit(cur_courage, max_courage)
 
 func spend_courage(amt: int) -> void:
 	cur_courage -= floor(amt)
 	if cur_courage < 0:
 		cur_courage = 0
-	print("Courage spent: ", amt, " (Remaining: ", cur_courage, ")")
+	if debug: print("Courage spent: ", amt, " (Remaining: ", cur_courage, ")")
 	courage_changed.emit(cur_courage, max_courage)
 
 # Movement tracking functions for friend echo (simplified)
@@ -71,11 +77,11 @@ func record_tess_position(position: Vector2) -> void:
 	if position != tess_last_position:
 		if not tess_is_moving:
 			tess_is_moving = true
-			print("Tess started moving")
+			if debug: print("Tess started moving")
 	else:
 		if tess_is_moving:
 			tess_is_moving = false
-			print("Tess stopped moving")
+			if debug: print("Tess stopped moving")
 	
 	tess_current_position = position
 	tess_last_position = position

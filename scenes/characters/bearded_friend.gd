@@ -77,18 +77,18 @@ func _ready() -> void:
 			print("Interaction area collision layer: ", interaction_area.collision_layer)
 			print("=== FRIEND READY COMPLETE ===")
 	
-	# Debug state flags
-	print("=== FRIEND INITIAL STATE ===")
-	print("is_departing: ", is_departing)
-	print("has_departed: ", has_departed)
-	print("is_summoned: ", is_summoned)
-	print("can_move: ", can_move)
-	print("is_moving: ", is_moving)
-	print("visible: ", visible)
-	print("process_mode: ", process_mode)
-	print("input_pickable: ", input_pickable)
-	print("z_index: ", z_index)
-	print("z_as_relative: ", z_as_relative)
+		# Debug state flags
+		print("=== FRIEND INITIAL STATE ===")
+		print("is_departing: ", is_departing)
+		print("has_departed: ", has_departed)
+		print("is_summoned: ", is_summoned)
+		print("can_move: ", can_move)
+		print("is_moving: ", is_moving)
+		print("visible: ", visible)
+		print("process_mode: ", process_mode)
+		print("input_pickable: ", input_pickable)
+		print("z_index: ", z_index)
+		print("z_as_relative: ", z_as_relative)
 		
 func setup_character() -> void:
 	if sprite:
@@ -354,8 +354,8 @@ func _on_character_touched(position: Vector2) -> void:
 		super._on_character_touched(position)
 
 func summon_friend() -> void:
-	print("=== SUMMONING FRIEND ===")
-	print("Friend current state - has_departed: ", has_departed, " is_departing: ", is_departing, " is_summoned: ", is_summoned)
+	if debug: print("=== SUMMONING FRIEND ===")
+	if debug: print("Friend current state - has_departed: ", has_departed, " is_departing: ", is_departing, " is_summoned: ", is_summoned)
 	
 	# Reset departure state
 	has_departed = false
@@ -372,23 +372,24 @@ func summon_friend() -> void:
 		target_position = tess_position
 		is_moving = true
 		
-		print("Friend summoned to Tess at: ", tess_position)
-		print("Friend will now follow Tess again")
-		
-		# Debug state after summon
-		print("=== FRIEND STATE AFTER SUMMON ===")
-		print("is_departing: ", is_departing)
-		print("has_departed: ", has_departed)
-		print("is_summoned: ", is_summoned)
-		print("can_move: ", can_move)
-		print("is_moving: ", is_moving)
-		print("visible: ", visible)
-		print("process_mode: ", process_mode)
-		print("input_pickable: ", input_pickable)
-		print("z_index: ", z_index)
-		print("z_as_relative: ", z_as_relative)
+		if debug: 
+			print("Friend summoned to Tess at: ", tess_position)
+			print("Friend will now follow Tess again")
+			
+			# Debug state after summon
+			print("=== FRIEND STATE AFTER SUMMON ===")
+			print("is_departing: ", is_departing)
+			print("has_departed: ", has_departed)
+			print("is_summoned: ", is_summoned)
+			print("can_move: ", can_move)
+			print("is_moving: ", is_moving)
+			print("visible: ", visible)
+			print("process_mode: ", process_mode)
+			print("input_pickable: ", input_pickable)
+			print("z_index: ", z_index)
+			print("z_as_relative: ", z_as_relative)
 	else:
-		print("ERROR: Tess not found for summoning")
+		if debug: print("ERROR: Tess not found for summoning")
 
 func start_wandering() -> void:
 	is_wandering = true
@@ -444,14 +445,15 @@ func handle_drift() -> void:
 		return
 
 func setup_touch_responder() -> void:
-	print("=== SETTING UP FRIEND TOUCH RESPONDER ===")
+	if debug: print("=== SETTING UP FRIEND TOUCH RESPONDER ===")
 	var touch_responder = $TouchArea/TouchResponder
 	if touch_responder:
 		touch_responder.touched.connect(_on_touched)
-		print("Connected TouchResponder touched signal")
-		print("TouchResponder script: ", touch_responder.get_script())
+		if debug: 
+			print("Connected TouchResponder touched signal")
+			print("TouchResponder script: ", touch_responder.get_script())
 	else:
-		print("ERROR: TouchResponder not found")
+		if debug: print("ERROR: TouchResponder not found")
 	
 	# Also check TouchArea setup
 	var touch_area = $TouchArea
@@ -470,8 +472,9 @@ func setup_interaction_area() -> void:
 	interaction_area = Area2D.new()
 	interaction_area.name = "InteractionArea"
 	add_child(interaction_area)
-	print("Created interaction area: ", interaction_area)
-	print("Interaction area collision_layer: ", interaction_area.collision_layer, " collision_mask: ", interaction_area.collision_mask)
+	if debug: 
+		print("Created interaction area: ", interaction_area)
+		print("Interaction area collision_layer: ", interaction_area.collision_layer, " collision_mask: ", interaction_area.collision_mask)
 	
 	# Create collision shape
 	#var collision_shape = CollisionShape2D.new()
@@ -665,7 +668,7 @@ func determine_edge_departure_target() -> Vector2:
 	else:
 		off_screen_target = Vector2(global_position.x, viewport_size.y + 100)
 	
-	print("Edge departure target: ", off_screen_target)
+	if debug: print("Edge departure target: ", off_screen_target)
 	return off_screen_target
 
 func build_available_choices() -> Array[Dictionary]:

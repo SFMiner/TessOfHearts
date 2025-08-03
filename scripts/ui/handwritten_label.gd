@@ -8,27 +8,33 @@ class_name HandwrittenLabel
 @onready var sprite: Sprite2D = %Sprite2D
 var text_manager
 
+
+const scr_debug : bool = false 
+var debug : bool
+
 func _ready() -> void:
-	print("=== HANDWRITTEN LABEL SETUP ===")
+	debug = scr_debug or GameData.sys_debug
+	if debug: print("=== HANDWRITTEN LABEL SETUP ===")
 	text_manager = HandwrittenTextManager
 	
 	# Create sprite if it doesn't exist
 	if not sprite:
-		print("Creating sprite manually")
+		if debug: print("Creating sprite manually")
 		sprite = Sprite2D.new()
 		add_child(sprite)
 		sprite.name = "Sprite2D"
 	
-	print("Handwritten label setup complete")
+	if debug: print("Handwritten label setup complete")
 
 func set_handwritten_text(category: String, key: String) -> void:
-	print("=== SETTING HANDWRITTEN TEXT ===")
-	print("Category: ", category)
-	print("Key: ", key)
+	if debug: 
+		print("=== SETTING HANDWRITTEN TEXT ===")
+		print("Category: ", category)
+		print("Key: ", key)
 	
 	var texture = text_manager.get_handwritten_texture(category, key)
 	if texture and sprite:
-		print("Texture loaded: ", texture.get_size())
+		if debug: print("Texture loaded: ", texture.get_size())
 		sprite.texture = texture
 		
 		# Center the sprite within the control (accounting for sprite origin at top-left)
@@ -40,18 +46,20 @@ func set_handwritten_text(category: String, key: String) -> void:
 			var content_size = texture.get_size() + Vector2(margin * 2, margin * 2)
 			custom_minimum_size = content_size
 			size = content_size
-			print("Control resized to: ", size)
-			print("Sprite positioned at: ", sprite.position)
+			if debug: 
+				print("Control resized to: ", size)
+				print("Sprite positioned at: ", sprite.position)
 	else:
-		print("ERROR: Failed to load texture or sprite not found")
+		if debug: print("ERROR: Failed to load texture or sprite not found")
 
 func set_number(value: int) -> void:
-	print("=== SETTING NUMBER ===")
-	print("Value: ", value)
+	if debug: 
+		print("=== SETTING NUMBER ===")
+		print("Value: ", value)
 	
 	var texture = text_manager.get_number_texture(value)
 	if texture and sprite:
-		print("Number texture loaded: ", texture.get_size())
+		if debug: print("Number texture loaded: ", texture.get_size())
 		sprite.texture = texture
 		
 		# Center the sprite within the control
@@ -62,6 +70,6 @@ func set_number(value: int) -> void:
 			var content_size = texture.get_size() + Vector2(margin * 2, margin * 2)
 			custom_minimum_size = content_size
 			size = content_size
-			print("Number control resized to: ", size)
+			if debug: print("Number control resized to: ", size)
 	else:
-		print("ERROR: Failed to load number texture")
+		if debug: print("ERROR: Failed to load number texture")

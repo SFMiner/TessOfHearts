@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://bydcytb38rejr"]
+[gd_scene load_steps=3 format=3 uid="uid://bydcytb38rejr"]
 
 [ext_resource type="Script" uid="uid://cs1oev4xwq8ub" path="res://scripts/base/ant_area.gd" id="1_ant_area"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cj227"]
+size = Vector2(200, 150)
 
 [node name="AntArea" type="Area2D"]
 collision_layer = 0
@@ -8,6 +11,7 @@ collision_mask = 2
 script = ExtResource("1_ant_area")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_cj227")
 
 [node name="AntContainer" type="Node2D" parent="."]
 

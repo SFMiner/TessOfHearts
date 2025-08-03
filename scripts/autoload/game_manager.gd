@@ -30,7 +30,8 @@ var unlocked_areas: Array[String] = ["bathhouse_entry"]
 @onready var tess_reference: Node2D
 
 func _ready() -> void:
-	print("GameManager initialized - Gather Hearts")
+	debug = scr_debug or GameData.sys_debug
+	if debug: print("GameManager initialized - Gather Hearts")
 
 func get_energy():
 	return GameData.cur_energy
@@ -99,18 +100,18 @@ func change_state(new_state: GameState) -> void:
 	if current_state != new_state:
 		current_state = new_state
 		game_state_changed.emit(new_state)
-		print("Game state changed to: ", GameState.keys()[new_state])
+		if debug: print("Game state changed to: ", GameState.keys()[new_state])
 
 func collect_heart(heart_data: Dictionary) -> void:
 	collected_hearts.append(heart_data)
 	heart_collected.emit(heart_data)
-	print("Heart collected: ", heart_data.get("type", "unknown"))
+	if debug: print("Heart collected: ", heart_data.get("type", "unknown"))
 
 func unlock_area(area_name: String) -> void:
 	if area_name not in unlocked_areas:
 		unlocked_areas.append(area_name)
 		area_unlocked.emit(area_name)
-		print("Area unlocked: ", area_name)
+		if debug: print("Area unlocked: ", area_name)
 
 func get_collected_hearts_count() -> int:
 	return collected_hearts.size()
@@ -122,12 +123,13 @@ func has_heart_type(heart_type: String) -> bool:
 	return false
 
 func debug_game_state() -> void:
-	print("=== GAME STATE DEBUG ===")
-	if GameManager:
-		print("Current game state: ", GameManager.current_state)
-		print("GameState enum values: ", GameManager.GameState)
-	else:
-		print("ERROR: GameManager not found!")
+	if debug: 
+		print("=== GAME STATE DEBUG ===")
+		if GameManager:
+			print("Current game state: ", GameManager.current_state)
+			print("GameState enum values: ", GameManager.GameState)
+		else:
+			print("ERROR: GameManager not found!")
 
 func get_main() -> Node2D:
 	return get_tree().get_root().get_node("Main")	
@@ -138,23 +140,23 @@ func get_tess() -> Node2D:
 func reset_energy() -> void:
 	GameData.cur_energy = GameData.max_energy
 	energy_changed.emit(GameData.cur_energy, GameData.max_energy)
-	print("Energy reset to: ", GameData.cur_energy)
+	if debug: print("Energy reset to: ", GameData.cur_energy)
 
 func consume_cookie() -> bool:
 	if GameData.num_cookies > 0:
 		spend_collectable(5)  # 5 = cookies
 		add_energy(30)  # Cookies restore 20 energy
-		print("Cookie consumed! +20 energy. Remaining cookies: ", GameData.num_cookies)
+		if debug: print("Cookie consumed! +20 energy. Remaining cookies: ", GameData.num_cookies)
 		return true
 	else:
-		print("No cookies available to consume")
+		if debug: print("No cookies available to consume")
 		return false
 
 func consume_whiskey() -> bool:
 	if GameData.num_whiskey > 0:
 		spend_collectable(4)  # 1 = whiskey
 		add_courage(30)  # Whiskey restores 30 courage
-		print("Whiskey consumed! +20 courage. Remaining whiskey: ", GameData.num_whiskey)
+		if debug: print("Whiskey consumed! +20 courage. Remaining whiskey: ", GameData.num_whiskey)
 		return true
 	else:
 		print("No whiskey available to consume")
@@ -170,7 +172,7 @@ func can_consume_whiskey() -> bool:
 func craft_heart_with_tape() -> bool:
 	# Check if we have tape and can make a whole heart
 	if GameData.num_tape <= 0:
-		print("No tape available for heart crafting")
+		if debug: print("No tape available for heart crafting")
 		return false
 	
 	# Try different combinations to make a whole heart
@@ -180,7 +182,7 @@ func craft_heart_with_tape() -> bool:
 		spend_collectable(7, 1)  # Spend 1 tape
 		GameData.num_tape_hearts += 1
 		update_collectables()
-		print("Crafted tape heart from 2 half hearts!")
+		if debug: print("Crafted tape heart from 2 half hearts!")
 		return true
 	elif GameData.num_hearts_2third >= 1 and GameData.num_hearts_1third >= 1:
 		# 1 2/3 heart + 1 1/3 heart = 1 whole heart
@@ -189,7 +191,7 @@ func craft_heart_with_tape() -> bool:
 		spend_collectable(7, 1)  # Spend 1 tape
 		GameData.num_tape_hearts += 1
 		update_collectables()
-		print("Crafted tape heart from 2/3 + 1/3 hearts!")
+		if debug: print("Crafted tape heart from 2/3 + 1/3 hearts!")
 		return true
 	elif GameData.num_hearts_1third >= 3:
 		# 3 1/3 hearts = 1 whole heart
@@ -197,16 +199,16 @@ func craft_heart_with_tape() -> bool:
 		spend_collectable(7, 1)  # Spend 1 tape
 		GameData.num_tape_hearts += 1
 		update_collectables()
-		print("Crafted tape heart from 3 1/3 hearts!")
+		if debug: print("Crafted tape heart from 3 1/3 hearts!")
 		return true
 	else:
-		print("Not enough heart pieces to craft with tape")
+		if debug: print("Not enough heart pieces to craft with tape")
 		return false
 
 func craft_heart_with_barbed_wire() -> bool:
 	# Check if we have barbed wire and can make a whole heart
 	if GameData.num_barbed_wire <= 0:
-		print("No barbed wire available for heart crafting")
+		if debug: print("No barbed wire available for heart crafting")
 		return false
 	
 	# Try different combinations to make a whole heart
@@ -216,7 +218,7 @@ func craft_heart_with_barbed_wire() -> bool:
 		spend_collectable(8, 1)  # Spend 1 barbed wire
 		GameData.num_wire_hearts += 1
 		update_collectables()
-		print("Crafted wire heart from 2 half hearts!")
+		if debug: print("Crafted wire heart from 2 half hearts!")
 		return true
 	elif GameData.num_hearts_2third >= 1 and GameData.num_hearts_1third >= 1:
 		# 1 2/3 heart + 1 1/3 heart = 1 whole heart
@@ -225,7 +227,7 @@ func craft_heart_with_barbed_wire() -> bool:
 		spend_collectable(8, 1)  # Spend 1 barbed wire
 		GameData.num_wire_hearts += 1
 		update_collectables()
-		print("Crafted wire heart from 2/3 + 1/3 hearts!")
+		if debug: print("Crafted wire heart from 2/3 + 1/3 hearts!")
 		return true
 	elif GameData.num_hearts_1third >= 3:
 		# 3 1/3 hearts = 1 whole heart
@@ -233,16 +235,16 @@ func craft_heart_with_barbed_wire() -> bool:
 		spend_collectable(8, 1)  # Spend 1 barbed wire
 		GameData.num_wire_hearts += 1
 		update_collectables()
-		print("Crafted wire heart from 3 1/3 hearts!")
+		if debug: print("Crafted wire heart from 3 1/3 hearts!")
 		return true
 	else:
-		print("Not enough heart pieces to craft with barbed wire")
+		if debug: print("Not enough heart pieces to craft with barbed wire")
 		return false
 
 func craft_heart_with_sutures() -> bool:
 	# Check if we have sutures and can make a whole heart
 	if GameData.num_sutures <= 0:
-		print("No sutures available for heart crafting")
+		if debug: print("No sutures available for heart crafting")
 		return false
 	
 	# Try different combinations to make a whole heart
@@ -252,7 +254,7 @@ func craft_heart_with_sutures() -> bool:
 		spend_collectable(6, 1)  # Spend 1 sutures
 		GameData.num_sewn_hearts += 1
 		update_collectables()
-		print("Crafted sewn heart from 2 half hearts!")
+		if debug: print("Crafted sewn heart from 2 half hearts!")
 		return true
 	elif GameData.num_hearts_2third >= 1 and GameData.num_hearts_1third >= 1:
 		# 1 2/3 heart + 1 1/3 heart = 1 whole heart
@@ -269,10 +271,10 @@ func craft_heart_with_sutures() -> bool:
 		spend_collectable(6, 1)  # Spend 1 sutures
 		GameData.num_sewn_hearts += 1
 		update_collectables()
-		print("Crafted sewn heart from 3 1/3 hearts!")
+		if debug: print("Crafted sewn heart from 3 1/3 hearts!")
 		return true
 	else:
-		print("Not enough heart pieces to craft with sutures")
+		if debug: print("Not enough heart pieces to craft with sutures")
 		return false
 
 # Check if crafting is possible with each material
@@ -295,15 +297,15 @@ func can_craft_with_sutures() -> bool:
 func start_memory_minigame() -> void:
 	GameData.memory_mini_current_level = 0
 	GameData.memory_mini_passed = false
-	print("Memory minigame started")
+	if debug: print("Memory minigame started")
 
 func complete_memory_minigame_level() -> void:
 	GameData.memory_mini_current_level += 1
 	if GameData.memory_mini_current_level >= GameData.memory_mini_total_levels:
 		GameData.memory_mini_passed = true
-		print("Memory minigame completed successfully!")
+		if debug: print("Memory minigame completed successfully!")
 	else:
-		print("Memory minigame level ", GameData.memory_mini_current_level, " completed")
+		if debug: print("Memory minigame level ", GameData.memory_mini_current_level, " completed")
 
 func get_memory_minigame_progress() -> Dictionary:
 	return {

@@ -12,10 +12,10 @@ func _ready() -> void:
 	interaction_text = "Something precious, something earned."
 	super._ready()
 
-func setup_visual() -> void:
-	if visual:
-		visual.color = Color("#FFD700")  # Gold/Yellow
-		visual.size = Vector2(20, 20)
+#func setup_visual() -> void:
+#	if visual:
+#		visual.color = Color("#FFD700")  # Gold/Yellow
+#		visual.size = Vector2(20, 20)
 
 func handle_interaction() -> void:
 	print("Gold collected - value: ", gold_value)
@@ -33,7 +33,7 @@ func handle_interaction() -> void:
 	# Shine and collect
 	var tween = create_tween()
 	tween.parallel().tween_property(self, "scale", Vector2(1.5, 1.5), 0.1)
-	tween.parallel().tween_property(visual, "modulate", Color.WHITE * 2.0, 0.1)
+#	tween.parallel().tween_property(visual, "modulate", Color.WHITE * 2.0, 0.1)
 	tween.tween_property(self, "modulate", Color.TRANSPARENT, 0.3)
 	tween.tween_callback(queue_free)
 
