@@ -1,9 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cpttrwygb6an1"]
+[gd_scene load_steps=2 format=3 uid="uid://cpttrwygb6an1"]
 
 [ext_resource type="Script" uid="uid://dr3wnvl1hihph" path="res://scenes/interactables/openable.gd" id="1_pgyht"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_krngc"]
-radius = 15.0
 
 [node name="Openable" type="Area2D"]
 collision_mask = 2
@@ -21,9 +18,6 @@ energy_cost = null
 [node name="Sprite2D" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 hframes = 2
-
-[node name="InteractionArea" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_krngc")
 
 [node name="Label" type="Label" parent="."]
 visible = false

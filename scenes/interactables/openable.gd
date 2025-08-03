@@ -17,7 +17,7 @@ var is_open: bool = false
 
 func _ready():
 	super._ready()  # CRITICAL: Call parent setup
-	insteraction_area.shape.radius = collision_radius
+#	insteraction_area.shape.radius = collision_radius
 	# Set up smart interactable properties
 	interaction_range = 30.0  # Set appropriate range
 	energy_cost = 1  # Energy cost for opening/closing
@@ -57,9 +57,15 @@ func open():
 	if sprite and sprite.texture:
 		sprite.frame = 1
 		if debug: print(name, " opened")
+	var parent = get_parent()
+	if parent:
+		parent.move_child(self, 0)
 
 func close():
 	"""Close the openable (show frame 0)"""
 	if sprite and sprite.texture:
 		sprite.frame = 0
 		if debug: print(name, " closed")
+	var parent = get_parent()
+	if parent:
+		parent.move_child(self, parent.get_child_count() - 1)
