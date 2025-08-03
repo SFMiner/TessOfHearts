@@ -825,3 +825,6 @@ func setup_auto_save(interval_seconds: float = 300.0) -> void:
 	timer.autostart = true
 	add_child(timer)
 	print("Auto-save set up with ", interval_seconds, " second interval")
+	
+	
+	

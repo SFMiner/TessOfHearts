@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=21 format=4 uid="uid://cayw2yw2rl77c"]
 
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
 [ext_resource type="Texture2D" uid="uid://d3pqwsy1i6swu" path="res://assets/textures/Wallpapers/wallpaper-Sheet.png" id="2_4vfav"]
@@ -8,9 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://uki6q3e7spy8" path="res://scenes/characters/bearded_friend.tscn" id="3_kb3qs"]
 [ext_resource type="Texture2D" uid="uid://coii1fyb1ceb3" path="res://assets/art/china_cab.png" id="5_33uhw"]
 [ext_resource type="PackedScene" uid="uid://c423c5rvn6yat" path="res://scenes/interactables/collectable.tscn" id="6_4vfav"]
-[ext_resource type="Script" uid="uid://hmog33sssdjl" path="res://scripts/smart_collectable.gd" id="7_gjfko"]
 [ext_resource type="PackedScene" uid="uid://cpttrwygb6an1" path="res://scenes/interactables/openable.tscn" id="7_y6plm"]
 [ext_resource type="PackedScene" uid="uid://bydcytb38rejr" path="res://scenes/interactables/ant_area.tscn" id="8_4vfav"]
+[ext_resource type="Texture2D" uid="uid://chgf3yxl6slqe" path="res://assets/spritesheets/china_cab_doors_upper_spritesheet.png" id="8_gjfko"]
+[ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="9_5arep"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jaxqq"]
 texture = ExtResource("2_4vfav")
@@ -186,119 +187,137 @@ scale = Vector2(0.25, 0.25)
 texture = ExtResource("5_33uhw")
 
 [node name="Cabinet Heart" parent="ContentContainer/Interactables/ChinaCabinet" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(36, -36)
 interaction_range = 30.0
 
 [node name="Top" parent="ContentContainer/Interactables/ChinaCabinet" instance=ExtResource("7_y6plm")]
-position = Vector2(7, -54)
-script = ExtResource("7_gjfko")
-collectable_type = 0
+process_priority = 100
+position = Vector2(4.5, -54)
+texture = ExtResource("8_gjfko")
+collision_radius = 12
 interaction_type = "default"
 can_interact = true
 destroy_on_interact = false
 interaction_text = ""
 uses_energy = true
-interaction_range = 30.0
+interaction_range = 60.0
 auto_collect_on_enter = false
 energy_cost = 1
 
 [node name="Bottom" parent="ContentContainer/Interactables/ChinaCabinet" instance=ExtResource("7_y6plm")]
-position = Vector2(6, 60)
-script = ExtResource("7_gjfko")
-collectable_type = 0
+process_priority = 100
+position = Vector2(5.5, 60)
+texture = ExtResource("9_5arep")
+collision_radius = 12
 interaction_type = "default"
 can_interact = true
 destroy_on_interact = false
 interaction_text = ""
 uses_energy = true
-interaction_range = 30.0
+interaction_range = 60.0
 auto_collect_on_enter = false
 energy_cost = 1
 
 [node name="Heart" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(487, 262)
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Heart 1_3_" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(465, 120)
 collectable_type = 1
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Heart 1_3_2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(543, 120)
 collectable_type = 1
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Heart 1_3_3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(605, 120)
 collectable_type = 1
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Heart Half" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(677, 120)
 collectable_type = 2
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Heart Half2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(747, 119)
 collectable_type = 2
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="heart 2_3_" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(816, 121)
 collectable_type = 3
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Whiskey" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(396, 191)
 collectable_type = 4
 scaling = 0.15
 interaction_range = 30.0
 
 [node name="Cookie" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(465, 191)
 collectable_type = 5
 scaling = 0.15
 interaction_range = 30.0
 
 [node name="Sutures" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(543, 191)
 collectable_type = 6
 scaling = 0.15
 interaction_range = 30.0
 
 [node name="Tape" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(605, 191)
 collectable_type = 7
 scaling = 0.15
 interaction_range = 30.0
 
 [node name="Barbed_Wire" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(677, 191)
 collectable_type = 8
 scaling = 0.15
 interaction_range = 30.0
 
 [node name="Gold" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(747, 190)
 collectable_type = 9
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Gold2" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(816, 192)
 collectable_type = 9
 scaling = 0.25
 interaction_range = 30.0
 
 [node name="Gold3" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
+process_priority = 100
 position = Vector2(419, 295)
 collectable_type = 9
 scaling = 0.25

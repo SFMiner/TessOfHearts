@@ -7,6 +7,10 @@ extends Node2D
 const scr_debug : bool = true 
 var debug : bool
 
+
+@onready var save_load_ui: SaveLoadUI
+var save_system: Node
+
 @onready var scene_holder: Node2D = $SceneHolder
 @onready var ui: CanvasLayer = $UI
 @onready var game_hud: Control = %GameHUD
@@ -37,7 +41,7 @@ func _ready() -> void:
 	if debug: print("=== GATHER HEARTS - SCENE SYSTEM ===")
 	setup_game()
 	load_initial_scene()
-	
+	setup_save_system()
 	# Fix friend's initial state by programmatically dismissing and recalling
 	await get_tree().process_frame  # Wait for scene to be ready
 	fix_friend_initial_state()
@@ -47,13 +51,45 @@ func _ready() -> void:
 	test_dialogue_input_fix()
 
 	setup_global_input_handling()
+	
+	# Do not remove this, it is important.
+	scene_holder.get_children()[0].name = "Room"
 
-#func set_tess(tess_node : Character) -> void:
-#	tess = tess_node
+func setup_save_system() -> void:
+	print("=== SETTING UP SAVE SYSTEM ===")
+	
+	# Create and add save system as autoload (or add manually)
+	if not get_node_or_null("/root/SaveSystem"):
+		var save_system_script = preload("res://scripts/autoload/save_system.gd")
+		save_system = save_system_script.new()
+		save_system.name = "SaveSystem"
+		get_tree().root.add_child(save_system)
+		print("Save system created and added to scene tree")
+	else:
+		save_system = get_node("/root/SaveSystem")
+		print("Save system found in scene tree")
+	
+	# Create save/load UI
+	var save_load_ui_scene = preload("res://scenes/ui/save_load_ui.tscn")
+	save_load_ui = save_load_ui_scene.instantiate()
+	save_load_ui.visible = false
 
-#func set_friend(friend_node : Character) -> void:
-#	friend = friend_node
-
+	# Add to UI layer
+	var ui_layer = get_node("UI")  # Assuming you have a UI CanvasLayer
+	if ui_layer:
+		ui_layer.add_child(save_load_ui)
+		print("Save/Load UI added to UI layer")
+	else:
+		add_child(save_load_ui)  # Fallback
+		print("Save/Load UI added to main scene")
+	
+	# Connect signals
+	save_load_ui.save_selected.connect(_on_save_selected)
+	save_load_ui.load_selected.connect(_on_load_selected)
+	save_load_ui.ui_closed.connect(_on_save_ui_closed)
+	
+	# Set up auto-save (optional - every 5 minutes)
+	save_system.setup_auto_save(300.0)
 
 func switch_scenes(scene_name : String) -> void:
 	var loaded_scene = load(scene_files[scene_name]).instantiate()
@@ -453,7 +489,16 @@ func _input(event: InputEvent) -> void:
 		if debug: print("=== CALL FRIEND ACTION DETECTED ===")
 		call_friend()
 		return
-	
+	if event.is_action_pressed("save_menu"):  # Define this in input map
+		show_save_menu()
+	elif event.is_action_pressed("load_menu"):  # Define this in input map
+		show_load_menu()
+	elif event.is_action_pressed("quick_save"):  # F5
+		save_system.quick_save()
+	elif event.is_action_pressed("quick_load"):  # F9
+		save_system.quick_load()
+
+	'''
 	# Backup input handling if InputManager fails
 	if event is InputEventScreenTouch:
 		if event.pressed:
@@ -471,7 +516,7 @@ func _input(event: InputEvent) -> void:
 			var world_pos = get_global_mouse_position()
 			if debug: print("World position (converted): ", world_pos)
 			_on_global_touch_started(world_pos)
-
+'''
 func _on_heart_collected(heart_data: Dictionary) -> void:
 	if debug: print("Main: Heart collected - ", heart_data)
 
@@ -567,3 +612,26 @@ func test_dialogue_input_fix() -> void:
 		dialogue_system.test_dialogue_choice_fix()
 	else:
 		if debug: print("ERROR: Dialogue system not found or missing test method")
+		
+func show_save_menu() -> void:
+	if save_load_ui:
+		save_load_ui.show_save_ui()
+
+func show_load_menu() -> void:
+	if save_load_ui:
+		save_load_ui.show_load_ui()
+
+func _on_save_selected(slot_number: int) -> void:
+	print("Save initiated for slot: ", slot_number)
+	# Optionally pause the game during save
+	# get_tree().paused = true
+
+func _on_load_selected(slot_number: int) -> void:
+	print("Load initiated for slot: ", slot_number)
+	# Optionally pause the game during load
+	# get_tree().paused = true
+
+func _on_save_ui_closed() -> void:
+	print("Save/Load UI closed")
+	# Unpause game if it was paused
+	# get_tree().paused = false

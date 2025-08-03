@@ -2,18 +2,28 @@
 
 [ext_resource type="Script" uid="uid://dr3wnvl1hihph" path="res://scenes/interactables/openable.gd" id="1_pgyht"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_krngc"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_krngc"]
+radius = 15.0
 
 [node name="Openable" type="Area2D"]
 collision_mask = 2
 script = ExtResource("1_pgyht")
-interaction_area_rect = SubResource("RectangleShape2D_krngc")
+collision_radius = null
+interaction_type = null
+can_interact = null
+destroy_on_interact = null
+interaction_text = null
+uses_energy = null
+interaction_range = null
+auto_collect_on_enter = null
+energy_cost = null
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
 hframes = 2
 
 [node name="InteractionArea" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_krngc")
+shape = SubResource("CircleShape2D_krngc")
 
 [node name="Label" type="Label" parent="."]
 visible = false
@@ -22,6 +32,3 @@ offset_right = 61.0
 offset_bottom = 23.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "Start"
-
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
-[connection signal="body_exited" from="." to="." method="_on_body_exited"]

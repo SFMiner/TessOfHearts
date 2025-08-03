@@ -123,9 +123,9 @@ func find_touched_objects(position: Vector2) -> void:
 			elif body.has_signal("touched"):
 				body.touched.emit(position)
 	# CRITICAL DEBUG: Check if touch_started signal is being emitted
-	if debug: print("INPUT MANAGER: About to emit touch_started signal")
-	touch_started.emit(position)
-	if debug: print("INPUT MANAGER: touch_started signal emitted")
+	#if debug: print("INPUT MANAGER: About to emit touch_started signal")
+	#touch_started.emit(position)
+	#if debug: print("INPUT MANAGER: touch_started signal emitted")
 
 func get_current_touch_position() -> Vector2:
 	return current_touch_position
