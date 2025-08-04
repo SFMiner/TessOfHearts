@@ -100,3 +100,7 @@ func call_friend_dialogue() -> void:
 		dialogue_system.show_dialogue("tess_come_over_here", self, tess_background_color, 0.25)
 	else:
 		print("ERROR: Dialogue system not found")
+
+func play_animation(anim_name : String) -> void:
+	if debug: print("playing Friend animation: " + anim_name) 
+	anim.play(anim_name)

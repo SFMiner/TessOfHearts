@@ -4,7 +4,7 @@
 
 extends Node
 
-const scr_debug : bool = false 
+const scr_debug : bool = true 
 var debug : bool
 
 
@@ -137,6 +137,10 @@ func get_main() -> Node2D:
 func get_tess() -> Node2D:
 	return get_tree().get_nodes_in_group("Tess")[0]
 
+func get_friend() -> Node2D:
+	return get_tree().get_nodes_in_group("Friend")[0]
+
+
 func reset_energy() -> void:
 	GameData.cur_energy = GameData.max_energy
 	energy_changed.emit(GameData.cur_energy, GameData.max_energy)
@@ -146,10 +150,38 @@ func consume_cookie() -> bool:
 	if GameData.num_cookies > 0:
 		spend_collectable(5)  # 5 = cookies
 		add_energy(30)  # Cookies restore 20 energy
-		if debug: print("Cookie consumed! +20 energy. Remaining cookies: ", GameData.num_cookies)
+		if debug: print("Cookie consumed! +30 energy. Remaining cookies: ", GameData.num_cookies)
 		return true
 	else:
 		if debug: print("No cookies available to consume")
+		return false
+
+func consume_cookie_with_friend() -> bool:
+	if GameData.num_cookies > 0:
+		spend_collectable(5)  # 5 = cookies
+		add_energy(60)  # Doubled energy: 60 instead of 30
+		if debug: print("Cookie consumed with friend! +60 energy (doubled). Remaining cookies: ", GameData.num_cookies)
+		
+		# Get the friend and play the special eating animation
+		var tess = get_tess()
+		var friend = get_friend()
+		if friend and friend.has_method("play_animation"):
+			friend.play_animation("eat_right")
+			tess.play_animation("eat_left")
+			
+			# Set up timer to return to idle after 4.5 seconds
+			var animation_timer = get_tree().create_timer(4.5)
+			animation_timer.timeout.connect(func():
+				if friend and friend.anim:
+					friend.anim.play("idle_right")
+					if debug: print("Friend finished eating animation, returned to idle")
+			)
+		else:
+			if debug: print("ERROR: Friend not found or doesn't have animation methods")
+		
+		return true
+	else:
+		if debug: print("No cookies available to consume with friend")
 		return false
 
 func consume_whiskey() -> bool:

@@ -20,7 +20,7 @@ var is_highlighted: bool = false
 var original_modulate: Color
 var last_direction: String = "left"
 var base_movement_speed: float = 200.0
-const scr_debug : bool =  false
+const scr_debug : bool =  true
 var debug : bool
 
 func _ready() -> void:

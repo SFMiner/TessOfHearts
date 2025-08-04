@@ -3,7 +3,6 @@ extends SmartInteractable
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 @onready var label: Label = $Label
-@onready var insteraction_area : CollisionShape2D = $InteractionArea
 
 var object_type : String = "openable"
 

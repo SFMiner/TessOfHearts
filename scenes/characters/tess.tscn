@@ -1,7 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://d1l80sh4u51vd"]
+[gd_scene load_steps=13 format=3 uid="uid://d1l80sh4u51vd"]
 
 [ext_resource type="Script" uid="uid://bs4fmp38adl2f" path="res://scenes/characters/tess.gd" id="1_xqbcu"]
-[ext_resource type="Texture2D" uid="uid://c7yxi581cgiat" path="res://assets/spritesheets/Tess_sprite-Sheet.png" id="2_bxk6a"]
+[ext_resource type="Texture2D" uid="uid://cn0vrtrep2cvx" path="res://assets/spritesheets/TESS-Sheet.png" id="2_bxk6a"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bxk6a"]
 radius = 32.0
@@ -102,10 +102,27 @@ tracks/0/keys = {
 "values": [4, 5, 6, 7]
 }
 
+[sub_resource type="Animation" id="Animation_0k1og"]
+resource_name = "eat_left"
+length = 4.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.758333, 1.00833, 1.25833, 1.50833, 1.75833, 2.00209, 2.25209, 2.50209, 2.75209, 3.00209, 3.25, 3.5, 3.75, 4, 4.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [17, 18, 19, 20, 21, 22, 23, 19, 20, 21, 22, 23, 19, 20, 21, 22, 21, 1]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xyejk"]
 _data = {
 &"RESET": SubResource("Animation_bxk6a"),
 &"call_friend": SubResource("Animation_dpfd3"),
+&"eat_left": SubResource("Animation_0k1og"),
 &"idle_left": SubResource("Animation_3cpho"),
 &"idle_right": SubResource("Animation_mc2s7"),
 &"walk_left": SubResource("Animation_cctbo"),
@@ -149,8 +166,8 @@ libraries = {
 position = Vector2(-9.53674e-07, -1)
 scale = Vector2(0.24, 0.24)
 texture = ExtResource("2_bxk6a")
-hframes = 9
-vframes = 2
+hframes = 8
+vframes = 3
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-5, -1)

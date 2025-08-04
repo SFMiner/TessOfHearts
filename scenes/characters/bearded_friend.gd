@@ -117,7 +117,8 @@ func track_movement_for_back_to_points() -> void:
 	
 	# Debug movement tracking
 	if distance_moved > 10.0:  # Only print for significant movement
-		if debug: print("Movement tracking - Distance moved: ", distance_moved, " / ", half_screen_distance)
+		pass
+		#if debug: print("Movement tracking - Distance moved: ", distance_moved, " / ", half_screen_distance)
 	
 	# If we've moved more than half a screen distance, create a back-to point
 	if distance_moved >= half_screen_distance:
@@ -254,6 +255,10 @@ func is_colliding_with_tess() -> bool:
 		var distance = global_position.distance_to(tess_node.global_position)
 		return distance < 50.0  # Stop when within 20 pixels of Tess (closer collision)
 	return false
+
+func play_animation(anim_name : String) -> void:
+	if debug: print("playing Friend animnation: " + anim_name) 
+	anim.play(anim_name)
 
 func move_towards_target_friend() -> void:
 	# Friend-specific movement without energy costs

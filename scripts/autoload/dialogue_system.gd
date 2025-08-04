@@ -358,15 +358,12 @@ func _on_choice_selected(choice_key: String) -> void:
 
 func trigger_cookie_effects() -> void:
 	if debug: print("=== TRIGGERING COOKIE EFFECTS ===")
-	# Cookie effects: comfort_value = 3.0 * 1.5 = 4.5
-	var comfort_value = 4.5
-	if debug: print("Cookie comfort value: ", comfort_value)
 	
-	# Consume a cookie from inventory
-	if GameManager.consume_cookie():
-		if debug: print("Tess feels comforted by the cookies")
+	# Use the special friend version that doubles energy and plays animation
+	if GameManager.consume_cookie_with_friend():
+		if debug: print("Tess and friend shared cookies together")
 	else:
-		if debug: print("ERROR: No cookies available to consume")
+		if debug: print("ERROR: No cookies available to consume with friend")
 
 func trigger_whiskey_effects() -> void:
 	if debug: print("=== TRIGGERING WHISKEY EFFECTS ===")

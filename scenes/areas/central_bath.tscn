@@ -178,7 +178,7 @@ position = Vector2(400, 500)
 unique_name_in_owner = true
 
 [node name="DialogueTrigger" parent="ContentContainer/Interactables" instance=ExtResource("3_8dyj1")]
-position = Vector2(284, 208)
+position = Vector2(125, 1195)
 trigger_once = false
 
 [node name="ChinaCabinet" type="Sprite2D" parent="ContentContainer/Interactables"]
@@ -302,7 +302,7 @@ unique_name_in_owner = true
 position = Vector2(600, 350)
 
 [node name="AntArea" parent="." instance=ExtResource("8_4vfav")]
-position = Vector2(233, 388)
+position = Vector2(343, 1217)
 ant_count = 5
 area_size = Vector2(150, 150)
 ant_speed = 20.0
