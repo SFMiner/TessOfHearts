@@ -585,22 +585,22 @@ func fix_friend_initial_state() -> void:
 	if debug: print("Found friend: ", friend.name)
 	
 	# Programmatically dismiss the friend (without dialogue)
-	if friend.has_method("depart_from_screen"):
-		if debug: print("Dismissing friend...")
-		friend.depart_from_screen()
+#	if friend.has_method("depart_from_screen"):
+#		if debug: print("Dismissing friend...")
+#		friend.depart_from_screen()
 		
 		# Wait a moment for departure to start
-		await get_tree().create_timer(0.5).timeout
+#		await get_tree().create_timer(0.5).timeout
 		
 		# Then immediately summon them back
-		if friend.has_method("summon_friend"):
-			if debug: print("Summoning friend back...")
-			friend.summon_friend()
-			if debug: print("Friend initial state fixed")
-		else:
-			if debug: print("ERROR: Friend doesn't have summon_friend method")
-	else:
-		if debug: print("ERROR: Friend doesn't have depart_from_screen method")
+#		if friend.has_method("summon_friend"):
+#			if debug: print("Summoning friend back...")
+#			friend.summon_friend()
+#			if debug: print("Friend initial state fixed")
+#		else:
+#			if debug: print("ERROR: Friend doesn't have summon_friend method")
+#	else:
+#		if debug: print("ERROR: Friend doesn't have depart_from_screen method")
 
 func test_dialogue_input_fix() -> void:
 	if debug: print("=== TESTING DIALOGUE INPUT FIX ===")

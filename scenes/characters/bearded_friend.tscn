@@ -117,15 +117,9 @@ collision_layer = 2
 collision_mask = 8
 script = ExtResource("1_pnylu")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-1, 1.54445)
-scale = Vector2(0.266667, 0.266667)
-texture = ExtResource("3_mogrr")
-hframes = 8
-vframes = 2
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-0.5, 0)
+position = Vector2(-0.5, -1.19209e-07)
+scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_j30s1")
 
 [node name="TouchArea" type="Area2D" parent="."]
@@ -137,6 +131,13 @@ shape = SubResource("RectangleShape2D_pnylu")
 
 [node name="TouchResponder" type="Node" parent="TouchArea"]
 script = ExtResource("3_touch_responder")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-1, 1.54445)
+scale = Vector2(0.266667, 0.266667)
+texture = ExtResource("3_mogrr")
+hframes = 8
+vframes = 2
 
 [node name="DialoguePoint" type="Marker2D" parent="."]
 position = Vector2(-52, -30)

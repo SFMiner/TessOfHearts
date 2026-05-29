@@ -44,15 +44,14 @@ func _ready() -> void:
 
 	debug = scr_debug or GameData.sys_debug
 	add_to_group("collectables")
-	add_to_group("interactables")
-	add_to_group("interactive_areas")
 	if debug: print("Collectable ", name, " added to interaction groups")
 	label.text = str(collectable_type)
 	sprite.scale = Vector2(scaling, scaling)
 	sprite.texture = load(set_texture())
 	if InputManager and not InputManager.touch_started.is_connected(_on_global_touch):
 		InputManager.touch_started.connect(_on_global_touch)
-
+	var interaction_area = get_node_or_null("InteractionArea")
+	move_child(interaction_area, 0)
 
 func setup_sprite() -> void:
 	if sprite:

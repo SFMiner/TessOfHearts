@@ -83,6 +83,7 @@ func setup_interaction_area() -> void:
 	interaction_area = Area2D.new()
 	interaction_area.name = "InteractionArea"
 	add_child(interaction_area)
+	move_child(interaction_area, 0)
 	
 	# Create collision shape for interaction range
 	var collision_shape = CollisionShape2D.new()

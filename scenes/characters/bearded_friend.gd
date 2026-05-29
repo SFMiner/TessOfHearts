@@ -43,6 +43,7 @@ var interaction_area: Area2D = null
 @onready var dialog_point : Marker2D = $DialoguePoint
 
 func _ready() -> void:
+	
 	debug = scr_debug or GameData.sys_debug
 	character_name = "Bearded Friend"
 	dialog_point_pos_right = $DialoguePoint.position
@@ -54,7 +55,7 @@ func _ready() -> void:
 	setup_interaction_area()
 	setup_touch_responder()
 	super._ready()
-	
+
 	# Initialize back-to point system
 	last_position = global_position
 	half_screen_distance = get_viewport().get_visible_rect().size.x * 0.5  # Half screen width
@@ -158,7 +159,7 @@ func setup_navigation_agent() -> void:
 
 func _physics_process(delta: float) -> void:
 	# Call parent physics process for proper physics handling
-	super._physics_process(delta)
+	#super._physics_process(delta)
 	
 	# Update timers
 	wander_timer -= delta
@@ -283,28 +284,18 @@ func move_towards_target_friend() -> void:
 			speed_multiplier *= speed_factor
 			if debug: print("Friend speed factor: ", speed_factor, " (distance: ", distance_to_tess, ")")
 		
-		# Apply drift if currently drifting (only when following, not departing)
+		# Apply simple drift if currently drifting (only when following, not departing)
 		if is_drifting and not is_departing:
-			var original_direction = direction
 			# Add drift direction to create sustained path variation
-			direction = (direction + drift_direction * 0.5).normalized()  # 50% drift influence
-			
-			# Check if drift aligns with movement direction
-			var alignment = original_direction.dot(direction)
-			if alignment > 0.8:  # If directions are well-aligned
-				speed_multiplier *= 1.3  # Speed up (might go past Tess)
-				if debug: print("Friend speeding up! Alignment: ", alignment)
-			elif alignment < 0.5:  # If directions are poorly aligned
-				speed_multiplier *= 0.6  # Slow down (might fall behind)
-				if debug: print("Friend slowing down! Alignment: ", alignment)
+			direction = (direction + drift_direction * 0.3).normalized()  # Reduced to 30% drift influence
 		
 		# Use base movement speed with potential speed multiplier
-		velocity = direction * movement_speed * speed_multiplier
+		velocity = direction * base_movement_speed * speed_multiplier
 		
 		# Debug departure velocity
 		if debug:
 			if is_departing:
-				print("Friend departure velocity: ", velocity, " Speed: ", movement_speed, " Multiplier: ", speed_multiplier)
+				print("Friend departure velocity: ", velocity, " Speed: ", base_movement_speed, " Multiplier: ", speed_multiplier)
 		
 		# Handle animations if available
 		if anim:
