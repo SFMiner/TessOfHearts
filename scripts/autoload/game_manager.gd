@@ -45,11 +45,11 @@ func add_energy(amt : int):
 		GameData.cur_energy = 100
 	energy_changed.emit(GameData.cur_energy, GameData.max_energy)
 
-func add_courage(amt : int):
-	GameData.cur_courage += floor(amt)
-	if GameData.cur_courage > GameData.max_courage:
-		GameData.cur_courage = GameData.max_courage
-	GameData.courage_changed.emit(GameData.cur_courage, GameData.max_courage)
+# Delegate to GameData so courage clamping + courage_changed live in one place
+# (GameData.add_courage/spend_courage). ant_area.gd calls GameData directly; this
+# keeps the two entry points sharing a single implementation.
+func add_courage(amt : int) -> void:
+	GameData.add_courage(amt)
 
 func spend_energy(amt : int):
 	GameData.cur_energy -= floor(amt)
@@ -57,11 +57,8 @@ func spend_energy(amt : int):
 		GameData.cur_energy = 0
 	energy_changed.emit(GameData.cur_energy, GameData.max_energy)
 
-func spend_courage(amt : int):
-	GameData.cur_courage -= floor(amt)
-	if GameData.cur_courage < 0:
-		GameData.cur_courage = 0
-	GameData.courage_changed.emit(GameData.cur_courage, GameData.max_courage)
+func spend_courage(amt : int) -> void:
+	GameData.spend_courage(amt)
 
 
 	

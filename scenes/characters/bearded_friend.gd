@@ -320,24 +320,19 @@ func move_towards_target_friend() -> void:
 		print("Friend departing - velocity: ", velocity, " Position: ", global_position)
 
 func _on_character_touched(position: Vector2) -> void:
-	if debug: 
+	# This runs via the base Character's Area2D input_event path. In-range dialogue is
+	# handled exclusively by _on_touched (the InputManager path) to avoid a double
+	# trigger, so here we only handle the out-of-range movement/feedback fallback.
+	if debug:
 		print("=== FRIEND CHARACTER TOUCHED DEBUG ===")
 		print("Position: ", position)
 		print("Tess in interaction area: ", tess_in_interaction_area)
-		print("Interaction area exists: ", interaction_area != null)
-		
-	# Check if Tess is in interaction area
+
 	if tess_in_interaction_area:
-		if debug: print("BeardedFriend: 'Hey there, friend.'")
-		say_dialogue("friend_hey_there")
-		if debug: print("Friend interaction - Tess in interaction area")
-		# DO NOT call super - prevent any movement
+		# Dialogue is handled by _on_touched; do nothing (and don't move).
 		return
-	else:
-		# Tess is not in interaction area, allow normal movement
-		if debug: print("Friend touched but Tess not in interaction area - allowing movement")
-		# Call super to allow normal movement behavior
-		super._on_character_touched(position)
+	# Tess is not in range — allow normal touch feedback behavior.
+	super._on_character_touched(position)
 
 func summon_friend() -> void:
 	if debug: print("=== SUMMONING FRIEND ===")

@@ -25,7 +25,7 @@ var rng = RandomNumberGenerator.new()
 var loaded_texture: bool = false
 
 @onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
-@onready var label: Label = $Label
+@onready var label: Label = get_node_or_null("Label")
 
 @export var collectable_type: CollectableType
 @export var scaling: float = 1.0
@@ -39,19 +39,16 @@ func _ready() -> void:
 	# Call parent setup
 	super._ready()
 	
-	# Set up sprite and texture
+	# Set up sprite and texture (setup_sprite() already applies texture/scale/label safely)
 	setup_sprite()
 
 	debug = scr_debug or GameData.sys_debug
-	add_to_group("collectables")
 	if debug: print("Collectable ", name, " added to interaction groups")
-	label.text = str(collectable_type)
-	sprite.scale = Vector2(scaling, scaling)
-	sprite.texture = load(set_texture())
 	if InputManager and not InputManager.touch_started.is_connected(_on_global_touch):
 		InputManager.touch_started.connect(_on_global_touch)
-	var interaction_area = get_node_or_null("InteractionArea")
-	move_child(interaction_area, 0)
+	var interaction_area := get_node_or_null("InteractionArea")
+	if interaction_area:
+		move_child(interaction_area, 0)
 
 func setup_sprite() -> void:
 	if sprite:
