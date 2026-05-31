@@ -31,6 +31,8 @@ var is_departing: bool = false
 var has_departed: bool = false
 var is_summoned: bool = false
 var _departure_timer: SceneTreeTimer = null
+var _choices_shown: bool = false
+var _choices_timer: SceneTreeTimer = null
 
 
 
@@ -672,6 +674,20 @@ func build_available_choices() -> Array[Dictionary]:
 	if debug: print("Total choices available: ", choices.size())
 	return choices
 
+func show_tess_choices() -> void:
+	if _choices_shown:
+		return
+	_choices_shown = true
+	var tess_nodes := get_tree().get_nodes_in_group("Tess")
+	if tess_nodes.size() > 0:
+		var tess := tess_nodes[0]
+		if tess.has_method("show_dialogue_choices"):
+			tess.show_dialogue_choices(build_available_choices())
+		else:
+			if debug: print("ERROR: Tess doesn't have show_dialogue_choices method")
+	else:
+		if debug: print("ERROR: Tess not found")
+
 func _on_touched(position: Vector2) -> void:
 	if debug: 
 		print("=== FRIEND _ON_TOUCHED DEBUG ===")
@@ -716,21 +732,13 @@ func _on_touched(position: Vector2) -> void:
 			var random_response = possible_responses[randi() % possible_responses.size()]
 			
 			dialogue_system.show_dialogue(random_response, dialogue_point, friend_background_color, 0.25)
-			
-			# Wait a moment, then have Tess show her dialogue choices
-			await get_tree().create_timer(1.0).timeout
-			
-			# Get Tess and have her show the dialogue choices
-			var tess_nodes_response = get_tree().get_nodes_in_group("Tess")
-			if tess_nodes_response.size() > 0:
-				var tess = tess_nodes_response[0]
-				if tess.has_method("show_dialogue_choices"):
-					var choices: Array[Dictionary] = build_available_choices()
-					tess.show_dialogue_choices(choices)
-				else:
-					if debug: print("ERROR: Tess doesn't have show_dialogue_choices method")
-			else:
-				if debug: print("ERROR: Tess not found")
+
+			# After a short pause, show Tess's response choices.
+			# show_tess_choices() is guarded by _choices_shown so clicking the bubble
+			# early (via main.gd) won't cause a double-show.
+			_choices_shown = false
+			_choices_timer = get_tree().create_timer(1.0)
+			_choices_timer.timeout.connect(func(): show_tess_choices())
 		else:
 			if debug: 
 				print("ERROR: Dialogue system not found")

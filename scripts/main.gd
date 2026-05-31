@@ -246,7 +246,12 @@ func _on_global_touch_started(position: Vector2) -> void:
 		if debug: print("Tess is moving toward friend - will stop at interaction area")
 		# Don't call tess.move_to() - let the friend's interaction area handle stopping
 		return
-	
+
+	# Check if the click landed on the Friend's dialogue bubble
+	if check_friend_dialogue_click(world_position):
+		if debug: print("MAIN: Click on Friend dialogue bubble - showing Tess choices")
+		return
+
 	if debug: print("Calling tess.move_to() with: ", world_position)
 	tess.move_to(world_position)
 
@@ -415,6 +420,25 @@ func find_blocking_control_at_position(node: Node, position: Vector2) -> Control
 	
 	return null
 
+
+func check_friend_dialogue_click(click_pos: Vector2) -> bool:
+	var dialogue_system := get_tree().current_scene.find_child("DialogueSystem")
+	if not dialogue_system or not dialogue_system.is_showing:
+		return false
+	var container: Control = dialogue_system.dialogue_container
+	var speaker: Node = dialogue_system.dialogue_speaker_node
+	if not is_instance_valid(container) or not speaker:
+		return false
+	# Build world-space rect: speaker is a Node2D so global_position is in world coords;
+	# container.position is the local offset set by show_dialogue().
+	var world_rect := Rect2(speaker.global_position + container.position, container.size)
+	if debug: print("MAIN: Friend dialogue world rect: ", world_rect, " click: ", click_pos)
+	if not world_rect.has_point(click_pos):
+		return false
+	var friend_nodes := get_tree().get_nodes_in_group("Friend")
+	if friend_nodes.size() > 0 and friend_nodes[0].has_method("show_tess_choices"):
+		friend_nodes[0].show_tess_choices()
+	return true
 
 func is_moving_toward_friend(target_position: Vector2) -> bool:
 	# Check if the target position overlaps with the friend's collision areas

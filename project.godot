@@ -23,9 +23,6 @@ InputManager="*res://scripts/autoload/input_manager.gd"
 HandwrittenTextManager="*res://scripts/autoload/handwritten_text_manager.gd"
 GameData="*res://scripts/autoload/game_data.gd"
 SaveSystem="*res://scripts/autoload/save_system.gd"
-MCPScreenshot="*res://addons/godot_mcp/mcp_screenshot_service.gd"
-MCPInputService="*res://addons/godot_mcp/mcp_input_service.gd"
-MCPGameInspector="*res://addons/godot_mcp/mcp_game_inspector_service.gd"
 
 [display]
 
