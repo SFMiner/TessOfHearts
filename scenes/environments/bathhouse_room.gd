@@ -8,13 +8,9 @@ extends Node2D
 @export var required_hearts: int = 0
 @export var is_locked: bool = false
 
-@onready var room_background: Sprite2D
+@onready var room_background: Sprite2D = $Background
 @onready var spawn_points: Node2D = $SpawnPoints
 @onready var ward_barrier: Node2D = $WardBarrier
-
-@onready var ward_barrier: Node2D = %Tess
-@onready var ward_barrier: Node2D = #
-
 
 func _ready() -> void:
 	setup_room()
@@ -23,8 +19,7 @@ func _ready() -> void:
 func setup_room() -> void:
 	# Set up room visual (placeholder background)
 	if room_background:
-		room_background.color = Color("#2C1810")  # Dark bathhouse color
-		room_background.size = get_viewport().get_visible_rect().size
+		room_background.self_modulate = Color("#2C1810")  # Dark bathhouse tint
 
 func check_access() -> void:
 	var player_hearts = GameManager.get_collected_hearts_count()

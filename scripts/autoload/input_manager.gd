@@ -65,7 +65,7 @@ func start_touch(position: Vector2) -> void:
 	var camera = get_viewport().get_camera_2d()
 	var world_position = position  # Default to screen position
 	if camera:
-		world_position = camera.get_global_mouse_position()
+		world_position = camera.get_canvas_transform().affine_inverse() * position
 	
 	# Find all objects at touch position using world coordinates
 	find_touched_objects(world_position)

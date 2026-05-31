@@ -65,8 +65,13 @@ func _ready() -> void:
 	back_to_points.append(global_position)
 	if debug: print("Added starting position as first back-to point: ", global_position)
 	
-	# Setup navigation agent (temporarily disabled)
-	# setup_navigation_agent()
+	# Setup navigation agent from scene node
+	navigation_agent = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
+	if navigation_agent:
+		navigation_agent.target_desired_distance = 50.0
+		navigation_agent.path_desired_distance = 30.0
+		navigation_agent.path_max_distance = 2000.0
+		if debug: print("Navigation agent ready - radius: ", navigation_agent.radius)
 	
 	# Debug check
 	if debug:
@@ -218,35 +223,30 @@ func handle_friend_personality() -> void:
 	follow_tess()
 
 func follow_tess() -> void:
-	# Don't follow if departing or has departed
 	if is_departing or has_departed:
 		return
 	
-	# Get Tess's current position
 	var tess_pos = GameData.get_tess_position()
 	
-	# Check if we're too close to Tess (collision check)
 	if is_colliding_with_tess():
-		# Stop moving if touching Tess
 		is_moving = false
 		velocity = Vector2.ZERO
-		if debug: print("Friend stopped - touching Tess")
 		return
 	
-	# Move towards Tess's position
 	var distance_to_tess = global_position.distance_to(tess_pos)
-	if distance_to_tess > 50.0 and distance_to_tess < half_screen_distance:  # Only move if within reasonable range
+	if distance_to_tess > 50.0 and distance_to_tess < half_screen_distance:
 		target_position = tess_pos
+		if navigation_agent:
+			navigation_agent.target_position = tess_pos
 		is_moving = true
-		if debug: print("Friend moving to Tess at: ", tess_pos, " (distance: ", distance_to_tess, ")")
 	elif distance_to_tess >= half_screen_distance:
-		# Too far away, stop following
 		is_moving = false
 		velocity = Vector2.ZERO
-		if debug: print("Friend stopped following - too far away (distance: ", distance_to_tess, ")")
+		if debug: print("Friend stopped following - too far away")
 	else:
-		# Within reasonable distance, still move but with natural drift
 		target_position = tess_pos
+		if navigation_agent:
+			navigation_agent.target_position = tess_pos
 		is_moving = true
 
 func is_colliding_with_tess() -> bool:
@@ -262,72 +262,58 @@ func play_animation(anim_name : String) -> void:
 	anim.play(anim_name)
 
 func move_towards_target_friend() -> void:
-	# Friend-specific movement without energy costs
-	var distance = global_position.distance_to(target_position)
-	set_dialog_point()
-	# Debug departure movement
-	if debug:
-		if is_departing:
-			print("Friend departing - Distance to target: ", distance, " Target: ", target_position, " Position: ", global_position)
+	var move_target = target_position
 	
-	if distance > 5.0:
-		var speed_multiplier = 1.0
-		
-		# Direct movement (temporarily remove navigation to fix syntax error)
-		direction = (target_position - global_position).normalized()
-		
-		# Reduce speed as we get closer to Tess (smoother following)
-		var tess_pos = GameData.get_tess_position()
-		var distance_to_tess = global_position.distance_to(tess_pos)
-		if distance_to_tess < 100.0:  # Start slowing down within 100 pixels
-			var speed_factor = clamp(distance_to_tess / 100.0, 0.2, 1.0)  # 20% to 100% speed
-			speed_multiplier *= speed_factor
-			if debug: print("Friend speed factor: ", speed_factor, " (distance: ", distance_to_tess, ")")
-		
-		# Apply simple drift if currently drifting (only when following, not departing)
-		if is_drifting and not is_departing:
-			# Add drift direction to create sustained path variation
-			direction = (direction + drift_direction * 0.3).normalized()  # Reduced to 30% drift influence
-		
-		# Use base movement speed with potential speed multiplier
-		velocity = direction * base_movement_speed * speed_multiplier
-		
-		# Debug departure velocity
-		if debug:
-			if is_departing:
-				print("Friend departure velocity: ", velocity, " Speed: ", base_movement_speed, " Multiplier: ", speed_multiplier)
-		
-		# Handle animations if available
-		if anim:
-			if velocity == Vector2.ZERO:
-				anim.play("idle_" + last_direction)
-			elif direction.x > 0:
-				anim.play("walk_right")
-				last_direction = "left"				
-			elif direction.x < 0:
-				anim.play("walk_left")
-				last_direction = "right"				
-		
-		# Move the character
-		move_and_slide()
-		
-		# Debug stuck detection for departure
-		if debug:
-			if is_departing and velocity.length() > 0.1:
-				print("Friend moving with velocity: ", velocity, " Position: ", global_position)
-	else:
-		# Reached target
-		global_position = target_position
+	# Use navigation path position for steering when following Tess
+	if not is_departing and navigation_agent:
+		var nav_target = navigation_agent.get_next_path_position()
+		var nav_distance = navigation_agent.distance_to_target()
+		if nav_distance > navigation_agent.target_desired_distance:
+			move_target = nav_target
+	
+	var distance_to_target = global_position.distance_to(target_position)
+	set_dialog_point()
+	
+	# Stop when close to the actual target
+	var tess_pos = GameData.get_tess_position()
+	var distance_to_tess = global_position.distance_to(tess_pos)
+	
+	if distance_to_target < 5.0 or (not is_departing and distance_to_tess < 50.0):
 		velocity = Vector2.ZERO
 		is_moving = false
-		
-		# Debug target reached
+		if anim:
+			anim.play("idle_" + last_direction)
 		if is_departing:
-			if debug: print("Friend reached departure target!")
 			is_departing = false
-					# Set a flag to prevent following Tess after departure
-		has_departed = true
-		is_summoned = false  # Reset summon state when departing
+			has_departed = true
+			is_summoned = false
+		return
+	
+	var speed_multiplier = 1.0
+	
+	direction = (move_target - global_position).normalized()
+	
+	# Reduce speed as we get closer to Tess
+	if not is_departing and distance_to_tess < 100.0:
+		speed_multiplier *= clamp(distance_to_tess / 100.0, 0.2, 1.0)
+	
+	if is_drifting and not is_departing:
+		direction = (direction + drift_direction * 0.3).normalized()
+	
+	velocity = direction * base_movement_speed * speed_multiplier
+	
+	if anim:
+		if direction.x > 0:
+			anim.play("walk_right")
+			last_direction = "left"
+		elif direction.x < 0:
+			anim.play("walk_left")
+			last_direction = "right"
+	
+	move_and_slide()
+	
+	if debug and is_departing and velocity.length() > 0.1:
+		print("Friend departing - velocity: ", velocity, " Position: ", global_position)
 
 func _on_character_touched(position: Vector2) -> void:
 	if debug: 

@@ -496,7 +496,7 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("quick_save"):  # F5
 		save_system.quick_save()
 	elif event.is_action_pressed("quick_load"):  # F9
-		save_system.quick_load()
+		await save_system.quick_load()
 
 	'''
 	# Backup input handling if InputManager fails

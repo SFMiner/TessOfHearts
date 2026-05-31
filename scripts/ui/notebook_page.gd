@@ -5,6 +5,9 @@
 extends Node2D
 class_name NotebookPage
 
+const scr_debug : bool = false
+var debug : bool
+
 @onready var paper_background: TextureRect = %PaperBackground
 @onready var content_container: Control = %ContentContainer
 @onready var tess : Character = %Tess
@@ -16,8 +19,9 @@ var main
 
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
-	main = get_tree().get_root().get_node("Main")
-	main.set_tess(tess)
+	main = get_tree().get_root().get_node_or_null("Main")
+	if main and main.has_method("set_tess"):
+		main.set_tess(tess)
 #	paper_manager = get_node("/root/NotebookPaperManager")
 #setup_paper_background()
 

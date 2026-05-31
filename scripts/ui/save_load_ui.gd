@@ -202,7 +202,7 @@ func perform_save(slot_number: int) -> void:
 
 func perform_load(slot_number: int) -> void:
 	print("Performing load from slot: ", slot_number)
-	save_system.load_game(slot_number)
+	await save_system.load_game(slot_number)
 	load_selected.emit(slot_number)
 	hide_ui()
 
@@ -230,7 +230,7 @@ func _on_quick_save_pressed() -> void:
 	hide_ui()
 
 func _on_quick_load_pressed() -> void:
-	save_system.quick_load()
+	await save_system.quick_load()
 	hide_ui()
 
 func _on_save_completed(slot_number: int, success: bool) -> void:
@@ -269,6 +269,6 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("quick_save"):  # You'll need to define this action
 		save_system.quick_save()
 	elif event.is_action_pressed("quick_load"):  # You'll need to define this action
-		save_system.quick_load()
+		await save_system.quick_load()
 	elif event.is_action_pressed("ui_cancel") and visible:
 		hide_ui()

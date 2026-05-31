@@ -92,27 +92,31 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	if not speaker_node:
 		speaker_node = get_tree().current_scene
 	
+	# Clean up any previous dialogue container
+	if is_showing:
+		hide_dialogue()
+	
 	# Create dialogue as child of speaker
-	var dialogue_container = Control.new()
+	dialogue_container = Control.new()
 	dialogue_container.name = "DialogueContainer"
 	speaker_node.add_child(dialogue_container)
 	
 	# Create background
-	var background = ColorRect.new()
-	background.name = "Background"
-	background.color = background_color
-	dialogue_container.add_child(background)
+	var bg_rect = ColorRect.new()
+	bg_rect.name = "Background"
+	bg_rect.color = background_color
+	dialogue_container.add_child(bg_rect)
 	
 	# Create text display
-	var text_display = HandwrittenLabel.new()
-	text_display.name = "HandwrittenLabel"
-	dialogue_container.add_child(text_display)
+	var label = HandwrittenLabel.new()
+	label.name = "HandwrittenLabel"
+	dialogue_container.add_child(label)
 	
 	# Set the handwritten text
-	text_display.set_handwritten_text("dialogue", dialogue_key)
+	label.set_handwritten_text("dialogue", dialogue_key)
 	
 	# Use the HandwrittenLabel's size with scaling
-	var label_size = text_display.custom_minimum_size
+	var label_size = label.custom_minimum_size
 	var scaled_size = label_size * scale_factor
 	if debug: 
 		print("HandwrittenLabel size: ", label_size)
@@ -124,12 +128,12 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	if debug: print("Resized dialogue container to: ", dialogue_container.size)
 	
 	# Also resize the background to match
-	background.size = scaled_size
-	if debug: print("Resized background to: ", background.size)
+	bg_rect.size = scaled_size
+	if debug: print("Resized background to: ", bg_rect.size)
 	
 	# Scale the text display
-	text_display.scale = Vector2(scale_factor, scale_factor)
-	if debug: print("Text display scale: ", text_display.scale)
+	label.scale = Vector2(scale_factor, scale_factor)
+	if debug: print("Text display scale: ", label.scale)
 	
 	# Set z_index to be 10 above the speaker
 	if speaker_node:
@@ -151,25 +155,33 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	dialogue_container.visible = true
 	dialogue_container.modulate = Color.TRANSPARENT
 	
-	var tween = create_tween()
-	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
+	var show_tween = create_tween()
+	show_tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
 	# Auto-hide after specified duration (for all dialogue except choice dialogue)
+	var container = dialogue_container
 	get_tree().create_timer(fade_duration).timeout.connect(func(): 
+		if not is_instance_valid(container):
+			return
 		var hide_tween = create_tween()
-		hide_tween.tween_property(dialogue_container, "modulate", Color.TRANSPARENT, 0.3)
-		hide_tween.tween_callback(func(): dialogue_container.queue_free())
+		hide_tween.tween_property(container, "modulate", Color.TRANSPARENT, 0.3)
+		hide_tween.tween_callback(func(): 
+			container.queue_free()
+			is_showing = false
+		)
 	)
 	
 	if debug: print("Dialogue display complete")
+	is_showing = true
 
 func hide_dialogue() -> void:
-	if not is_showing:
+	if not is_showing or not dialogue_container:
 		return
-		
+	
+	var container = dialogue_container
 	var tween = create_tween()
-	tween.tween_property(dialogue_container, "modulate", Color.TRANSPARENT, 0.3)
-	tween.tween_callback(func(): dialogue_container.visible = false)
+	tween.tween_property(container, "modulate", Color.TRANSPARENT, 0.3)
+	tween.tween_callback(func(): container.visible = false)
 	
 	is_showing = false
 
@@ -224,7 +236,7 @@ func say_dialogue(dialogue_key: String) -> void:
 	if dialogue_system:
 		if debug: print("Dialogue system found!")
 		var dialogue_point = $DialoguePoint if has_node("DialoguePoint") else self
-		dialogue_system.show_dialogue(dialogue_key, dialogue_point.global_position)
+		dialogue_system.show_dialogue(dialogue_key, dialogue_point)
 	else:
 		if debug: 
 			print("ERROR: No dialogue system found")
@@ -263,27 +275,31 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	if not speaker_node:
 		speaker_node = get_tree().current_scene
 	
+	# Clean up any previous dialogue container
+	if is_showing:
+		hide_dialogue()
+	
 	# Create dialogue as child of speaker
-	var dialogue_container = Control.new()
+	dialogue_container = Control.new()
 	dialogue_container.name = "DialogueContainer"
 	speaker_node.add_child(dialogue_container)
 	
 	# Create background
-	var background = ColorRect.new()
-	background.name = "Background"
-	background.color = background_color
-	dialogue_container.add_child(background)
+	var bg_rect = ColorRect.new()
+	bg_rect.name = "Background"
+	bg_rect.color = background_color
+	dialogue_container.add_child(bg_rect)
 	
 	# Create text display
-	var text_display = HandwrittenLabel.new()
-	text_display.name = "HandwrittenLabel"
-	dialogue_container.add_child(text_display)
+	var label = HandwrittenLabel.new()
+	label.name = "HandwrittenLabel"
+	dialogue_container.add_child(label)
 	
 	# Set the handwritten text
-	text_display.set_handwritten_text("dialogue", dialogue_key)
+	label.set_handwritten_text("dialogue", dialogue_key)
 	
 	# Use the HandwrittenLabel's size with scaling
-	var label_size = text_display.custom_minimum_size
+	var label_size = label.custom_minimum_size
 	var scaled_size = label_size * scale_factor
 	if debug: 
 		print("HandwrittenLabel size: ", label_size)
@@ -295,12 +311,12 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	if debug: print("Resized dialogue container to: ", dialogue_container.size)
 	
 	# Also resize the background to match
-	background.size = scaled_size
-	if debug: print("Resized background to: ", background.size)
+	bg_rect.size = scaled_size
+	if debug: print("Resized background to: ", bg_rect.size)
 	
 	# Scale the text display
-	text_display.scale = Vector2(scale_factor, scale_factor)
-	if debug: print("Text display scale: ", text_display.scale)
+	label.scale = Vector2(scale_factor, scale_factor)
+	if debug: print("Text display scale: ", label.scale)
 	
 	# Set z_index to be 10 above the speaker
 	if speaker_node:
@@ -322,10 +338,11 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	dialogue_container.visible = true
 	dialogue_container.modulate = Color.TRANSPARENT
 	
-	var tween = create_tween()
-	tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
+	var show_tween = create_tween()
+	show_tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
 	if debug: print("Dialogue display complete (manual - no auto-hide)")
+	is_showing = true
 
 func _on_choice_selected(choice_key: String) -> void:
 	if debug: 

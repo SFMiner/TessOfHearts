@@ -13,29 +13,10 @@ texture = ExtResource("1_gjbcy")
 position = Vector2(37, -40)
 
 [node name="Top" parent="." instance=ExtResource("2_d4xwg")]
-process_priority = 100
 position = Vector2(7, -54)
 texture = ExtResource("4_005yx")
 collision_radius = 20
-interaction_type = "default"
-can_interact = true
-destroy_on_interact = false
-interaction_text = ""
-uses_energy = true
-interaction_range = 30.0
-auto_collect_on_enter = false
-energy_cost = 1
 
 [node name="Bottom" parent="." instance=ExtResource("2_d4xwg")]
-process_priority = 100
 position = Vector2(6, 60)
 texture = ExtResource("3_vus32")
-collision_radius = 15
-interaction_type = "default"
-can_interact = true
-destroy_on_interact = false
-interaction_text = ""
-uses_energy = true
-interaction_range = 30.0
-auto_collect_on_enter = false
-energy_cost = 1

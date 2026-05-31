@@ -5,7 +5,7 @@
 extends Control
 class_name HandwrittenLabel
 
-@onready var sprite: Sprite2D = %Sprite2D
+@onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
 var text_manager
 
 
@@ -15,7 +15,11 @@ var debug : bool
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: print("=== HANDWRITTEN LABEL SETUP ===")
-	text_manager = HandwrittenTextManager
+	text_manager = get_node_or_null("/root/HandwrittenTextManager")
+	if not text_manager:
+		text_manager = HandwrittenTextManager
+	if not text_manager:
+		text_manager = get_tree().get_first_node_in_group("handwritten_text_manager")
 	
 	# Create sprite if it doesn't exist
 	if not sprite:
@@ -27,6 +31,8 @@ func _ready() -> void:
 	if debug: print("Handwritten label setup complete")
 
 func set_handwritten_text(category: String, key: String) -> void:
+	if not text_manager:
+		return
 	if debug: 
 		print("=== SETTING HANDWRITTEN TEXT ===")
 		print("Category: ", category)
@@ -53,6 +59,8 @@ func set_handwritten_text(category: String, key: String) -> void:
 		if debug: print("ERROR: Failed to load texture or sprite not found")
 
 func set_number(value: int) -> void:
+	if not text_manager:
+		return
 	if debug: 
 		print("=== SETTING NUMBER ===")
 		print("Value: ", value)

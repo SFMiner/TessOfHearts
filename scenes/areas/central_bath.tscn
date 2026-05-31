@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=22 format=4 uid="uid://cayw2yw2rl77c"]
 
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
 [ext_resource type="Texture2D" uid="uid://d3pqwsy1i6swu" path="res://assets/textures/Wallpapers/wallpaper-Sheet.png" id="2_4vfav"]
@@ -12,6 +12,11 @@
 [ext_resource type="PackedScene" uid="uid://bydcytb38rejr" path="res://scenes/interactables/ant_area.tscn" id="8_4vfav"]
 [ext_resource type="Texture2D" uid="uid://chgf3yxl6slqe" path="res://assets/spritesheets/china_cab_doors_upper_spritesheet.png" id="8_gjfko"]
 [ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="9_5arep"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_33uhw"]
+vertices = PackedVector2Array(796.117, 500.461, 835.297, 464.094, 929.078, 461.906, 766.422, 532.992, 2067.87, 4, 2054.12, 1068.06, 959.117, 433.453, 925.727, 406.133, 1278.8, 267.977, 807.438, 439.32, 768.82, 465.977, -17.8984, 1081.93, 1307.18, 242.953, 1272.75, 213, -8.09375, 4, 445.797, 211.992, 213.203, 501.633, 424.648, 242.203, 265.023, 468.008, 835.18, 402.82, 447.023, 272.023, 258.82, 534.008)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7, 8), PackedInt32Array(9, 1, 0, 10), PackedInt32Array(2, 6, 5), PackedInt32Array(2, 5, 11, 3), PackedInt32Array(4, 12, 13), PackedInt32Array(14, 4, 13, 15), PackedInt32Array(16, 14, 15, 17, 18), PackedInt32Array(19, 9, 10, 18, 20), PackedInt32Array(21, 3, 11), PackedInt32Array(16, 21, 11), PackedInt32Array(16, 11, 14), PackedInt32Array(18, 17, 20), PackedInt32Array(19, 20, 8, 7), PackedInt32Array(4, 8, 12)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-18, -6, 2078, -6, 2064, 1078, -28, 1092), PackedVector2Array(1269, 223, 451, 222, 437, 242, 452, 262, 1275, 258, 1292, 243), PackedVector2Array(764, 476, 268, 478, 231, 502, 262, 524, 762, 523, 783, 500), PackedVector2Array(922, 416, 840, 413, 821, 438, 839, 454, 925, 452, 944, 434)])
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jaxqq"]
 texture = ExtResource("2_4vfav")
@@ -115,6 +120,10 @@ scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_kb3qs")
 metadata/_edit_lock_ = true
 
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="PaperBackground"]
+scale = Vector2(2, 2)
+navigation_polygon = SubResource("NavigationPolygon_33uhw")
+
 [node name="ContentContainer" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 3
@@ -190,32 +199,14 @@ texture = ExtResource("5_33uhw")
 position = Vector2(36, -36)
 
 [node name="Top" parent="ContentContainer/Interactables/ChinaCabinet" instance=ExtResource("7_y6plm")]
-process_priority = 100
 position = Vector2(4.5, -54)
 texture = ExtResource("8_gjfko")
 collision_radius = 18
-interaction_type = "default"
-can_interact = true
-destroy_on_interact = false
-interaction_text = ""
-uses_energy = true
-interaction_range = 30.0
-auto_collect_on_enter = false
-energy_cost = 1
 
 [node name="Bottom" parent="ContentContainer/Interactables/ChinaCabinet" instance=ExtResource("7_y6plm")]
-process_priority = 100
 position = Vector2(5.5, 60)
 texture = ExtResource("9_5arep")
 collision_radius = 18
-interaction_type = "default"
-can_interact = true
-destroy_on_interact = false
-interaction_text = ""
-uses_energy = true
-interaction_range = 30.0
-auto_collect_on_enter = false
-energy_cost = 1
 
 [node name="Heart" parent="ContentContainer/Interactables" instance=ExtResource("6_4vfav")]
 position = Vector2(487, 262)

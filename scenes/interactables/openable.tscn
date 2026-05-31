@@ -3,17 +3,10 @@
 [ext_resource type="Script" uid="uid://dr3wnvl1hihph" path="res://scenes/interactables/openable.gd" id="1_pgyht"]
 
 [node name="Openable" type="Area2D"]
+process_priority = 100
 collision_mask = 2
 script = ExtResource("1_pgyht")
-collision_radius = null
-interaction_type = null
-can_interact = null
-destroy_on_interact = null
-interaction_text = null
-uses_energy = null
-interaction_range = null
-auto_collect_on_enter = null
-energy_cost = null
+interaction_range = 30.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 unique_name_in_owner = true

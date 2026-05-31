@@ -58,7 +58,7 @@ func spend_energy(amt : int):
 
 func spend_courage(amt : int):
 	GameData.cur_courage -= floor(amt)
-	if GameData.cur_courage > 0:
+	if GameData.cur_courage < 0:
 		GameData.cur_courage = 0
 
 

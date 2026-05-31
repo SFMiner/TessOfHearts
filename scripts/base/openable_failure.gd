@@ -20,7 +20,8 @@ var is_open : bool = false
 var player_has : bool = false
 
 func _ready():
-
+	if not sprite:
+		return
 	sprite.scale = Vector2(scaling, scaling)
 	sprite.texture = texture
 	sprite.position = Vector2.ZERO
@@ -75,6 +76,8 @@ func _get_shape_from_index(shape_idx: int) -> CollisionShape2D:
 
 func _process(delta):
 	if Engine.is_editor_hint():
+		if not sprite:
+			return
 		sprite.texture = texture
 		sprite.scale = Vector2(scaling, scaling)
 		closed_area.shape = closed_area_shape
@@ -144,12 +147,14 @@ func _on_mouse_exited() -> void:
 func open():
 	print("Opening")
 	_set_open_state(true)
-	sprite.set_frame(1)
+	if sprite:
+		sprite.frame = 1
 
 func close():
 	print("Closing")
 	_set_open_state(false)
-	sprite.set_frame(0)
+	if sprite:
+		sprite.frame = 0
 	
 func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	print("=== INPUT EVENT RECEIVED ===")

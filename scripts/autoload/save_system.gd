@@ -337,7 +337,7 @@ func load_game(slot_number: int = 0) -> bool:
 		return false
 	
 	# Apply save data
-	apply_save_data(save_data)
+	await apply_save_data(save_data)
 	
 	current_save_slot = slot_number
 	print("Game loaded successfully from slot ", slot_number)
@@ -757,7 +757,7 @@ func get_save_info(slot_number: int) -> Dictionary:
 func delete_save(slot_number: int) -> bool:
 	var file_path = get_save_file_path(slot_number)
 	if FileAccess.file_exists(file_path):
-		DirAccess.open("user://").remove(file_path)
+		DirAccess.remove_absolute(file_path)
 		print("Deleted save file: ", file_path)
 		return true
 	return false
@@ -781,7 +781,7 @@ func quick_save() -> bool:
 
 func quick_load() -> bool:
 	print("=== QUICK LOAD ===")
-	return load_game(0)  # Load from slot 0
+	return await load_game(0)  # Load from slot 0
 
 # Auto-save functionality
 func auto_save() -> bool:

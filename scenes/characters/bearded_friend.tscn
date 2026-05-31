@@ -25,6 +25,22 @@ tracks/0/keys = {
 "values": [0]
 }
 
+[sub_resource type="Animation" id="Animation_j30s1"]
+resource_name = "eat_right"
+length = 4.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.758333, 1.00833, 1.25833, 1.50833, 1.75833, 2.00209, 2.25209, 2.50209, 2.75209, 3.00209, 3.25, 3.5, 3.75, 4, 4.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [8, 9, 10, 11, 12, 13, 15, 1, 11, 12, 13, 15, 1, 11, 12, 13, 15, 1]
+}
+
 [sub_resource type="Animation" id="Animation_3cpho"]
 resource_name = "idle_left"
 tracks/0/type = "value"
@@ -85,22 +101,6 @@ tracks/0/keys = {
 "values": [1, 2, 3, 0]
 }
 
-[sub_resource type="Animation" id="Animation_j30s1"]
-resource_name = "eat_right"
-length = 4.5
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.25, 0.5, 0.758333, 1.00833, 1.25833, 1.50833, 1.75833, 2.00209, 2.25209, 2.50209, 2.75209, 3.00209, 3.25, 3.5, 3.75, 4, 4.25),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [8, 9, 10, 11, 12, 13, 15, 1, 11, 12, 13, 15, 1, 11, 12, 13, 15, 1]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xyejk"]
 _data = {
 &"RESET": SubResource("Animation_bxk6a"),
@@ -119,7 +119,6 @@ script = ExtResource("1_pnylu")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-0.5, -1.19209e-07)
-scale = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_j30s1")
 
 [node name="TouchArea" type="Area2D" parent="."]
@@ -160,3 +159,5 @@ offset_left = 31.0573
 offset_top = -22.9137
 offset_right = 71.0573
 offset_bottom = 0.0863152
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
