@@ -47,8 +47,9 @@ func add_energy(amt : int):
 
 func add_courage(amt : int):
 	GameData.cur_courage += floor(amt)
-	if GameData.cur_courage > 100:
-		GameData.cur_courage = 100
+	if GameData.cur_courage > GameData.max_courage:
+		GameData.cur_courage = GameData.max_courage
+	GameData.courage_changed.emit(GameData.cur_courage, GameData.max_courage)
 
 func spend_energy(amt : int):
 	GameData.cur_energy -= floor(amt)
@@ -60,6 +61,7 @@ func spend_courage(amt : int):
 	GameData.cur_courage -= floor(amt)
 	if GameData.cur_courage < 0:
 		GameData.cur_courage = 0
+	GameData.courage_changed.emit(GameData.cur_courage, GameData.max_courage)
 
 
 	

@@ -30,6 +30,7 @@ var half_screen_distance: float = 0.0
 var is_departing: bool = false
 var has_departed: bool = false
 var is_summoned: bool = false
+var _departure_timer: SceneTreeTimer = null
 
 
 
@@ -170,6 +171,9 @@ func _physics_process(delta: float) -> void:
 	wander_timer -= delta
 	pause_timer -= delta
 	drift_timer -= delta
+	# Count down active drift so it actually ends (handle_drift clears is_drifting at 0)
+	if is_drifting:
+		handle_drift()
 	z_index = get_global_position().y/5  # Temporarily disabled to test UI interaction
 	# $Label.text = str(direction)
 	# Track movement for back-to points
@@ -305,10 +309,10 @@ func move_towards_target_friend() -> void:
 	if anim:
 		if direction.x > 0:
 			anim.play("walk_right")
-			last_direction = "left"
+			last_direction = "right"
 		elif direction.x < 0:
 			anim.play("walk_left")
-			last_direction = "right"
+			last_direction = "left"
 	
 	move_and_slide()
 	
@@ -343,6 +347,8 @@ func summon_friend() -> void:
 	has_departed = false
 	is_departing = false
 	is_summoned = true
+	# Restore visibility in case a prior departure timeout hid the friend
+	visible = true
 	
 	# Get Tess's position
 	var tess_nodes = get_tree().get_nodes_in_group("Tess")
@@ -566,26 +572,8 @@ func depart_from_screen() -> void:
 		print("Friend is_departing: ", is_departing)
 	
 	# Set a timer to hide the friend when they reach the target
-	var departure_timer = get_tree().create_timer(10.0)  # 10 seconds max (increased from 5)
-	departure_timer.timeout.connect(func(): 
-		if is_moving and is_departing:
-			if debug: 
-				print("Friend departure timeout - hiding friend")
-				print("Final position: ", global_position)
-				print("Target was: ", departure_target)
-				print("Distance to target: ", global_position.distance_to(departure_target))
-				
-			# If we're close enough to target, consider it reached
-			if global_position.distance_to(departure_target) < 50.0:
-				if debug: print("Friend close enough to target, considering reached")
-				is_departing = false
-				is_moving = false
-			else:
-				print("Friend too far from target, hiding")
-				visible = false
-				is_moving = false
-				is_departing = false
-	)
+	_departure_timer = get_tree().create_timer(10.0)  # 10 seconds max (increased from 5)
+	_departure_timer.timeout.connect(_on_departure_timeout)
 
 func determine_departure_target() -> Vector2:
 	if debug: 
@@ -763,3 +751,26 @@ func _on_touched(position: Vector2) -> void:
 		if debug: print("Friend touched but Tess not in interaction area - allowing movement")
 		# Call the character touch method to allow movement
 		_on_character_touched(position)
+
+func _on_departure_timeout() -> void:
+	if not is_moving or not is_departing:
+		return
+	if debug:
+		print("Friend departure timeout - hiding friend")
+		print("Final position: ", global_position)
+		print("Target was: ", target_position)
+		print("Distance to target: ", global_position.distance_to(target_position))
+	if global_position.distance_to(target_position) < 50.0:
+		if debug: print("Friend close enough to target, considering reached")
+		is_departing = false
+		is_moving = false
+	else:
+		print("Friend too far from target, hiding")
+		visible = false
+		is_moving = false
+		is_departing = false
+	_departure_timer = null
+
+func _exit_tree() -> void:
+	if _departure_timer != null and _departure_timer.timeout.is_connected(_on_departure_timeout):
+		_departure_timer.timeout.disconnect(_on_departure_timeout)

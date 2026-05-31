@@ -156,55 +156,33 @@ func move_to(new_position: Vector2) -> void:
 	is_moving = true
 	#print(character_name, " is_moving set to: ", is_moving)
 
-# Add to Character.gd in move_towards_target():
 func move_towards_target() -> void:
-	'''print("=== MOVEMENT DEBUG ===")
-	print(character_name, " attempting to move")
-	print("Current position: ", global_position)
-	print("Target position: ", target_position)
-	print("Distance: ", global_position.distance_to(target_position))
-	print("can_move: ", can_move)
-	print("is_moving: ", is_moving)'''
-	
-	var distance = global_position.distance_to(target_position)
+	var distance: float = global_position.distance_to(target_position)
 	if distance > 5.0:
 		direction = (target_position - global_position).normalized()
-		#print("Direction: ", direction)
-		
+
 		# Use effective movement speed based on energy
-		var effective_speed = get_effective_movement_speed()
+		var effective_speed: float = get_effective_movement_speed()
 		velocity = direction * effective_speed
-		
-		if velocity == Vector2.ZERO:
-			anim.play("idle_" + last_direction)
-		elif direction.x > 0:
-			anim.play("walk_right")
-			last_direction = "left"				
-		elif direction.x < 0:
-			anim.play("walk_left")
-			last_direction = "right"				
-		#print("Velocity set to: ", velocity)
-		
-		# Check for collision issues
-		var old_position = global_position
+
+		if anim:
+			if velocity == Vector2.ZERO:
+				anim.play("idle_" + last_direction)
+			elif direction.x > 0:
+				anim.play("walk_right")
+				last_direction = "right"
+			elif direction.x < 0:
+				anim.play("walk_left")
+				last_direction = "left"
+
 		move_and_slide()
-		var new_position = global_position
-		
-		#print("Position after move_and_slide: ", new_position)
-		#print("Position changed: ", old_position != new_position)
-	'''
-	if is_on_wall():
-		print("Hit wall!")
-	if is_on_floor():
-		print("On floor!")
-	if is_on_ceiling():
-		print("Hit ceiling!")
 	else:
-		print("Reached target, stopping")
+		# Reached target — stop cleanly and return to idle facing the last direction
 		global_position = target_position
 		velocity = Vector2.ZERO
 		is_moving = false
-'''
+		if anim:
+			anim.play("idle_" + last_direction)
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if debug: 
 		print("=== CHARACTER AREA INPUT EVENT ===")

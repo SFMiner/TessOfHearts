@@ -225,9 +225,12 @@ func _on_global_touch_started(position: Vector2) -> void:
 			return
 		if debug: print("Tess energy before movement: ", current_energy)
 	
-	var world_position = get_global_mouse_position()
-	if debug: print("World position (converted): ", world_position)
-	
+	# InputManager.start_touch() already converted the touch/click point to world
+	# coordinates before emitting touch_started — use it directly. get_global_mouse_position()
+	# is invalid on a real touch device (no mouse cursor), which is the target platform.
+	var world_position := position
+	if debug: print("World position (from touch signal): ", world_position)
+
 	# Check if Tess is in an interactive area
 #	if is_tess_in_interactive_area():
 #		# Only allow movement if click is far enough away to exit the area
@@ -251,8 +254,8 @@ func _on_global_touch_started(position: Vector2) -> void:
 func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING SMART INTERACTABLE CLICK ===")
 	
-	# Convert click position to world coordinates
-	var world_click_position = get_global_mouse_position()
+	# click_position is already in world coordinates (provided by the touch_started signal)
+	var world_click_position := click_position
 	if debug: print("World click position: ", world_click_position)
 	
 	# Get all smart interactables

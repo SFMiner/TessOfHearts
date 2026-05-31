@@ -7,6 +7,8 @@ class_name SimpleDialogueSystem
 
 var is_showing: bool = false
 var choice_ui: Control = null
+var _auto_hide_timer: SceneTreeTimer = null
+var _auto_hide_callable: Callable
 
 const scr_debug : bool = false 
 var debug : bool
@@ -158,32 +160,45 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	var show_tween = create_tween()
 	show_tween.tween_property(dialogue_container, "modulate", Color.WHITE, 0.3)
 	
-	# Auto-hide after specified duration (for all dialogue except choice dialogue)
+	# Auto-hide after specified duration. Store the timer+callable so hide_dialogue()
+	# can cancel it — prevents "lambda capture freed" when the container is freed
+	# before the timer fires (e.g. a second dialogue superseding this one).
 	var container = dialogue_container
-	get_tree().create_timer(fade_duration).timeout.connect(func(): 
+	_auto_hide_callable = func():
+		_auto_hide_timer = null
 		if not is_instance_valid(container):
 			return
-		var hide_tween = create_tween()
-		hide_tween.tween_property(container, "modulate", Color.TRANSPARENT, 0.3)
-		hide_tween.tween_callback(func(): 
-			container.queue_free()
-			is_showing = false
-		)
-	)
+		if container != dialogue_container:
+			return
+		hide_dialogue()
+	_auto_hide_timer = get_tree().create_timer(fade_duration)
+	_auto_hide_timer.timeout.connect(_auto_hide_callable)
 	
 	if debug: print("Dialogue display complete")
 	is_showing = true
 
 func hide_dialogue() -> void:
-	if not is_showing or not dialogue_container:
+	if not is_showing or not is_instance_valid(dialogue_container):
 		return
-	
-	var container = dialogue_container
-	var tween = create_tween()
-	tween.tween_property(container, "modulate", Color.TRANSPARENT, 0.3)
-	tween.tween_callback(func(): container.visible = false)
-	
+
+	# Cancel any pending auto-hide timer so its lambda never fires against a freed container.
+	if _auto_hide_timer != null:
+		if _auto_hide_timer.timeout.is_connected(_auto_hide_callable):
+			_auto_hide_timer.timeout.disconnect(_auto_hide_callable)
+		_auto_hide_timer = null
+
+	# Single teardown path: fade out, then free the container so dialogue bubbles
+	# don't accumulate on the speaker node (the choices path has no auto-hide timer).
+	var container := dialogue_container
+	dialogue_container = null
 	is_showing = false
+
+	var tween := create_tween()
+	tween.tween_property(container, "modulate", Color.TRANSPARENT, 0.3)
+	tween.tween_callback(func():
+		if is_instance_valid(container):
+			container.queue_free()
+	)
 
 func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	# Position dialogue bubble above and centered on the speaker

@@ -64,9 +64,14 @@ func _input(event: InputEvent) -> void:
 		is_valid_click = true
 	
 	if is_valid_click:
-		# Check if click is within interaction range
-		var world_position = get_global_mouse_position()
-		var distance_to_click = global_position.distance_to(world_position)
+		# Check if click is within interaction range.
+		# event.position is in screen space; convert to world space the same way
+		# InputManager.start_touch() does, so this works on touch devices (no mouse cursor).
+		var world_position: Vector2 = event.position
+		var camera := get_viewport().get_camera_2d()
+		if camera:
+			world_position = get_viewport().get_canvas_transform().affine_inverse() * event.position
+		var distance_to_click: float = global_position.distance_to(world_position)
 		
 		if distance_to_click <= interaction_range:
 			if debug: print("SmartInteractable handling input with priority: ", name)
