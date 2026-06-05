@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://cayw2yw2rl77c"]
+[gd_scene load_steps=26 format=4 uid="uid://cayw2yw2rl77c"]
 
 [ext_resource type="PackedScene" uid="uid://d1l80sh4u51vd" path="res://scenes/characters/tess.tscn" id="2_3eq7c"]
 [ext_resource type="Texture2D" uid="uid://d3pqwsy1i6swu" path="res://assets/textures/Wallpapers/wallpaper-Sheet.png" id="2_4vfav"]
@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" uid="uid://bydcytb38rejr" path="res://scenes/interactables/ant_area.tscn" id="8_4vfav"]
 [ext_resource type="Texture2D" uid="uid://chgf3yxl6slqe" path="res://assets/spritesheets/china_cab_doors_upper_spritesheet.png" id="8_gjfko"]
 [ext_resource type="Texture2D" uid="uid://c4mejcdbbwpxd" path="res://assets/spritesheets/china_cab_doors_spritesheet.png" id="9_5arep"]
+[ext_resource type="Texture2D" uid="uid://j3oxcpqhcsn8" path="res://assets/art/creme_couch.png" id="13_gjfko"]
+[ext_resource type="Texture2D" uid="uid://c143cvkn30af7" path="res://assets/art/GREENCOUCH.png" id="14_5arep"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_33uhw"]
 vertices = PackedVector2Array(793.133, 500.281, 829.617, 469.047, 930.383, 467.961, 787.93, 527.57, 790.344, 479.352, 815.578, 453.602, 2067.87, 4, 2054.12, 1068.06, 954.609, 433.797, 946.078, 411.07, 947.5, 455.133, 1308.66, 242.367, 1300.29, 217.258, 767.156, 462.992, 805.711, 432.461, -17.8984, 1081.93, 766.508, 539, 260.031, 540, 237.844, 530.867, 223.82, 504.242, -8.09375, 4, 236.391, 477.703, 260.508, 465.008, 427.813, 218.953, 414.203, 247.406, 1298.89, 266.109, 924.563, 398.969, 1280.57, 275.969, 1282.73, 207.008, 445.109, 202.977, 423.844, 274.969, 442.531, 285.031, 819.781, 408.547, 835.391, 400.031)
@@ -110,6 +112,12 @@ size = Vector2(84, 38)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5arep"]
 size = Vector2(343, 38)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_gjfko"]
+radius = 27.0185
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2xm3n"]
+size = Vector2(69, 20)
+
 [node name="Room" type="Node2D"]
 
 [node name="PaperBackground" type="TextureRect" parent="."]
@@ -171,6 +179,14 @@ shape = SubResource("RectangleShape2D_gjfko")
 position = Vector2(1171.5, 435)
 shape = SubResource("RectangleShape2D_5arep")
 
+[node name="CollisionShape2D6" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(527, 252)
+shape = SubResource("CircleShape2D_gjfko")
+
+[node name="CollisionShape2D7" type="CollisionShape2D" parent="ContentContainer/Environment/StaticBody2D"]
+position = Vector2(797.5, 264)
+shape = SubResource("RectangleShape2D_2xm3n")
+
 [node name="SpawnPoints" type="Node2D" parent="ContentContainer"]
 unique_name_in_owner = true
 
@@ -189,6 +205,16 @@ unique_name_in_owner = true
 [node name="DialogueTrigger" parent="ContentContainer/Interactables" instance=ExtResource("3_8dyj1")]
 position = Vector2(125, 1195)
 trigger_once = false
+
+[node name="CremeCouch" type="Sprite2D" parent="ContentContainer/Interactables"]
+position = Vector2(796, 314)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("13_gjfko")
+
+[node name="Greencouch" type="Sprite2D" parent="ContentContainer/Interactables"]
+position = Vector2(532, 310)
+scale = Vector2(0.842857, 0.842857)
+texture = ExtResource("14_5arep")
 
 [node name="ChinaCabinet" type="Sprite2D" parent="ContentContainer/Interactables"]
 position = Vector2(339, 106)
@@ -293,7 +319,7 @@ unique_name_in_owner = true
 position = Vector2(600, 350)
 
 [node name="AntArea" parent="." instance=ExtResource("8_4vfav")]
-position = Vector2(343, 1217)
+position = Vector2(1113, 342)
 ant_count = 5
 area_size = Vector2(150, 150)
 ant_speed = 20.0
