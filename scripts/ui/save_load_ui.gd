@@ -20,6 +20,7 @@ var save_system: Node
 var current_mode: String = "save"  # "save" or "load"
 var slot_buttons: Array[Control] = []
 
+# Initialize save/load UI: set up slot buttons, connect signal handlers
 func _ready() -> void:
 	print("=== SAVE/LOAD UI SETUP ===")
 	
@@ -39,6 +40,7 @@ func _ready() -> void:
 	# Start hidden
 	hide_ui()
 
+# Configure the UI container, buttons, and layout for the save/load interface
 func setup_ui() -> void:
 	# Set up background
 	if background:
@@ -57,6 +59,7 @@ func setup_ui() -> void:
 		quick_load_button.pressed.connect(_on_quick_load_pressed)
 		quick_load_button.text = "Quick Load (F9)"
 
+# Display the save panel with current save slot information
 func show_save_ui() -> void:
 	current_mode = "save"
 	if title_label:
@@ -65,6 +68,7 @@ func show_save_ui() -> void:
 	refresh_save_slots()
 	show_ui()
 
+# Display the load panel with current save slot information
 func show_load_ui() -> void:
 	current_mode = "load"
 	if title_label:
@@ -73,6 +77,7 @@ func show_load_ui() -> void:
 	refresh_save_slots()
 	show_ui()
 
+# Make the save/load UI visible and refresh slot data
 func show_ui() -> void:
 	visible = true
 	# Fade in animation
@@ -80,6 +85,7 @@ func show_ui() -> void:
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", Color.WHITE, 0.3)
 
+# Hide the save/load UI and resume normal game input
 func hide_ui() -> void:
 	# Fade out animation
 	var tween = create_tween()
@@ -88,6 +94,7 @@ func hide_ui() -> void:
 	
 	ui_closed.emit()
 
+# Repopulate all slot buttons with current data from SaveSystem
 func refresh_save_slots() -> void:
 	# Clear existing slot buttons
 	for slot_button in slot_buttons:
@@ -101,6 +108,7 @@ func refresh_save_slots() -> void:
 	for slot_info in save_slots:
 		create_slot_button(slot_info)
 
+# Build a single save slot button with metadata display and click handler
 func create_slot_button(slot_info: Dictionary) -> void:
 	var slot_number = slot_info["slot_number"]
 	var exists = slot_info["exists"]
@@ -157,6 +165,7 @@ func create_slot_button(slot_info: Dictionary) -> void:
 	
 	slot_buttons.append(slot_container)
 
+# Handle slot button click: save or load depending on current UI mode
 func _on_slot_selected(slot_number: int) -> void:
 	print("=== SLOT SELECTED ===")
 	print("Mode: ", current_mode, " Slot: ", slot_number)
@@ -170,6 +179,7 @@ func _on_slot_selected(slot_number: int) -> void:
 	else:  # load mode
 		perform_load(slot_number)
 
+# Show a confirmation dialog before overwriting an existing save
 func show_overwrite_confirmation(slot_number: int) -> void:
 	# Create confirmation dialog
 	var dialog = AcceptDialog.new()
@@ -195,17 +205,20 @@ func show_overwrite_confirmation(slot_number: int) -> void:
 		dialog.queue_free()
 	)
 
+# Execute the save operation via SaveSystem for the chosen slot
 func perform_save(slot_number: int) -> void:
 	print("Performing save to slot: ", slot_number)
 	save_system.save_game(slot_number)
 	save_selected.emit(slot_number)
 
+# Execute the load operation via SaveSystem for the chosen slot
 func perform_load(slot_number: int) -> void:
 	print("Performing load from slot: ", slot_number)
 	await save_system.load_game(slot_number)
 	load_selected.emit(slot_number)
 	hide_ui()
 
+# Handle delete button: remove the save file and refresh the slot display
 func _on_delete_slot(slot_number: int) -> void:
 	# Create confirmation dialog
 	var dialog = AcceptDialog.new()
@@ -222,17 +235,21 @@ func _on_delete_slot(slot_number: int) -> void:
 		dialog.queue_free()
 	)
 
+# Handle close button: dismiss the save/load UI
 func _on_close_pressed() -> void:
 	hide_ui()
 
+# Trigger a quick save to slot 0 via SaveSystem
 func _on_quick_save_pressed() -> void:
 	save_system.quick_save()
 	hide_ui()
 
+# Trigger a quick load from slot 0 via SaveSystem
 func _on_quick_load_pressed() -> void:
 	await save_system.quick_load()
 	hide_ui()
 
+# React to save completion: show feedback and refresh UI
 func _on_save_completed(slot_number: int, success: bool) -> void:
 	if success:
 		print("Save completed successfully for slot: ", slot_number)
@@ -242,6 +259,7 @@ func _on_save_completed(slot_number: int, success: bool) -> void:
 		print("Save failed for slot: ", slot_number)
 		show_feedback_message("Save failed!", Color.RED)
 
+# React to load completion: show feedback and hide UI on success
 func _on_load_completed(slot_number: int, success: bool) -> void:
 	if success:
 		print("Load completed successfully from slot: ", slot_number)
@@ -250,6 +268,7 @@ func _on_load_completed(slot_number: int, success: bool) -> void:
 		print("Load failed from slot: ", slot_number)
 		show_feedback_message("Load failed!", Color.RED)
 
+# Display a temporary feedback message to the player
 func show_feedback_message(message: String, color: Color = Color.WHITE) -> void:
 	# Create temporary feedback label
 	var feedback = Label.new()
@@ -265,6 +284,7 @@ func show_feedback_message(message: String, color: Color = Color.WHITE) -> void:
 	tween.tween_property(feedback, "modulate", Color.TRANSPARENT, 2.0)
 	tween.tween_callback(feedback.queue_free)
 
+# Intercept input while the save/load UI is visible to prevent game interaction
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("quick_save"):  # You'll need to define this action
 		save_system.quick_save()

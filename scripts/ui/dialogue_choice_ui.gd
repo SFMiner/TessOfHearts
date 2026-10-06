@@ -13,6 +13,7 @@ signal choice_selected(choice_key: String)
 var choice_buttons: Array[Button] = []
 var is_showing: bool = false
 
+# Initialize the dialogue choice UI and register with the dialogue system
 func _ready() -> void:
 	print("=== DIALOGUE CHOICE UI SETUP ===")
 	add_to_group("dialogue_choice_ui")
@@ -30,6 +31,7 @@ func _ready() -> void:
 	
 	print("Initial mouse filters set - UI buttons should be clickable")
 
+# Display clickable choice buttons positioned above the speaking character
 func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector2.ZERO) -> void:
 	print("=== SHOWING DIALOGUE CHOICES ===")
 	print("Number of choices: ", choices.size())
@@ -168,10 +170,8 @@ func show_choices(choices: Array[Dictionary], speaker_position: Vector2 = Vector
 	
 	is_showing = true
 	print("Dialogue choices displayed")
-	
-	# Add a test button to manually trigger excuse me
-#	add_test_button()
 
+# Add a debug test button to verify choice UI rendering
 func add_test_button():
 	# Create a test button to manually trigger excuse me
 	var test_button = Button.new()
@@ -185,6 +185,7 @@ func add_test_button():
 		_on_choice_selected("excuse_me")
 	)
 
+# Calculate screen position for choice buttons above the speaker's world position
 func position_choices_above_speaker(speaker_pos: Vector2) -> void:
 	print("=== POSITIONING CHOICES ===")
 	print("Speaker world position: ", speaker_pos)
@@ -229,6 +230,7 @@ func position_choices_above_speaker(speaker_pos: Vector2) -> void:
 	print("Final choice size: ", choice_size)
 	print("Choice positioned at: ", choice_pos)
 
+# Remove all choice buttons from the screen
 func hide_choices() -> void:
 	if not is_showing:
 		return
@@ -252,6 +254,7 @@ func hide_choices() -> void:
 	)
 	is_showing = false
 
+# Locate the speaking character node by its position (for visual alignment)
 func find_speaker_node(speaker_position: Vector2) -> Node:
 	# Try to find the speaker node by checking all nodes in the scene
 	var all_nodes = get_tree().get_nodes_in_group("Tess")
@@ -263,9 +266,11 @@ func find_speaker_node(speaker_position: Vector2) -> Node:
 	
 	return null
 
+# Return all currently visible choice button nodes
 func get_choice_buttons() -> Array[Button]:
 	return choice_buttons
 
+# Handle player selecting a choice: emit signal and hide all buttons
 func _on_choice_selected(choice_key: String) -> void:
 	print("=== CHOICE SELECTED ===")
 	print("Choice key: ", choice_key)
@@ -277,6 +282,7 @@ func _on_choice_selected(choice_key: String) -> void:
 
 
 
+# Build a flat button style with the given background color for choice buttons
 func create_button_style(color: Color = Color.WHITE) -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
 	style.bg_color = color

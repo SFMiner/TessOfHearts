@@ -18,6 +18,7 @@ var connections: Dictionary = {}  # memory_id -> bool
 @onready var label: Label = $Label
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
+# Initialize memory piece: set up drag handling, visuals, and signal connections
 func _ready():
 	# Enable input processing
 	input_pickable = true
@@ -33,6 +34,7 @@ func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 
+# Handle mouse clicks: start or end drag based on button state
 func _on_input_event(_viewport, event, _shape_idx):
 	print("Input event received: ", event)
 	if event is InputEventMouseButton:
@@ -52,6 +54,7 @@ func _on_input_event(_viewport, event, _shape_idx):
 					unassign()
 					global_position = original_position
 
+# Begin dragging this memory piece: offset calculation and state tracking
 func _start_drag(mouse_pos: Vector2):
 	is_dragging = true
 	drag_offset = global_position - mouse_pos
@@ -68,6 +71,7 @@ func _start_drag(mouse_pos: Vector2):
 	if sprite:
 		sprite.modulate = Color(1.2, 1.2, 1.2)  # Brighten when dragging
 
+# End the drag: check for vessel overlap to assign, or snap back
 func _end_drag():
 	is_dragging = false
 
@@ -104,6 +108,7 @@ func _end_drag():
 		global_position = original_position
 		print("Memory ", memory_id, " returned to original position")
 
+# Create a visual/semantic connection to another memory piece
 func _connect_to_memory(other_memory: Memory):
 	# Check if already connected - if so, disconnect
 	if other_memory.memory_id in connections:
@@ -124,25 +129,32 @@ func _connect_to_memory(other_memory: Memory):
 	_update_visual_state()
 	other_memory._update_visual_state()
 
+# Register a connection to another memory in the connection list
 func add_connection(other_memory: Memory):
 	connections[other_memory.memory_id] = true
 
+# Remove a specific connection from this memory's connection list
 func remove_connection(other_memory: Memory):
 	if other_memory.memory_id in connections:
 		connections.erase(other_memory.memory_id)
 
+# Clear all connections this memory has to other pieces
 func remove_all_connections():
 	connections.clear()
 
+# Check if this memory has any active connections
 func has_memory_connections() -> bool:
 	return connections.size() > 0
 
+# Return the number of connections this memory has
 func get_connection_count() -> int:
 	return connections.size()
 
+# Return IDs of all memories currently connected to this one
 func get_connected_memory_ids() -> Array:
 	return connections.keys()
 
+# Place this memory into a vessel: reparent, snap position, and update visuals
 func assign_to_vessel(vessel: Vessel):
 	# Unassign from previous vessel if any
 	if assigned_vessel:
@@ -161,6 +173,7 @@ func assign_to_vessel(vessel: Vessel):
 	memory_assigned.emit(self, vessel)
 	print("Memory ", memory_id, " assigned to vessel ", vessel.vessel_name)
 
+# Remove this memory from its vessel and return it to the main scene
 func unassign():
 	if assigned_vessel:
 		print("Memory ", memory_id, " unassigned from vessel ", assigned_vessel.vessel_name)
@@ -168,20 +181,24 @@ func unassign():
 		assigned_vessel = null
 		memory_unassigned.emit(self)
 
+# Per-frame: update position during drag operations
 func _process(_delta):
 	if is_dragging:
 		var viewport = get_viewport()
 		if viewport:
 			global_position = viewport.get_mouse_position() + drag_offset
 
+# Highlight this memory when the mouse hovers over it
 func _on_mouse_entered():
 	if sprite and not is_dragging:
 		sprite.modulate = Color(1.1, 1.1, 1.1)  # Slight highlight on hover
 
+# Remove highlight when the mouse leaves this memory
 func _on_mouse_exited():
 	if sprite and not is_dragging:
 		_update_visual_state()
 
+# Refresh the sprite and connection indicators to match current state
 func _update_visual_state():
 	if sprite:
 		if connections.size() > 0:
@@ -194,6 +211,7 @@ func _update_visual_state():
 			# Unassigned memory
 			sprite.modulate = Color.WHITE
 
+# Serialize this memory's state for save/load
 func get_memory_data() -> Dictionary:
 	return {
 		"id": memory_id,
@@ -203,6 +221,7 @@ func get_memory_data() -> Dictionary:
 		"connection_ids": connections.keys()
 	}
 
+# Handle global input during an active drag (for escape-to-cancel, etc.)
 func _unhandled_input(event):
 	if is_dragging and event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_end_drag()

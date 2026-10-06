@@ -7,6 +7,7 @@ extends SmartCollectable
 @export var whiskey_type: String = "comfort"
 @export var healing_amount: float = 5.0
 
+# Initialize whiskey collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "whiskey"
 	interaction_text = "A small comfort in difficult times."
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#D2B48C")  # Tan
 #		visual.size = Vector2(24, 32)
 
+# Add whiskey to inventory via GameManager when collected
 func handle_interaction() -> void:
 	print("Whiskey consumed - warmth spreads through your chest")
 	# Could heal hearts, provide comfort, unlock dialogue, etc.

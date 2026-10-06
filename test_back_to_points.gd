@@ -1,6 +1,7 @@
 # Test script for back-to point system
 extends Node
 
+# Test the friend's departure pathfinding using back-to-points: print and validate stored waypoints
 func test_back_to_points():
 	print("=== TESTING BACK-TO POINT SYSTEM ===")
 	
@@ -30,6 +31,7 @@ func test_back_to_points():
 	
 	print("=== BACK-TO POINT TEST COMPLETE ===")
 
+# Test that Tess's movement is being correctly recorded into GameData for the friend echo system
 func test_movement_tracking():
 	print("=== TESTING MOVEMENT TRACKING ===")
 	

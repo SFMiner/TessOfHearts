@@ -27,6 +27,7 @@ func _ready() -> void:
 # SAVE FUNCTIONS
 # ===========================================
 
+# Collect all game state, serialize to JSON, write to user://savegames/slot_N.save, emit save_completed
 func save_game(slot_number: int = 0) -> bool:
 	if slot_number < 0 or slot_number >= MAX_SAVE_SLOTS:
 		if debug: print("ERROR: Invalid save slot: ", slot_number)
@@ -60,6 +61,7 @@ func save_game(slot_number: int = 0) -> bool:
 	save_completed.emit(slot_number, true)
 	return true
 
+# Aggregate player, game_state, inventory, world_state, and progress into one save dict
 func collect_save_data() -> Dictionary:
 	var save_data = {}
 	
@@ -85,6 +87,7 @@ func collect_save_data() -> Dictionary:
 	
 	return save_data
 
+# Capture Tess position, last_direction, energy, and courage from scene and GameData
 func collect_player_data() -> Dictionary:
 	var player_data = {}
 	
@@ -111,6 +114,7 @@ func collect_player_data() -> Dictionary:
 	
 	return player_data
 
+# Capture current scene path, GameManager state, current area, and camera limits
 func collect_game_state_data() -> Dictionary:
 	var game_state_data = {}
 	
@@ -135,6 +139,7 @@ func collect_game_state_data() -> Dictionary:
 	
 	return game_state_data
 
+# Serialize all GameData inventory counters (hearts, craftables, consumables, gold)
 func collect_inventory_data() -> Dictionary:
 	var inventory_data = {}
 	
@@ -166,6 +171,7 @@ func collect_inventory_data() -> Dictionary:
 	
 	return inventory_data
 
+# Scan scene for collectables, interactables, ant_areas, and dialogue_triggers; serialize their states
 func collect_world_state_data() -> Dictionary:
 	var world_state_data = {}
 	
@@ -267,6 +273,7 @@ func collect_world_state_data() -> Dictionary:
 	return world_state_data
 
 
+# Capture collected hearts, memory minigame status, and friend movement tracking
 func collect_progress_data() -> Dictionary:
 	var progress_data = {}
 	
@@ -297,6 +304,7 @@ func collect_progress_data() -> Dictionary:
 # LOAD FUNCTIONS
 # ===========================================
 
+# Read save file, parse JSON, validate structure, then await apply_save_data to restore state
 func load_game(slot_number: int = 0) -> bool:
 	if slot_number < 0 or slot_number >= MAX_SAVE_SLOTS:
 		print("ERROR: Invalid load slot: ", slot_number)
@@ -344,6 +352,7 @@ func load_game(slot_number: int = 0) -> bool:
 	load_completed.emit(slot_number, true)
 	return true
 
+# Ensure save dict contains all required top-level keys before restoration
 func validate_save_data(save_data: Dictionary) -> bool:
 	var required_keys = ["player", "game_state", "inventory", "world_state", "progress"]
 	
@@ -358,6 +367,7 @@ func validate_save_data(save_data: Dictionary) -> bool:
 	
 	return true
 
+# Orchestrate restoration: inventory first, then player, game state, progress, and world state (last)
 func apply_save_data(save_data: Dictionary) -> void:
 	print("=== APPLYING SAVE DATA ===")
 	
@@ -378,6 +388,7 @@ func apply_save_data(save_data: Dictionary) -> void:
 	
 	print("Save data applied successfully")
 
+# Restore energy, courage, Tess position, and last_direction; emit signals for HUD
 func apply_player_data(player_data: Dictionary) -> void:
 	print("=== APPLYING PLAYER DATA ===")
 	
@@ -401,6 +412,7 @@ func apply_player_data(player_data: Dictionary) -> void:
 	
 	print("Player data applied - Energy: ", GameData.cur_energy, " Courage: ", GameData.cur_courage)
 
+# Restore all GameData inventory counters from save data, then refresh HUD
 func apply_inventory_data(inventory_data: Dictionary) -> void:
 	print("=== APPLYING INVENTORY DATA ===")
 	
@@ -434,6 +446,7 @@ func apply_inventory_data(inventory_data: Dictionary) -> void:
 	
 	print("Inventory data applied - Hearts: ", GameData.num_hearts_whole, " Cookies: ", GameData.num_cookies)
 
+# Restore camera limits, GameManager state, and current area from save
 func apply_game_state_data(game_state_data: Dictionary) -> void:
 	print("=== APPLYING GAME STATE DATA ===")
 	
@@ -452,6 +465,7 @@ func apply_game_state_data(game_state_data: Dictionary) -> void:
 	
 	print("Game state data applied")
 
+# Restore collected hearts list, memory minigame state, and friend echo tracking
 func apply_progress_data(progress_data: Dictionary) -> void:
 	print("=== APPLYING PROGRESS DATA ===")
 	
@@ -477,6 +491,7 @@ func apply_progress_data(progress_data: Dictionary) -> void:
 	
 	print("Progress data applied")
 
+# Restore collectable placements, interactable open/usage states, ant areas, and dialogue triggers
 func apply_world_state_data(world_state_data: Dictionary) -> void:
 	print("=== APPLYING WORLD STATE DATA ===")
 	
@@ -502,6 +517,7 @@ func apply_world_state_data(world_state_data: Dictionary) -> void:
 	
 	print("World state data applied")
 
+# Queue-free all objects in group collectables (they were already collected and saved)
 func remove_collected_items(collected_items: Array) -> void:
 	print("=== REMOVING COLLECTED ITEMS ===")
 	print("Items to remove: ", collected_items.size())
@@ -518,6 +534,7 @@ func remove_collected_items(collected_items: Array) -> void:
 		print("Removing collectable at: ", collectable.global_position)
 		collectable.queue_free()
 
+# Clear existing collectables, instantiate saved ones from collectable.tscn at their recorded positions
 func restore_available_collectables(available_collectables: Array) -> void:
 	print("=== RESTORING AVAILABLE COLLECTABLES ===")
 	print("Collectables to restore: ", available_collectables.size())
@@ -624,6 +641,7 @@ func restore_available_collectables(available_collectables: Array) -> void:
 	
 	print("Collectables restoration complete - spawned ", available_collectables.size(), " collectables")
 
+# Manually walk a slash-delimited node path to find a node when get_node_or_null fails
 func find_node_by_path_parts(path_string: String) -> Node:
 	"""Try to find a node by manually parsing the path parts"""
 	var path_parts = path_string.split("/")
@@ -656,6 +674,7 @@ func find_node_by_path_parts(path_string: String) -> Node:
 	return current_node
 
 
+# Match saved interactable data to scene nodes by position and restore is_open, usage_count, can_interact
 func restore_interactable_states(interactable_states: Array) -> void:
 	print("=== RESTORING INTERACTABLE STATES ===")
 	
@@ -685,6 +704,7 @@ func restore_interactable_states(interactable_states: Array) -> void:
 				print("Restored state for interactable at: ", target_pos)
 				break
 
+# Match saved ant area data to scene nodes; queue_free cleared areas, restore ant counts for others
 func restore_ant_area_states(ant_areas_data: Array) -> void:
 	print("=== RESTORING ANT AREA STATES ===")
 	
@@ -708,6 +728,7 @@ func restore_ant_area_states(ant_areas_data: Array) -> void:
 					print("Restored ant area with ", remaining_ants, " ants at: ", target_pos)
 				break
 
+# Match saved trigger data to scene nodes by position and restore has_triggered flag
 func restore_dialogue_trigger_states(dialogue_triggers_data: Array) -> void:
 	print("=== RESTORING DIALOGUE TRIGGER STATES ===")
 	
@@ -727,12 +748,15 @@ func restore_dialogue_trigger_states(dialogue_triggers_data: Array) -> void:
 # UTILITY FUNCTIONS
 # ===========================================
 
+# Build the full file path for a given save slot (e.g. user://savegames/slot_0.save)
 func get_save_file_path(slot_number: int) -> String:
 	return SAVE_FILE_PATH + "slot_" + str(slot_number) + SAVE_FILE_EXTENSION
 
+# Check whether a save file already exists for the given slot
 func save_file_exists(slot_number: int) -> bool:
 	return FileAccess.file_exists(get_save_file_path(slot_number))
 
+# Read a save file's metadata (slot, timestamp, version) without loading full game state
 func get_save_info(slot_number: int) -> Dictionary:
 	if not save_file_exists(slot_number):
 		return {}
@@ -754,6 +778,7 @@ func get_save_info(slot_number: int) -> Dictionary:
 	var save_data = json.data
 	return save_data.get("metadata", {})
 
+# Permanently delete the save file for a given slot; returns true if file existed
 func delete_save(slot_number: int) -> bool:
 	var file_path = get_save_file_path(slot_number)
 	if FileAccess.file_exists(file_path):
@@ -762,6 +787,7 @@ func delete_save(slot_number: int) -> bool:
 		return true
 	return false
 
+# Build array of all 10 slots with exists flag and metadata for save/load UI display
 func get_all_save_slots() -> Array[Dictionary]:
 	var save_slots: Array[Dictionary] = []
 	
@@ -775,26 +801,31 @@ func get_all_save_slots() -> Array[Dictionary]:
 	
 	return save_slots
 
+# Save game to slot 0 (the quick-save slot)
 func quick_save() -> bool:
 	print("=== QUICK SAVE ===")
 	return save_game(0)  # Save to slot 0
 
+# Load game from slot 0 (the quick-save slot)
 func quick_load() -> bool:
 	print("=== QUICK LOAD ===")
 	return await load_game(0)  # Load from slot 0
 
 # Auto-save functionality
+# Save game to the last slot (slot 9) for periodic auto-save
 func auto_save() -> bool:
 	print("=== AUTO SAVE ===")
 	var auto_save_slot = MAX_SAVE_SLOTS - 1  # Use last slot for auto-save
 	return save_game(auto_save_slot)
 
+# Return the relative path from the current scene root to the given node
 func get_node_path_from_scene_root(node: Node) -> String:
 	"""Get the path from the current scene root to the given node"""
 	var scene_root = get_tree().current_scene
 	var return_path = scene_root.get_path_to(node)
 	return return_path
 
+# Depth-first recursive search through children to find a node by name
 func find_node_recursive(start_node: Node, target_name: String) -> Node:
 	"""Recursively search for a node with the given name"""
 	if start_node.name == target_name:
@@ -807,6 +838,7 @@ func find_node_recursive(start_node: Node, target_name: String) -> Node:
 	
 	return null
 
+# Print a tree view of a node's descendants up to max_depth for debugging
 func debug_print_children(node: Node, depth: int, max_depth: int) -> void:
 	"""Print the tree structure for debugging"""
 	if depth > max_depth:
@@ -818,6 +850,7 @@ func debug_print_children(node: Node, depth: int, max_depth: int) -> void:
 	for child in node.get_children():
 		debug_print_children(child, depth + 1, max_depth)
 
+# Create and attach a Timer that calls auto_save() at the given interval
 func setup_auto_save(interval_seconds: float = 300.0) -> void:
 	var timer = Timer.new()
 	timer.wait_time = interval_seconds

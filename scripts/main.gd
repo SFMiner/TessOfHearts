@@ -34,6 +34,7 @@ var scene_files: Dictionary = {
 #	"entrance_hall": "res://scenes/areas/EntranceHall.tscn"
 }
 
+# Initialize main scene: set up camera, connect signals, configure save system, and load initial scene
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	switch_scenes("central_bath")
@@ -55,6 +56,7 @@ func _ready() -> void:
 	# Do not remove this, it is important.
 	scene_holder.get_children()[0].name = "Room"
 
+# Attach SaveSystem singleton to the Main node so save/load operations can access the scene tree
 func setup_save_system() -> void:
 	print("=== SETTING UP SAVE SYSTEM ===")
 	
@@ -91,6 +93,7 @@ func setup_save_system() -> void:
 	# Set up auto-save (optional - every 5 minutes)
 	save_system.setup_auto_save(300.0)
 
+# Transition the game to a different scene by name with a fade effect
 func switch_scenes(scene_name : String) -> void:
 	var loaded_scene = load(scene_files[scene_name]).instantiate()
 	while scene_holder.get_children().size() > 0:
@@ -98,15 +101,18 @@ func switch_scenes(scene_name : String) -> void:
 	scene_holder.add_child(loaded_scene)
 	current_scene = loaded_scene
 	
+# Perform post-scene-load initialization: connect scene-specific signals and set up global input
 func setup_game() -> void:
 	# Connect to game events for scene transitions
 	if GameManager:
 		GameManager.area_unlocked.connect(_on_area_unlocked)
 	if debug: print("Scene system ready")
 
+# Load the default starting scene (bathhouse_entry) when the game first boots
 func load_initial_scene() -> void:
 	load_scene("central_bath")
 
+# Load a packed scene from disk into the ContentContainer, handling cleanup of previous scene
 func load_scene(scene_name: String) -> void:
 	if debug: print("Loading scene: ", scene_name)
 	
@@ -133,9 +139,11 @@ func load_scene(scene_name: String) -> void:
 	else:
 		if debug: print("ERROR: Scene not found: ", scene_name)
 
+# Return the Tess node from the current scene
 func get_tess() -> Character:
 	return tess
 
+# Fade screen to black, load new scene, then fade back in over fade_duration seconds
 func transition_to_scene(scene_name: String, fade_duration: float = 0.5) -> void:
 	if debug: print("Transitioning to: ", scene_name)
 	
@@ -149,10 +157,12 @@ func transition_to_scene(scene_name: String, fade_duration: float = 0.5) -> void
 		fade_in_tween.tween_property(scene_holder, "modulate", Color.WHITE, fade_duration)
 	)
 
+# Handle GameManager area_unlocked signal by transitioning to the unlocked area's scene
 func _on_area_unlocked(area_name: String) -> void:
 	if debug: print("Area unlocked: ", area_name)
 	# Could auto-transition or show unlock message
 
+# Wire up GameManager, InputManager, SaveSystem, and heart_collected signals to Main handlers
 func connect_signals() -> void:
 	if debug: print("Connecting signals...")
 	# Connect to game manager signals
@@ -163,6 +173,7 @@ func connect_signals() -> void:
 	else:
 		if debug: print("ERROR: GameManager not found!")
 
+# Connect InputManager.touch_started to _on_global_touch_started for the 6-level click detection
 func setup_global_input_handling() -> void:
 	if debug: print("Setting up global input handling...")
 	
@@ -177,7 +188,7 @@ func setup_global_input_handling() -> void:
 	else:
 		if debug: print("ERROR: InputManager not found!")
 
-# Also add this to double-check the connection:
+# Six-level input detection: dialogue choices, HUD buttons, UI group, mouse filter controls, interactables, then movement fallback
 func _on_global_touch_started(position: Vector2) -> void:
 	if debug: print("=== MAIN TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
@@ -256,6 +267,7 @@ func _on_global_touch_started(position: Vector2) -> void:
 	tess.move_to(world_position)
 
 
+# Check each SmartInteractable._input() at process_priority=100; if Tess is in range and click hits, trigger interaction and return true
 func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING SMART INTERACTABLE CLICK ===")
 	
@@ -304,6 +316,7 @@ func is_click_on_interactable_in_range(click_position: Vector2) -> bool:
 	if debug: print("ALLOWING MOVEMENT - No blocking interactables found")
 	return false
 	
+# Check if Tess is currently inside any interactive area's collision shape
 func is_tess_in_interactive_area() -> bool:
 	# Simple check - you could make this more sophisticated
 	var interactive_areas = get_tree().get_nodes_in_group("interactive_areas")
@@ -314,6 +327,7 @@ func is_tess_in_interactive_area() -> bool:
 
 # Replace your is_click_on_ui_element function with this debug version:
 
+# Check if the click position falls on any UI element in the ui_buttons group
 func is_click_on_ui_element(click_position: Vector2) -> bool:
 	if debug: print("=== CHECKING UI CLICK ===")
 	if debug: print("Click position (world): ", click_position)
@@ -421,6 +435,7 @@ func find_blocking_control_at_position(node: Node, position: Vector2) -> Control
 	return null
 
 
+# Handle clicking on the friend NPC: show dialogue choices if Tess movement is toward friend
 func check_friend_dialogue_click(click_pos: Vector2) -> bool:
 	var dialogue_system := get_tree().current_scene.find_child("DialogueSystem")
 	if not dialogue_system or not dialogue_system.is_showing:
@@ -440,6 +455,7 @@ func check_friend_dialogue_click(click_pos: Vector2) -> bool:
 		friend_nodes[0].show_tess_choices()
 	return true
 
+# Check whether Tess's movement destination would bring her within dialogue range of the friend
 func is_moving_toward_friend(target_position: Vector2) -> bool:
 	# Check if the target position overlaps with the friend's collision areas
 	var friend_nodes = get_tree().get_nodes_in_group("Friend")
@@ -462,6 +478,7 @@ func is_moving_toward_friend(target_position: Vector2) -> bool:
 	
 	return false
 
+# Check if a world position is within any interactive area for blocking movement
 func is_position_over_interactive_area(world_pos: Vector2) -> bool:
 	var space_state = get_viewport().world_2d.direct_space_state
 	var query = PhysicsPointQueryParameters2D.new()
@@ -483,6 +500,7 @@ func is_position_over_interactive_area(world_pos: Vector2) -> bool:
 	return false
 
 
+# Legacy version of the touch handler (kept for reference/comparison during input system development)
 func _on_global_touch_started_old(position: Vector2) -> void:
 	if debug: print("=== TOUCH DETECTED ===")
 	if debug: print("Touch position (screen): ", position)
@@ -510,6 +528,7 @@ func _on_global_touch_started_old(position: Vector2) -> void:
 	print("Tess target_position: ", tess.target_position)
 	print("Tess is_moving: ", tess.is_moving)
 '''
+# Handle keyboard shortcuts: summon friend (C key) and test functions (D, F keys)
 func _input(event: InputEvent) -> void:
 	# Handle call friend input
 	if event.is_action_pressed("call_friend"):
@@ -544,12 +563,15 @@ func _input(event: InputEvent) -> void:
 			if debug: print("World position (converted): ", world_pos)
 			_on_global_touch_started(world_pos)
 '''
+# React to heart_collected signal: update HUD hearts display
 func _on_heart_collected(heart_data: Dictionary) -> void:
 	if debug: print("Main: Heart collected - ", heart_data)
 
+# React to state transitions (currently a no-op but available for future state-driven logic)
 func _on_game_state_changed(new_state: GameManager.GameState) -> void:
 	if debug: print("Main: Game state changed to - ", GameManager.GameState.keys()[new_state])
 
+# Test utility: move Tess to a known position for debugging
 func test_simple_movement() -> void:
 	if debug: print("=== SIMPLE MOVEMENT TEST ===")
 	if tess:
@@ -565,6 +587,7 @@ func test_simple_movement() -> void:
 	else:
 		if debug: print("ERROR: Tess not found!")
 
+# Summon the bearded friend to Tess's current position (called via keyboard shortcut or UI)
 func call_friend() -> void:
 	if debug: print("=== CALLING FRIEND ===")
 
@@ -599,6 +622,7 @@ func call_friend() -> void:
 		if debug: print("ERROR: No friend found in scene")
 		if debug: print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
 
+# Ensure the friend NPC starts in the correct position and follow state on scene load
 func fix_friend_initial_state() -> void:
 	if debug: print("=== FIXING FRIEND INITIAL STATE ===")
 	
@@ -629,6 +653,7 @@ func fix_friend_initial_state() -> void:
 #	else:
 #		if debug: print("ERROR: Friend doesn't have depart_from_screen method")
 
+# Test utility: force-show a dialogue choice to verify input handling
 func test_dialogue_input_fix() -> void:
 	if debug: print("=== TESTING DIALOGUE INPUT FIX ===")
 	
@@ -640,24 +665,29 @@ func test_dialogue_input_fix() -> void:
 	else:
 		if debug: print("ERROR: Dialogue system not found or missing test method")
 		
+# Open the save game UI panel
 func show_save_menu() -> void:
 	if save_load_ui:
 		save_load_ui.show_save_ui()
 
+# Open the load game UI panel
 func show_load_menu() -> void:
 	if save_load_ui:
 		save_load_ui.show_load_ui()
 
+# Callback when a save slot is chosen in the save UI
 func _on_save_selected(slot_number: int) -> void:
 	print("Save initiated for slot: ", slot_number)
 	# Optionally pause the game during save
 	# get_tree().paused = true
 
+# Callback when a save slot is chosen in the load UI
 func _on_load_selected(slot_number: int) -> void:
 	print("Load initiated for slot: ", slot_number)
 	# Optionally pause the game during load
 	# get_tree().paused = true
 
+# Resume normal input processing when the save/load UI is dismissed
 func _on_save_ui_closed() -> void:
 	print("Save/Load UI closed")
 	# Unpause game if it was paused

@@ -12,15 +12,18 @@ extends Node2D
 @onready var spawn_points: Node2D = $SpawnPoints
 @onready var ward_barrier: Node2D = $WardBarrier
 
+# Initialize the bathhouse room: check access, set up barriers, and connect signals
 func _ready() -> void:
 	setup_room()
 	check_access()
 
+# Configure room-specific visuals, barriers, and interactive elements
 func setup_room() -> void:
 	# Set up room visual (placeholder background)
 	if room_background:
 		room_background.self_modulate = Color("#2C1810")  # Dark bathhouse tint
 
+# Verify if the player has unlocked this room; show/hide barriers accordingly
 func check_access() -> void:
 	var player_hearts = GameManager.get_collected_hearts_count()
 	
@@ -32,11 +35,13 @@ func check_access() -> void:
 	hide_ward_barrier()
 	unlock_room()
 
+# Display a visual barrier preventing entry to the locked room
 func show_ward_barrier() -> void:
 	if ward_barrier:
 		ward_barrier.visible = true
 		ward_barrier.modulate = Color("#FF6666")  # Red barrier
 
+# Remove the visual barrier when the room is unlocked
 func hide_ward_barrier() -> void:
 	if ward_barrier:
 		ward_barrier.visible = false
@@ -48,13 +53,14 @@ func hide_ward_barrier() -> void:
 			# OR completely disable it:
 			barrier_collision.set_deferred("disabled", true)
 
+# Mark the room as unlocked, hide barriers, and update visuals
 func unlock_room() -> void:
 	if is_locked:
 		is_locked = false
 		GameManager.unlock_area(room_name)
-		print("Room unlocked: ", room_name)
-		
-		
+	print("Room unlocked: ", room_name)
+
+# Print info about StaticBody2D nodes for collision debugging
 func debug_static_bodies() -> void:
 	var static_bodies = get_tree().get_nodes_in_group("walls")
 	for body in static_bodies:

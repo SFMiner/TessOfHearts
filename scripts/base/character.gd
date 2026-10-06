@@ -23,6 +23,7 @@ var base_movement_speed: float = 200.0
 const scr_debug : bool =  true
 var debug : bool
 
+# Initialize character sprite, collision, animation, and movement systems
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: 
@@ -43,10 +44,12 @@ func _ready() -> void:
 		print("Sprite found: ", sprite != null)
 		print("TouchArea found: ", touch_area != null)
 
+# Configure character node references: sprite, collision shape, animation player, touch area
 func setup_character() -> void:
 	# Override in derived classes to set sprite texture
 	pass
 
+# Calculate movement speed based on current energy level (100%/66%/33%/0%)
 func get_effective_movement_speed() -> float:
 	if not uses_energy:
 		return movement_speed
@@ -68,6 +71,7 @@ func get_effective_movement_speed() -> float:
 		if debug: print("Energy: ", energy, " - Speed multiplier: ", speed_multiplier, " - Effective speed: ", effective_speed)
 	return effective_speed
 
+# Return whether the character has enough energy to move at all (energy > 0)
 func can_move_with_energy() -> bool:
 	if not uses_energy:
 		return true
@@ -80,6 +84,7 @@ func can_move_with_energy() -> bool:
 	
 	return can_move
 
+# Attempt to spend energy for an action; return true if energy was available and spent
 func spend_energy_for_action(amount: int = 1) -> bool:
 	if not uses_energy:
 		return true
@@ -93,6 +98,7 @@ func spend_energy_for_action(amount: int = 1) -> bool:
 	if debug: print(character_name, " spent ", amount, " energy. Remaining: ", GameManager.get_energy())
 	return true
 
+# Convenience method: show a dialogue line using the main dialogue system
 func say_dialogue(dialogue_key: String) -> void:
 	if debug: 
 		print("=== CHARACTER SAYING DIALOGUE ===")
@@ -111,12 +117,14 @@ func say_dialogue(dialogue_key: String) -> void:
 	else:
 		if debug: print("ERROR: DialogueSystem not found in scene")
 
+# Create and configure the clickable touch area on this character
 func setup_touch_detection() -> void:
 	if touch_area:
 		touch_area.input_event.connect(_on_area_input_event)
 		touch_area.mouse_entered.connect(_on_mouse_entered)
 		touch_area.mouse_exited.connect(_on_mouse_exited)
  
+# Per-frame physics: move toward target position if one is set, update depth sorting
 func _physics_process(delta: float) -> void:
 	# Debug visibility
 	if not visible:
@@ -134,6 +142,7 @@ func stop_movement() -> void:
 	target_position = global_position
 	if debug: print(character_name, " movement stopped")
 
+# Set a world-space target for the character to walk toward
 func move_to(new_position: Vector2) -> void:
 	
 	if not can_move:
@@ -156,6 +165,7 @@ func move_to(new_position: Vector2) -> void:
 	is_moving = true
 	#print(character_name, " is_moving set to: ", is_moving)
 
+# Step the character one frame toward the target position using current speed
 func move_towards_target() -> void:
 	var distance: float = global_position.distance_to(target_position)
 	if distance > 5.0:
@@ -183,6 +193,7 @@ func move_towards_target() -> void:
 		is_moving = false
 		if anim:
 			anim.play("idle_" + last_direction)
+# Handle direct clicks on the character's clickable area
 func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if debug: 
 		print("=== CHARACTER AREA INPUT EVENT ===")
@@ -196,24 +207,29 @@ func _on_area_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> 
 		if debug: print("Mouse button detected - calling _on_character_touched")
 		_on_character_touched(event.position)
 
+# Show highlight when mouse hovers over the character
 func _on_mouse_entered() -> void:
 	highlight_character()
 
+# Remove highlight when mouse leaves the character
 func _on_mouse_exited() -> void:
 	remove_highlight()
 
+# Apply a visual highlight shader to indicate the character is interactive
 func highlight_character() -> void:
 	if not is_highlighted:
 		is_highlighted = true
 		var tween = create_tween()
 		tween.tween_property(self, "modulate", Color.WHITE * 1.3, 0.15)
 
+# Remove the visual highlight shader from the character
 func remove_highlight() -> void:
 	if is_highlighted:
 		is_highlighted = false
 		var tween = create_tween()
 		tween.tween_property(self, "modulate", original_modulate, 0.15)
 
+# Handle when the character is touched/clicked: show dialogue or trigger interaction
 func _on_character_touched(position: Vector2) -> void:
 	if debug:
 		print("=== CHARACTER TOUCHED DEBUG ===")

@@ -53,10 +53,12 @@ var memory_mini_current_level := 0
 var memory_mini_total_levels := 3
 # === Memory Minigame End ===
 
+# Initialize GameData: wire up debug flag from settings
 func _ready() -> void:
 	debug = scr_debug or sys_debug
 	
 
+# Add courage points, clamp to max_courage, emit courage_changed for HUD updates
 func add_courage(amt: int) -> void:
 	cur_courage += floor(amt)
 	if cur_courage > max_courage:
@@ -64,6 +66,7 @@ func add_courage(amt: int) -> void:
 	if debug: print("Courage added: ", amt, " (Total: ", cur_courage, ")")
 	courage_changed.emit(cur_courage, max_courage)
 
+# Deduct courage points, clamp to 0, emit courage_changed for HUD updates
 func spend_courage(amt: int) -> void:
 	cur_courage -= floor(amt)
 	if cur_courage < 0:
@@ -89,9 +92,11 @@ func record_tess_position(position: Vector2) -> void:
 func get_tess_position() -> Vector2:
 	return tess_current_position
 
+# Return whether Tess was moving in the last recorded frame
 func is_tess_moving() -> bool:
 	return tess_is_moving
 
+# Reserved for future cleanup; currently no per-frame logic needed
 func _process(delta: float) -> void:
 	# No cleanup needed for simplified position tracking
 	pass

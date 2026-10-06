@@ -26,6 +26,7 @@ var connections: Dictionary = {}  # memory_id -> bool
 var collision_check_timer: float = 0.0
 var collision_check_duration: float = 2.0  # Check for 2 seconds after falling
 
+# Initialize hybrid memory piece: set up drag mode, collision shapes, and physics
 func _ready():
 	print("Hybrid memory ", memory_id, " _ready() called at position ", global_position)
 	drag_label.text = memory_text
@@ -45,6 +46,7 @@ func _ready():
 	set_drag_mode()
 	print("Hybrid memory ", memory_id, " _ready() completed at position ", global_position)
 
+# Recreate collision shapes to match the current sprite texture
 func _update_collision_shapes():
 	# Update physics collision shape to match texture size exactly
 	if physics_sprite.texture:
@@ -69,6 +71,7 @@ func _update_collision_shapes():
 			new_shape.size = larger_size
 			drag_collision.shape = new_shape
 
+# Switch this memory piece to drag-and-drop mode (removes physics)
 func set_drag_mode():
 	drag_area.visible = true
 	drag_area.set_deferred("monitoring", true)
@@ -80,6 +83,7 @@ func set_drag_mode():
 	physics_body.visible = false
 	physics_body.freeze = true  # Freeze the body when not in physics mode
 
+# Switch this memory piece to RigidBody2D physics mode for stacking/falling
 func set_physics_mode():
 	drag_area.visible = false
 	drag_area.set_deferred("monitoring", false)
@@ -97,6 +101,7 @@ func set_physics_mode():
 	physics_body.collision_layer = 2  # Layer for memory physics
 	physics_body.collision_mask = 2   # Only collide with other memories
 
+# Handle mouse clicks on this memory: start drag or pickup
 func _input_event(viewport, event, shape_idx):
 	if not drag_area.visible:
 		return
@@ -111,6 +116,7 @@ func _input_event(viewport, event, shape_idx):
 					is_dragging = false
 					_end_drag()
 
+# Finalize the drag: snap to vessel if overlapping one, or return to start
 func _end_drag():
 	print("Ending drag for memory ", memory_id, " at position ", global_position)
 	
@@ -171,6 +177,7 @@ func _end_drag():
 		global_position = original_position
 		print("Memory ", memory_id, " returned to original position")
 
+# Form a connection line between this memory and another
 func _connect_to_memory(other_memory):
 	# Check if already connected - if so, disconnect
 	if other_memory.memory_id in connections:
@@ -187,6 +194,7 @@ func _connect_to_memory(other_memory):
 	# Emit connection signal
 	connection_created.emit(self, other_memory)
 
+# Per-frame: update visual state and handle physics interactions
 func _process(_delta):
 	if is_dragging:
 		global_position = get_global_mouse_position() + drag_offset
@@ -197,6 +205,7 @@ func _process(_delta):
 		# After the check duration, we can optimize other things but keep collision detection
 		# The collision layers should remain active to prevent falling through vessels
 
+# Check if this memory's position overlaps any vessel in the scene
 func _is_over_vessel() -> bool:
 	# Check for overlap with any vessel (StaticBody2D or Area2D with a certain group)
 	var space_state = get_world_2d().direct_space_state
@@ -212,6 +221,7 @@ func _is_over_vessel() -> bool:
 			return true
 	return false
 
+# Switch from physics mode to drag mode when the player clicks on the RigidBody
 func pickup_from_physics():
 	# Call this to pick up the memory from the vessel (e.g., on click)
 	set_drag_mode()
@@ -230,16 +240,20 @@ func set_texture(new_texture: Texture2D):
 func get_connected_memory_ids() -> Array:
 	return connections.keys()
 
+# Add a memory-to-memory connection (for the connection line drawing)
 func add_connection(other_memory):
 	connections[other_memory.memory_id] = true
 
+# Remove a specific connection from this memory
 func remove_connection(other_memory):
 	if other_memory.memory_id in connections:
 		connections.erase(other_memory.memory_id)
 
+# Clear all connections attached to this memory piece
 func remove_all_connections():
 	connections.clear()
 
+# Place this memory inside a vessel (reparent and position snap)
 func assign_to_vessel(vessel):
 	# Unassign from previous vessel if any
 	if assigned_vessel:
@@ -258,6 +272,7 @@ func assign_to_vessel(vessel):
 	memory_assigned.emit(self, vessel)
 	print("Memory ", memory_id, " assigned to vessel ", vessel.vessel_name)
 
+# Remove this memory from its current vessel (reparent back to world)
 func unassign():
 	if assigned_vessel:
 		print("Memory ", memory_id, " unassigned from vessel ", assigned_vessel.vessel_name)
@@ -265,6 +280,7 @@ func unassign():
 		assigned_vessel = null
 		memory_unassigned.emit(self)
 
+# Serialize this memory's state for save/load
 func get_memory_data() -> Dictionary:
 	return {
 		"id": memory_id,
@@ -292,6 +308,7 @@ func get_connection_position() -> Vector2:
 	else:
 		return global_position
 
+# Handle RigidBody2D collisions with other physics bodies
 func _on_physics_body_entered(body):
 	# Reset the collision check timer when we hit something
 	# This allows for future optimizations while keeping collision detection active

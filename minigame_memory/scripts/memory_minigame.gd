@@ -40,6 +40,7 @@ var active_connections: Dictionary = {}
 @onready var result_dialog: Control = $UIContainer/ResultDialog
 @onready var connection_lines: Node2D = $ConnectionLines
 
+# Initialize the memory minigame: set up elements, signals, and UI
 func _ready():
 	_load_failure_responses()
 	_setup_minigame()
@@ -48,9 +49,11 @@ func _ready():
 	# Set up global input handling for physics memory pickups
 	set_process_input(true)
 
+# Per-frame: update connection line rendering
 func _process(_delta):
 	_update_connection_lines()
 
+# Redraw all connection lines between linked memory pieces
 func _update_connection_lines():
 	# Clear existing lines
 	for child in connection_lines.get_children():
@@ -67,12 +70,14 @@ func _update_connection_lines():
 				if connected_memory and memory.memory_id < connected_memory.memory_id:
 					_draw_connection_line(memory, connected_memory)
 
+# Search an array of memories for one with a matching ID
 func _find_memory_by_id(memory_id: int, all_memories: Array):
 	for memory in all_memories:
 		if memory.memory_id == memory_id:
 			return memory
 	return null
 
+# Draw a colored line between two connected memory pieces
 func _draw_connection_line(from_memory, to_memory):
 	# Create connection key (always smaller ID first)
 	var connection_key = str(from_memory.memory_id) + "-" + str(to_memory.memory_id)
@@ -104,6 +109,7 @@ func _draw_connection_line(from_memory, to_memory):
 	
 	print("Created connection ", connection_key, " with color index ", color_index)
 
+# Return the next unused color index for a connection line
 func _get_available_color_index() -> int:
 	# Find the first color that's not currently in use
 	var used_colors = []
@@ -116,6 +122,7 @@ func _get_available_color_index() -> int:
 	
 	return -1  # No colors available
 
+# Load the failure response text data from a JSON or dictionary resource
 func _load_failure_responses():
 	var file = FileAccess.open("res://minigame_memory/data/failure_responses.json", FileAccess.READ)
 	if file:
@@ -126,18 +133,21 @@ func _load_failure_responses():
 			failure_responses = json.data
 		file.close()
 
+# Configure the minigame layout, elements, and initial state
 func _setup_minigame():
 	# All memories and vessels are added manually in the scene
 	# They add themselves to groups in their _ready() functions
 	_gather_existing_elements()
 	_position_elements()
 
+# Find all memory and vessel nodes already present in the scene
 func _gather_existing_elements():
 	# Gather existing memories and vessels from groups
 	memories = get_tree().get_nodes_in_group("memories")
 	vessels = get_tree().get_nodes_in_group("vessels")
 	print("Found ", memories.size(), " memories and ", vessels.size(), " vessels")
 
+# Arrange memories and vessels in their starting positions for this level
 func _position_elements():
 	# Position memories in a row at the top (if they don't already have positions)
 	var memory_spacing = 150
@@ -155,6 +165,7 @@ func _position_elements():
 		if vessels[i].global_position == Vector2.ZERO:
 			vessels[i].global_position = Vector2(vessel_start_x + i * vessel_spacing, 400)
 
+# Wire up memory assignment, connection, and vessel click signals
 func _connect_signals():
 	# Connect memory signals
 	for memory in memories:
@@ -170,19 +181,24 @@ func _connect_signals():
 		if vessel.has_signal("vessel_clicked"):
 			vessel.vessel_clicked.connect(_on_vessel_clicked)
 
+# Handle a memory piece being placed into a vessel: check win condition
 func _on_memory_assigned(_memory, _vessel):
 	_check_win_condition()
 
+# Handle a memory piece being removed from a vessel: check win condition
 func _on_memory_unassigned(_memory):
 	_check_win_condition()
 
+# Handle a new connection being formed between two memories
 func _on_memory_connection_created(from_memory, to_memory):
 	print("Memory connection created between ", from_memory.memory_id, " and ", to_memory.memory_id)
 	_check_win_condition()
 
+# Handle a vessel being clicked: show its contents and connection options
 func _on_vessel_clicked(vessel: Vessel):
 	print("Vessel clicked: ", vessel.vessel_name)
 
+# Verify if all memories are correctly placed and connected; trigger completion if so
 func _check_win_condition():
 	if is_completed:
 		return
@@ -238,6 +254,7 @@ func _check_win_condition():
 		print("Win condition not met - showing failure")
 		_complete_minigame(false)
 
+# Process minigame completion: show result, update GameManager progress
 func _complete_minigame(success: bool):
 	is_completed = true
 	
@@ -249,14 +266,17 @@ func _complete_minigame(success: bool):
 	
 	minigame_completed.emit(success)
 
+# Display the success dialogue when the player completes the puzzle
 func _show_success_message():
 	_show_result_dialog("Memory Restored", "Perfect. All memories are now contained within a single vessel, forming a complete and unified truth. The fragments have become whole again.")
 
+# Display a contextual failure response based on what went wrong
 func _show_failure_message():
 	var failure_type = _determine_failure_type()
 	var response = _get_failure_response(failure_type)
 	_show_result_dialog("Memory Fragmented", response)
 
+# Analyze the current puzzle state to categorize the failure reason
 func _determine_failure_type() -> String:
 	var vessels_with_memories = 0
 	var total_inherited_connections = 0
@@ -280,6 +300,7 @@ func _determine_failure_type() -> String:
 	else:
 		return "generic_failure"
 
+# Return an appropriate failure message for the given failure category
 func _get_failure_response(failure_type: String) -> String:
 	var possible_responses = []
 	
@@ -302,6 +323,7 @@ func _get_failure_response(failure_type: String) -> String:
 	var selected_response = _select_escalated_response(possible_responses)
 	return selected_response.get("text", "The memories remain fragmented.")
 
+# Choose a failure response with escalation for repeated attempts
 func _select_escalated_response(possible_responses: Array) -> Dictionary:
 	# Filter responses based on failure count for escalation
 	var tiered_responses = []
@@ -341,16 +363,19 @@ func _select_escalated_response(possible_responses: Array) -> Dictionary:
 	# Fallback
 	return possible_responses[randi() % possible_responses.size()]
 
+# Display a popup dialog with a title and message for the player
 func _show_result_dialog(title: String, message: String):
 	if result_dialog:
 		result_dialog.get_node("TitleLabel").text = title
 		result_dialog.get_node("MessageLabel").text = message
 		result_dialog.visible = true
 
+# Reset all memories and vessels to their initial positions and states
 func reset_minigame():
 	# Reload the entire scene to restore exact starting conditions
 	get_tree().reload_current_scene()
 
+# Return a serializable snapshot of the current minigame state
 func get_minigame_state() -> Dictionary:
 	var memory_states = []
 	for memory in memories:
@@ -367,6 +392,7 @@ func get_minigame_state() -> Dictionary:
 		"failure_count": failure_count
 	}
 
+# Wire up the continue, reset, and exit button signals
 func _connect_ui_signals():
 	if result_dialog:
 		var continue_button = result_dialog.get_node("ContinueButton")
@@ -380,6 +406,7 @@ func _connect_ui_signals():
 		if exit_button:
 			exit_button.pressed.connect(_on_exit_pressed)
 
+# Handle the continue button: proceed to next level or return to game
 func _on_continue_pressed():
 	result_dialog.visible = false
 	if is_completed:
@@ -388,20 +415,24 @@ func _on_continue_pressed():
 		# Could transition to next level or return to main game
 		print("Memory minigame level completed!")
 
+# Handle the reset button: restart the current puzzle level
 func _on_reset_pressed():
 	reset_minigame()
 
+# Handle the exit button: leave the minigame and return to exploration
 func _on_exit_pressed():
 	# Return to main game or close minigame
 	result_dialog.visible = false
 	# Could emit a signal to return to main game
 	print("Exiting memory minigame")
 
+# Handle keyboard shortcuts and global input within the minigame
 func _input(event):
 	# Global input handler for physics memory pickups
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_physics_memory_pickup(event.position)
 
+# Handle clicking on a physics-body memory piece to pick it up
 func _handle_physics_memory_pickup(mouse_pos: Vector2):
 	# Find all physics memories (memories in physics mode)
 	var physics_memories = []

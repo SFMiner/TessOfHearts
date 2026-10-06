@@ -12,6 +12,7 @@ var text_manager
 const scr_debug : bool = false 
 var debug : bool
 
+# Initialize the handwritten label with default texture
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: print("=== HANDWRITTEN LABEL SETUP ===")
@@ -30,6 +31,7 @@ func _ready() -> void:
 	
 	if debug: print("Handwritten label setup complete")
 
+# Set this label's texture to a handwritten PNG from the texture manager
 func set_handwritten_text(category: String, key: String) -> void:
 	if not text_manager:
 		return
@@ -58,6 +60,7 @@ func set_handwritten_text(category: String, key: String) -> void:
 	else:
 		if debug: print("ERROR: Failed to load texture or sprite not found")
 
+# Display an integer value using handwritten number textures
 func set_number(value: int) -> void:
 	if not text_manager:
 		return

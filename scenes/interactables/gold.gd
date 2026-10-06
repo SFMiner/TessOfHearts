@@ -7,6 +7,7 @@ extends SmartCollectable
 @export var gold_value: float = 25.0
 @export var currency_type: String = "cosmic_gold"
 
+# Initialize gold collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "gold"
 	interaction_text = "Something precious, something earned."
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#FFD700")  # Gold/Yellow
 #		visual.size = Vector2(20, 20)
 
+# Add gold to inventory via GameManager when collected
 func handle_interaction() -> void:
 	print("Gold collected - value: ", gold_value)
 	
@@ -37,6 +39,7 @@ func handle_interaction() -> void:
 	tween.tween_property(self, "modulate", Color.TRANSPARENT, 0.3)
 	tween.tween_callback(queue_free)
 
+# Play a sparkle particle or tween effect on collection
 func create_sparkle_effect() -> void:
 	for i in range(8):
 		var sparkle = ColorRect.new()

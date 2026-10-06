@@ -7,6 +7,7 @@ extends Node
 const scr_debug : bool = false 
 var debug : bool
 
+# Initialize the handwritten texture registry and preload commonly-used textures
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 
@@ -52,7 +53,7 @@ var handwritten_assets: Dictionary = {
 	}
 }
 
-# Get handwritten texture for any text element
+# Look up a pre-rendered handwritten PNG texture by category and key; returns fallback if not found
 func get_handwritten_texture(category: String, key: String) -> Texture2D:
 	if category in handwritten_assets and key in handwritten_assets[category]:
 		return handwritten_assets[category][key]

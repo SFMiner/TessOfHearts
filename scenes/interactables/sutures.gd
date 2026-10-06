@@ -7,6 +7,7 @@ extends SmartCollectable
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.SUTURES
 @export var repair_quality: float = 0.75
 
+# Initialize suture collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "repair_material"
 	interaction_text = "Earnest effort, imperfect repair."
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#FF00FF")  # Magenta
 #		visual.size = Vector2(32, 8)
 
+# Add suture to inventory via GameManager when collected
 func handle_interaction() -> void:
 	print("Sutures collected - medical precision")
 	

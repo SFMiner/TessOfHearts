@@ -11,14 +11,17 @@ class_name CatTrigger
 
 var spawned_cat: GuideCat
 
+# Connect heart_collected signal to check if guide cat should appear
 func _ready() -> void:
 	# Connect to game events
 	if GameManager:
 		GameManager.heart_collected.connect(_on_heart_collected)
 
+# When any heart is collected, check if the cat spawn condition is now met
 func _on_heart_collected(heart_data: Dictionary) -> void:
 	check_spawn_condition()
 
+# If the required number of hearts has been collected, spawn the guide cat
 func check_spawn_condition() -> void:
 	if spawned_cat or not cat_scene:
 		return
@@ -35,6 +38,7 @@ func check_spawn_condition() -> void:
 	if should_spawn:
 		spawn_cat()
 
+# Instantiate the guide cat scene and add it to the current scene at the configured position
 func spawn_cat() -> void:
 	spawned_cat = cat_scene.instantiate()
 	spawned_cat.global_position = spawn_position

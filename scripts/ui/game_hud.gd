@@ -33,6 +33,7 @@ extends Control
 const scr_debug : bool = false 
 var debug : bool
 
+# Initialize the game HUD: set up inventory, hearts, energy/courage bars, and consumption/crafting buttons
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	update_energy_display()
@@ -52,6 +53,7 @@ func _ready() -> void:
 	ensure_ui_buttons_clickable()
 	mouse_filter = Control.MOUSE_FILTER_PASS  # This allows children to receive input, but parent can also process it
 	
+# Block game interaction when the HUD receives input directly
 func _gui_input(event: InputEvent) -> void:
 	# Accept input events that happen within the GameHUD area to prevent movement
 	if event is InputEventMouseButton and event.pressed:
@@ -123,6 +125,7 @@ func _gui_input(event: InputEvent) -> void:
 			if debug: print("Touch NOT on UI button - allowing movement")
 			# Don't consume the event - let it pass through to movement system
 
+# Verify all HUD buttons are properly configured with mouse_filter for click detection
 func ensure_ui_buttons_clickable() -> void:
 	# Force all UI buttons to have proper mouse filter settings
 	var ui_buttons = [
@@ -141,6 +144,7 @@ func ensure_ui_buttons_clickable() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if debug: print("UI buttons accessibility ensured")
 
+# Update all inventory counters on the HUD from current GameData values
 func set_inventory():
 	unbroken_hearts_collected.text = "Unbroken Hearts: " + str(GameData.num_hearts_whole)
 	var total_broken_hearts = (GameData.num_hearts_whole *2 / 3) + (GameData.num_hearts_half / 2) + (GameData.num_hearts_2third / 3)
@@ -156,6 +160,7 @@ func set_inventory():
 	update_consumption_buttons()
 	update_crafting_buttons()
 
+# Update the hearts section of the HUD from current GameData heart counts
 func set_hearts():
 	tape_hearts.text = "Tape Hearts: " + str(GameData.num_tape_hearts)
 	sewn_hearts.text = "Sewn Hearts: " + str(GameData.num_sewn_hearts)
@@ -167,6 +172,7 @@ func set_hearts():
 	kintsugi_hearts.text = "Kintsugi: " + str(GameData.num_kintsugi_hearts)
 
 
+# Refresh the energy bar and numeric display
 func update_energy_display() -> void:
 	var current_energy = GameManager.get_energy()
 	const max_energy = GameData.max_energy
@@ -183,10 +189,12 @@ func update_energy_display() -> void:
 	
 	if debug: print("Energy display updated: ", current_energy, "/", max_energy)
 
+# React to GameManager.energy_changed signal: update the energy bar
 func _on_energy_changed(current_energy: int, max_energy: int) -> void:
 	update_energy_display()
 	if debug: print("Energy changed signal received: ", current_energy, "/", max_energy)
 
+# Refresh the courage bar and numeric display
 func update_courage_display() -> void:
 	var current_courage = GameData.cur_courage
 	const max_courage = GameData.max_courage
@@ -203,10 +211,12 @@ func update_courage_display() -> void:
 	
 	if debug: print("Courage display updated: ", current_courage, "/", max_courage)
 
+# React to GameData.courage_changed signal: update the courage bar
 func _on_courage_changed(current_courage: int, max_courage: int) -> void:
 	update_courage_display()
 	if debug: print("Courage changed signal received: ", current_courage, "/", max_courage)
 
+# Create and position the cookie and whiskey consumption buttons
 func setup_consumption_buttons() -> void:
 	# Set up cookie consumption button
 	if consume_cookie_button:
@@ -246,6 +256,7 @@ func setup_consumption_buttons() -> void:
 		craft_sewn_heart_button.mouse_filter = Control.MOUSE_FILTER_STOP  # Ensure button can receive input
 		update_crafting_buttons()
 
+# Enable/disable consumption buttons based on current inventory
 func update_consumption_buttons() -> void:
 	if consume_cookie_button:
 		var can_consume = GameManager.can_consume_cookie()
@@ -259,6 +270,7 @@ func update_consumption_buttons() -> void:
 		consume_whiskey_button.modulate = Color.WHITE if can_consume else Color.GRAY
 		if debug: print("Whiskey button - disabled: ", not can_consume, " mouse_filter: ", consume_whiskey_button.mouse_filter)
 
+# Enable/disable crafting buttons based on current materials and heart pieces
 func update_crafting_buttons() -> void:
 	if craft_tape_heart_button:
 		craft_tape_heart_button.disabled = not GameManager.can_craft_with_tape()
@@ -272,6 +284,7 @@ func update_crafting_buttons() -> void:
 		craft_sewn_heart_button.disabled = not GameManager.can_craft_with_sutures()
 		craft_sewn_heart_button.modulate = Color.WHITE if GameManager.can_craft_with_sutures() else Color.GRAY
 
+# Handle cookie consumption button press
 func _on_consume_cookie_pressed() -> void:
 	# Stop any ongoing movement immediately
 	stop_tess_movement()
@@ -280,6 +293,7 @@ func _on_consume_cookie_pressed() -> void:
 		update_consumption_buttons()
 		if debug: print("Cookie consumed via button")
 
+# Handle whiskey consumption button press
 func _on_consume_whiskey_pressed() -> void:
 	# Stop any ongoing movement immediately
 	stop_tess_movement()
@@ -288,6 +302,7 @@ func _on_consume_whiskey_pressed() -> void:
 		update_consumption_buttons()
 		if debug: print("Whiskey consumed via button")
 
+# Handle tape craft button press: attempt to craft a tape-bound heart
 func _on_craft_tape_heart_pressed() -> void:
 	# Stop any ongoing movement immediately
 	stop_tess_movement()
@@ -297,6 +312,7 @@ func _on_craft_tape_heart_pressed() -> void:
 		set_hearts()
 		if debug: print("Tape Heart crafted via button")
 
+# Handle wire craft button press: attempt to craft a wire-bound heart
 func _on_craft_wire_heart_pressed() -> void:
 	# Stop any ongoing movement immediately
 	stop_tess_movement()
@@ -306,6 +322,7 @@ func _on_craft_wire_heart_pressed() -> void:
 		set_hearts()
 		if debug: print("Wire Heart crafted via button")
 
+# Handle suture craft button press: attempt to craft a sewn heart
 func _on_craft_sewn_heart_pressed() -> void:
 	# Stop any ongoing movement immediately
 	stop_tess_movement()
@@ -315,6 +332,7 @@ func _on_craft_sewn_heart_pressed() -> void:
 		set_hearts()
 		if debug: print("Sewn Heart crafted via button")
 
+# Halt Tess's current movement (called when opening HUD or menus)
 func stop_tess_movement() -> void:
 	# Find Tess and stop her movement immediately
 	var tess_nodes = get_tree().get_nodes_in_group("Tess")
@@ -329,6 +347,7 @@ func stop_tess_movement() -> void:
 			tess.is_moving = false
 			if debug: print("Stopped Tess movement via fallback method")
 
+# Register all HUD buttons in the ui_buttons group for input detection
 func setup_ui_groups() -> void:
 	# Add any other UI elements to groups for click detection
 	var settings_button = get_node_or_null("VBoxContainer2/InventoryContainer/Inventory/Settings")

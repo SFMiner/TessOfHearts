@@ -14,6 +14,7 @@ var _auto_hide_callable: Callable
 const scr_debug : bool = false 
 var debug : bool
 
+# Initialize the dialogue system at the start of a scene
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: print("=== DIALOGUE SYSTEM SETUP ===")
@@ -66,6 +67,7 @@ func _ready() -> void:
 	hide_dialogue()
 	if debug: print("Dialogue system setup complete")
 
+# Find or create the UI container node that holds dialogue text and choices
 func setup_dialogue_container() -> void:
 	if debug: print("Setting up dialogue container manually")
 	dialogue_container = Control.new()
@@ -85,6 +87,7 @@ func setup_dialogue_container() -> void:
 	
 	if debug: print("Manual setup complete - text_display: ", text_display)
 
+# Display a dialogue entry by key near the speaker with optional background color and fade
 func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0, fade_duration: float = 5.0) -> void:
 	if debug: 
 		print("=== SHOWING DIALOGUE ===")
@@ -179,6 +182,7 @@ func show_dialogue(dialogue_key: String, speaker_node: Node = null, background_c
 	if debug: print("Dialogue display complete")
 	is_showing = true
 
+# Fade out and remove the current dialogue display from the UI
 func hide_dialogue() -> void:
 	if not is_showing or not is_instance_valid(dialogue_container):
 		return
@@ -203,6 +207,7 @@ func hide_dialogue() -> void:
 			container.queue_free()
 	)
 
+# Move the dialogue display panel to screen position above the given world position
 func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 	# Position dialogue bubble above and centered on the speaker
 	# Since this is in the UI layer, we need to use viewport coordinates
@@ -244,7 +249,7 @@ func position_dialogue_near_speaker(speaker_pos: Vector2) -> void:
 		print("Speaker position: ", speaker_pos)
 		print("Text display position: ", text_display.position if text_display else "null")
 
-# Check if dialogue system is interfering:
+# Show a simple dialogue line without choices (convenience wrapper)
 func say_dialogue(dialogue_key: String) -> void:
 	if debug: 
 		print("=== DIALOGUE DEBUG ===")
@@ -262,6 +267,7 @@ func say_dialogue(dialogue_key: String) -> void:
 		for child in get_tree().current_scene.get_children():
 			if debug: print("  - ", child.name, " (", child.get_class(), ")")
 
+# Show dialogue text with clickable choice buttons; handles cookie/whiskey/excuse-friend choices
 func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary], speaker_node: Node = null, choice_speaker_position: Vector2 = Vector2.ZERO, background_color: Color = Color(1, 0.98, 0.8, 0.9)) -> void:
 	if debug: 
 		print("=== SHOWING DIALOGUE WITH CHOICES ===")
@@ -283,6 +289,7 @@ func show_dialogue_with_choices(dialogue_key: String, choices: Array[Dictionary]
 	else:
 		print("ERROR: Choice UI not available")
 
+# Show dialogue using manual positioning instead of automatic speaker-based placement
 func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, background_color: Color = Color(1, 0.98, 0.8, 0.9), scale_factor: float = 1.0) -> void:
 	if debug: 
 		print("=== SHOWING DIALOGUE MANUAL ===")
@@ -363,6 +370,7 @@ func show_dialogue_manual(dialogue_key: String, speaker_node: Node = null, backg
 	if debug: print("Dialogue display complete (manual - no auto-hide)")
 	is_showing = true
 
+# Handle player selecting a dialogue choice: trigger effects, call GameManager methods, emit signals
 func _on_choice_selected(choice_key: String) -> void:
 	if debug: 
 		print("=== DIALOGUE CHOICE SELECTED ===")
@@ -392,6 +400,7 @@ func _on_choice_selected(choice_key: String) -> void:
 		_:
 			if debug: print("Unknown choice key: ", choice_key)
 
+# Execute the consume-cookie-with-friend path when chosen from dialogue
 func trigger_cookie_effects() -> void:
 	if debug: print("=== TRIGGERING COOKIE EFFECTS ===")
 	
@@ -401,6 +410,7 @@ func trigger_cookie_effects() -> void:
 	else:
 		if debug: print("ERROR: No cookies available to consume with friend")
 
+# Execute the consume-whiskey path when chosen from dialogue
 func trigger_whiskey_effects() -> void:
 	if debug: print("=== TRIGGERING WHISKEY EFFECTS ===")
 	# Whiskey effects: healing_amount = 5.0 * 1.5 = 7.5
@@ -413,6 +423,7 @@ func trigger_whiskey_effects() -> void:
 	else:
 		if debug: print("ERROR: No whiskey available to consume")
 
+# Send friend away when player chooses excuse me in dialogue
 func trigger_excuse_friend_effects() -> void:
 	if debug: print("=== TRIGGERING EXCUSE FRIEND EFFECTS ===")
 	
@@ -436,7 +447,7 @@ func trigger_excuse_friend_effects() -> void:
 			print("ERROR: No friend found in scene")
 			print("Available groups: ", get_tree().get_nodes_in_group("Friend"))
 
-# Test function to manually trigger excuse me
+# Test function to manually trigger "excuse_me"
 func test_excuse_me() -> void:
 	if debug: print("=== TESTING EXCUSE ME MANUALLY ===")
 	trigger_excuse_friend_effects()

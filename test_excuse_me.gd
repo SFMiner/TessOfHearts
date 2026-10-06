@@ -1,6 +1,7 @@
 # Test script for excuse me functionality
 extends Node
 
+# Test the excuse-me dialogue flow: trigger the dialogue system's test_excuse_me function
 func test_excuse_me():
 	print("=== TESTING EXCUSE ME FUNCTIONALITY ===")
 	
@@ -20,6 +21,7 @@ func test_excuse_me():
 	
 	print("=== EXCUSE ME TEST COMPLETE ===")
 
+# Test that dialogue choice signals are correctly wired to their handlers
 func test_choice_connection():
 	print("=== TESTING CHOICE CONNECTION ===")
 	

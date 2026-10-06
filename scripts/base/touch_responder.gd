@@ -16,6 +16,7 @@ var parent_node: Node2D
 var original_modulate: Color
 var is_highlighted: bool = false
 
+# Connect object_touched signal from InputManager for this specific node
 func _ready() -> void:
 	parent_node = get_parent() as Node2D
 	if parent_node:
@@ -25,6 +26,7 @@ func _ready() -> void:
 	if InputManager:
 		InputManager.object_touched.connect(_on_object_touched)
 
+# Handle when InputManager reports this node was touched; call handle_touch with the position
 func _on_object_touched(object: Node2D, position: Vector2) -> void:
 	print("=== TOUCH RESPONDER OBJECT TOUCHED ===")
 	print("Object: ", object.name, " (", object.get_class(), ")")
@@ -37,6 +39,7 @@ func _on_object_touched(object: Node2D, position: Vector2) -> void:
 	else:
 		print("Ignoring touch - object is not parent node")
 
+# Placeholder for derived classes to implement touch-specific behavior
 func handle_touch(position: Vector2) -> void:
 	print("=== TOUCH RESPONDER HANDLE TOUCH ===")
 	print("Position: ", position)
@@ -48,12 +51,14 @@ func handle_touch(position: Vector2) -> void:
 		# Auto-remove highlight after brief moment
 		get_tree().create_timer(0.2).timeout.connect(remove_highlight)
 
+# Enable a visual highlight effect on this touch-responsive node
 func highlight() -> void:
 	if parent_node and not is_highlighted:
 		is_highlighted = true
 		var tween = create_tween()
 		tween.tween_property(parent_node, "modulate", highlight_color * highlight_intensity, 0.1)
 
+# Disable the visual highlight effect on this touch-responsive node
 func remove_highlight() -> void:
 	if parent_node and is_highlighted:
 		is_highlighted = false

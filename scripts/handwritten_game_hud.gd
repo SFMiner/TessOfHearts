@@ -11,11 +11,13 @@ class_name HandwrittenGameHUD
 var hearts_count: int = 0
 var current_area: String = "bathhouse_entry"
 
+# Initialize the handwritten HUD: set up hearts display, area display, and connect signals
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	setup_handwritten_hud()
 	connect_signals()
 
+# Configure the HUD layout with handwritten text textures instead of Godot fonts
 func setup_handwritten_hud() -> void:
 	# Create hearts display
 	setup_hearts_display()
@@ -23,6 +25,7 @@ func setup_handwritten_hud() -> void:
 	# Create area display
 	setup_area_display()
 
+# Build the hearts display area using handwritten PNG textures
 func setup_hearts_display() -> void:
 	if not hearts_container:
 		hearts_container = HBoxContainer.new()
@@ -43,6 +46,7 @@ func setup_hearts_display() -> void:
 	hearts_number.set_number(hearts_count)
 	hearts_container.add_child(hearts_number)
 
+# Build the current area name display using handwritten PNG textures
 func setup_area_display() -> void:
 	if not area_container:
 		area_container = HBoxContainer.new()
@@ -63,14 +67,17 @@ func setup_area_display() -> void:
 	area_name.set_handwritten_text("areas", current_area)
 	area_container.add_child(area_name)
 
+# Wire up heart_collected and other signals for real-time HUD updates
 func connect_signals() -> void:
 	if GameManager:
 		GameManager.heart_collected.connect(_on_heart_collected)
 
+# Refresh the hearts display when a new heart is collected
 func _on_heart_collected(heart_data: Dictionary) -> void:
 	hearts_count += 1
 	update_hearts_display()
 
+# Rebuild the hearts display from current GameData inventory counts
 func update_hearts_display() -> void:
 	# Update just the number part
 	var hearts_number = hearts_container.get_child(1) as HandwrittenLabel

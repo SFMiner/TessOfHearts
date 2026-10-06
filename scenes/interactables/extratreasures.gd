@@ -7,16 +7,19 @@ extends Interactable
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.SUTURES
 @export var extra_precision: float = 0.1
 
+# Initialize extra treasures with random visuals and properties
 func _ready() -> void:
 	interaction_type = "repair_material"
 	interaction_text = "Extra sutures - when the first attempt needs refinement."
 	super._ready()
 
+# Configure the treasure's sprite appearance
 func setup_visual() -> void:
 	if visual:
 		visual.color = Color("#FFA500")  # Orange
 		visual.size = Vector2(24, 6)
 
+# Add random extra treasure to inventory when collected
 func handle_interaction() -> void:
 	print("Extra sutures collected - enhanced precision available")
 	

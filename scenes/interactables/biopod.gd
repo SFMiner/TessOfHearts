@@ -8,6 +8,7 @@ extends SmartInteractable
 @export var organic_value: float = 15.0
 var usage_count: int = 0
 
+# Initialize biopod collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "biopod"
 	interaction_text = "Living vessels of potential."
@@ -19,6 +20,7 @@ func _ready() -> void:
 #		visual.color = Color("#4CB84C")  # Green
 #		visual.size = Vector2(28, 40)
 
+# Add biopod contents to inventory via GameManager when collected
 func handle_interaction() -> void:
 	if usage_count == 0:
 
@@ -43,6 +45,7 @@ func handle_interaction() -> void:
 			print("This biopod has already been used")
 
 
+# Play an organic burst particle or tween effect on collection
 func create_organic_burst() -> void:
 	usage_count += 1
 	# Create organic matter particles

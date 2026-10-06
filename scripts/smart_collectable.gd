@@ -31,6 +31,7 @@ var loaded_texture: bool = false
 @export var scaling: float = 1.0
 
 
+# Initialize the smart collectable: set up sprite texture, interaction area, and touch connections
 func _ready() -> void:
 	# Set up interaction range based on collectable size
 	interaction_range = 30.0  # Slightly larger than the sprite
@@ -50,6 +51,7 @@ func _ready() -> void:
 	if interaction_area:
 		move_child(interaction_area, 0)
 
+# Configure the Sprite2D node with the appropriate texture based on collectable_type
 func setup_sprite() -> void:
 	if sprite:
 		sprite.scale = Vector2(scaling, scaling)
@@ -58,6 +60,7 @@ func setup_sprite() -> void:
 	if label:
 		label.text = str(collectable_type)
 
+# Map the collectable_type index to the correct texture file path
 func get_texture_path() -> String:
 	match collectable_type:
 		CollectableType.heart_whole:
@@ -82,6 +85,7 @@ func get_texture_path() -> String:
 			return get_random_gold()
 	return ""
 
+# Return a random half-heart texture path for visual variety
 func get_random_half() -> String:
 	var type_half = rng.randi_range(0, 1)
 	if type_half == 0:
@@ -89,6 +93,7 @@ func get_random_half() -> String:
 	else:
 		return "res://assets/textures/collectables/heart_1-2b.png"
 
+# Return a random third-heart texture path for visual variety
 func get_random_third() -> String:
 	var type_third = rng.randi_range(0, 2)
 	if type_third == 0:
@@ -98,6 +103,7 @@ func get_random_third() -> String:
 	else:
 		return "res://assets/textures/collectables/heart_1-3c.png"
 
+# Return a random gold texture path for visual variety
 func get_random_gold() -> String:
 	var type_gold = rng.randi_range(0, 2)
 	if type_gold == 0:
@@ -124,6 +130,7 @@ func handle_interaction() -> void:
 	
 	queue_free()
 
+# Play a brief visual effect (scale tween) when the item is collected
 func create_collection_effect() -> void:
 	# Simple scale and fade effect
 	var tween = create_tween()
@@ -143,6 +150,7 @@ func _process(delta):
 
 	
 
+# Editor tool function: determine and apply the correct texture for preview in the editor
 func set_texture() -> String:
 	match collectable_type:
 		0 : return "res://assets/textures/collectables/heart.png"
@@ -159,6 +167,7 @@ func set_texture() -> String:
 
 
 
+# Return a random half-heart path (editor helper)
 func random_half():
 	var type_third = rng.randi_range(0, 1)
 	if type_third == 0 : 
@@ -166,6 +175,7 @@ func random_half():
 	else: 
 		return "res://assets/textures/collectables/heart_1-2b.png"
 
+# Return a random third-heart path (editor helper)
 func random_third():
 	var type_third = rng.randi_range(0, 2)
 	if type_third == 0 : 
@@ -175,6 +185,7 @@ func random_third():
 	else: 
 		return "res://assets/textures/collectables/heart_1-3c.png"
 
+# Return a random gold path (editor helper)
 func random_gold():
 	var type_gold = rng.randi_range(0, 2)
 	if type_gold == 0 : 
@@ -184,6 +195,7 @@ func random_gold():
 	else: 
 		return "res://assets/textures/collectables/gold3.png"
 
+# Editor update loop: refresh texture in the editor when properties change
 func process(delta):
 	if Engine.is_editor_hint():
 		if loaded_texture == false:
@@ -194,6 +206,7 @@ func process(delta):
 		
 
 
+# Return whether this collectable has been picked up (editor preview toggle)
 func get_collected():
 	if debug: print("Collectable collected!")
 	
@@ -214,6 +227,7 @@ func get_collected():
 	get_parent().remove_child(self)
 	self.queue_free()
 	
+# Create and configure the Area2D + CollisionShape2D for detecting Tess proximity
 func setup_interaction_area():
 	if debug: print("Setting up interaction area for: ", name)
 	
@@ -240,11 +254,13 @@ func setup_interaction_area():
 	print("Interaction area setup complete for: ", name)
 	
 # Also make sure your interaction area detection is working:
+# Track when Tess enters this collectable's pickup range
 func _on_interaction_area_body_entered(body: Node2D):
 	if body.is_in_group("Tess"):
 		tess_in_interaction_area = true
 		print("Tess entered interaction area for: ", name)
 
+# Track when Tess leaves this collectable's pickup range
 func _on_interaction_area_body_exited(body: Node2D):
 	if body.is_in_group("Tess"):
 		tess_in_interaction_area = false

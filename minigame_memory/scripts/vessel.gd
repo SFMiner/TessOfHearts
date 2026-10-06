@@ -15,6 +15,7 @@ var inherited_connections: Dictionary = {}  # vessel_id -> bool
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var static_body: StaticBody2D = $StaticBody2D
 
+# Initialize vessel: set up collision shape, visual state, and signal connections
 func _ready():
 	# Set up the label if it exists
 	if label:
@@ -47,24 +48,28 @@ func _ready():
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 
+# Handle clicks on the vessel to open connection options
 func _on_input_event(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				vessel_clicked.emit(self)
 
+# Attach a memory piece to this vessel as a child
 func add_memory(memory):
 	if memory not in memories:
 		memories.append(memory)
 		_update_inherited_connections()
 		_update_visual_state()
 
+# Detach a memory piece from this vessel
 func remove_memory(memory):
 	if memory in memories:
 		memories.erase(memory)
 		_update_inherited_connections()
 		_update_visual_state()
 
+# Refresh connections that are inherited from the vessel's contained memories
 func _update_inherited_connections():
 	inherited_connections.clear()
 	
@@ -78,6 +83,7 @@ func _update_inherited_connections():
 				if connected_vessel_id != vessel_id:  # Don't connect to self
 					inherited_connections[connected_vessel_id] = true
 
+# Search through this vessel's children for a memory with the given ID
 func _find_memory_by_id(memory_id: int):
 	# This would need to be implemented by the main minigame script
 	# For now, we'll search through all memories in this vessel
@@ -86,24 +92,30 @@ func _find_memory_by_id(memory_id: int):
 			return memory
 	return null
 
+# Check if this vessel's memories have any connections between them
 func has_inherited_connections() -> bool:
 	return inherited_connections.size() > 0
 
+# Count how many connections exist among memories inside this vessel
 func get_inherited_connection_count() -> int:
 	return inherited_connections.size()
 
+# Return the number of memory pieces currently in this vessel
 func get_memory_count() -> int:
 	return memories.size()
 
+# Return whether this vessel contains any memories
 func has_memories() -> bool:
 	return memories.size() > 0
 
+# Clear all internal connections among this vessel's memories
 func remove_all_connections():
 	# Remove all connections from memories in this vessel
 	for memory in memories:
 		memory.remove_all_connections()
 	inherited_connections.clear()
 
+# Update the vessel's sprite to reflect its current content state
 func _update_visual_state():
 	# Update visual appearance based on state
 	if sprite:
@@ -118,14 +130,17 @@ func _update_visual_state():
 			# Empty vessel
 			sprite.modulate = Color.WHITE
 
+# Highlight the vessel when the mouse hovers over it
 func _on_mouse_entered():
 	if sprite:
 		sprite.modulate = Color(1.1, 1.1, 1.1)  # Slight highlight on hover
 
+# Remove highlight when the mouse leaves the vessel
 func _on_mouse_exited():
 	if sprite:
 		_update_visual_state()
 
+# Serialize this vessel's state (memories, connections) for save/load
 func get_vessel_data() -> Dictionary:
 	var memory_ids = []
 	for memory in memories:

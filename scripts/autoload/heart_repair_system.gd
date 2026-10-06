@@ -38,6 +38,7 @@ var material_descriptions: Dictionary = {
 	RepairMaterial.THOUGHTS_AND_PRAYERS: "Empty gestures"
 }
 
+# Calculate emotional repair value by multiplying base heart value by the material's emotional multiplier
 func repair_heart(base_value: float, material: RepairMaterial) -> Dictionary:
 	var multiplier = material_multipliers.get(material, 1.0)
 	var repaired_value = base_value * multiplier
@@ -53,6 +54,7 @@ func repair_heart(base_value: float, material: RepairMaterial) -> Dictionary:
 	print("Heart repaired with ", RepairMaterial.keys()[material], " - Value: ", repaired_value)
 	return repair_data
 
+# Return the list of materials currently available for heart repair based on player progress
 func get_available_materials() -> Array[RepairMaterial]:
 	# This would be expanded based on player progress/inventory
 	return [RepairMaterial.BROKEN, RepairMaterial.TAPE, RepairMaterial.SUTURES]

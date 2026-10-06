@@ -32,6 +32,7 @@ var _loaded = false
 const scr_debug : bool =  false
 var debug : bool
 
+# Initialize ant area: set up collision, spawn ants, connect touch signals
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug:  
@@ -58,6 +59,7 @@ func _ready() -> void:
 	if debug: print("Ant area setup complete")
 	
 
+# Configure the CollisionShape2D based on editor-set dimensions
 func setup_collision_area() -> void:
 	if not collision_shape:
 		collision_shape = CollisionShape2D.new()
@@ -74,6 +76,7 @@ func setup_collision_area() -> void:
 	collision_layer = 0  # Don't collide with anything
 	collision_mask = 2   # Only detect Tess (layer 2)
 
+# Refresh the ColorRect visual to match current ant area state
 func update_visual_indicator() -> void:
 	if visual_indicator:
 		var half_size = area_size / 2
@@ -83,6 +86,7 @@ func update_visual_indicator() -> void:
 		visual_indicator.offset_bottom = half_size.y
 		if debug: print("Visual indicator resized to: ", area_size)
 
+# Create the initial batch of ants at random positions within the area
 func spawn_ants() -> void:
 	if debug: print("Spawning ", ant_count, " ants...")
 	
@@ -115,6 +119,7 @@ func spawn_ants() -> void:
 		
 		if debug: print("Ant ", i, " spawned at: ", random_pos, " with target: ", target)
 
+# Instantiate a single ant with random texture variation at a random position in the area
 func create_ant() -> Node2D:
 	var ant = Node2D.new()
 	ant.name = "Ant"
@@ -142,12 +147,14 @@ func create_ant() -> Node2D:
 	
 	return ant
 
+# Return a random position within the ant area bounds
 func get_random_position_in_area() -> Vector2:
 	var half_size = area_size / 2
 	var random_x = randf_range(-half_size.x, half_size.x)
 	var random_y = randf_range(-half_size.y, half_size.y)
 	return global_position + Vector2(random_x, random_y)
 
+# Per-frame update: move ants along random walk paths, check for stepping
 func _process(delta: float) -> void:
 	# Animate ants moving to their targets
 	if Engine.is_editor_hint():
@@ -171,6 +178,7 @@ func _process(delta: float) -> void:
 				# Reached target, set new random target
 				ant_targets[i] = get_random_position_in_area()
 
+# When a body enters the area, track it for ant-to-body interactions
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Tess":
 		if debug: print("Tess entered ant area: ", name)
@@ -184,6 +192,7 @@ func _on_body_entered(body: Node2D) -> void:
 		
 		update_ant_counter()
 
+# When a body exits the area, stop tracking it
 func _on_body_exited(body: Node2D) -> void:
 	if body.name == "Tess":
 		if debug: print("Tess left ant area: ", name)
@@ -198,6 +207,7 @@ func _on_body_exited(body: Node2D) -> void:
 		if ant_counter:
 			ant_counter.visible = false
 
+# Forward global touch events to check_ant_stepping for ant stomping
 func _on_global_touch(position: Vector2) -> void:
 	if not is_player_in_area:
 		return
@@ -210,6 +220,7 @@ func _on_global_touch(position: Vector2) -> void:
 		if debug: print("Touch detected in ant area: ", name)
 		check_ant_stepping(position)
 
+# Check if a touch position overlaps any ant, and step on it if so
 func check_ant_stepping(touch_position: Vector2) -> void:
 	# Check if any ant was stepped on
 	for i in range(ants.size() - 1, -1, -1):  # Reverse order to avoid index issues
@@ -222,6 +233,7 @@ func check_ant_stepping(touch_position: Vector2) -> void:
 			step_on_ant(i)
 			break
 
+# Handle direct click on an ant's collision shape
 func _on_ant_touched(viewport: Node, event: InputEvent, shape_idx: int, ant: Node2D) -> void:
 	if not is_player_in_area:
 		return
@@ -232,6 +244,7 @@ func _on_ant_touched(viewport: Node, event: InputEvent, shape_idx: int, ant: Nod
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		step_on_ant_by_reference(ant)
 
+# Squish a specific ant by reference and process rewards
 func step_on_ant_by_reference(ant: Node2D) -> void:
 	# Find the ant index
 	for i in range(ants.size()):
@@ -239,6 +252,7 @@ func step_on_ant_by_reference(ant: Node2D) -> void:
 			step_on_ant(i)
 			break
 
+# Squish an ant by index in the ants array, play effect, add courage, check if area cleared
 func step_on_ant(ant_index: int) -> void:
 	if ant_index < 0 or ant_index >= ants.size():
 		return
@@ -282,6 +296,7 @@ func step_on_ant(ant_index: int) -> void:
 			on_area_cleared()
 	)
 
+# Mark area as cleared, update visuals, emit signal, and disable further ant spawning
 func on_area_cleared() -> void:
 	if debug: print("Ant area cleared: ", name)
 	
@@ -307,17 +322,21 @@ func on_area_cleared() -> void:
 		queue_free()
 	)
 
+# Return the number of ants that have not yet been stepped on
 func get_remaining_ant_count() -> int:
 	return ants.size()
 
+# Return whether all ants in this area have been eliminated
 func is_area_cleared() -> bool:
 	return ants.size() <= 0
 
+# Refresh any visual ant count display
 func update_ant_counter() -> void:
 	if ant_counter:
 		ant_counter.text = str(ants.size()) + " ants"
 		ant_counter.visible = is_player_in_area and ants.size() > 0 
 
+# Set the ant count (used when restoring from a save)
 func set_ant_count(new_count: int) -> void:
 	# Remove excess ants
 	while ants.size() > new_count:

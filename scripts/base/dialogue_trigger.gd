@@ -16,6 +16,7 @@ var dialogue_system: Node
 const scr_debug : bool =  false
 var debug : bool
 
+# Initialize dialogue trigger: connect body_entered signal, load dialogue key
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: 
@@ -39,6 +40,7 @@ func _ready() -> void:
 	
 	if debug: print("Dialogue trigger setup complete")
 
+# When a body enters the trigger area, show the configured dialogue line
 func _on_body_entered(body: Node2D) -> void:
 	if not dialogue_system:
 		if debug: print("ERROR: No dialogue system available")

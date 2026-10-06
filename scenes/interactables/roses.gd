@@ -7,6 +7,7 @@ extends SmartCollectable
 @export var repair_material_type: HeartRepairSystem.RepairMaterial = HeartRepairSystem.RepairMaterial.ROSE_THORNS
 @export var beauty_pain_balance: float = 0.75
 
+# Initialize rose collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "repair_material"
 	interaction_text = "Beauty and hurt intertwined."
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#FFC0CB")  # Pink
 #		visual.size = Vector2(36, 36)
 
+# Add rose to inventory via GameManager when collected
 func handle_interaction() -> void:
 	print("Rose collected - beauty with thorns")
 	
@@ -34,6 +36,7 @@ func handle_interaction() -> void:
 	tween.parallel().tween_property(self, "scale", Vector2.ZERO, 0.6)
 	tween.tween_callback(queue_free)
 
+# Play a petal-falling particle or tween effect on collection
 func create_petal_effect() -> void:
 	for i in range(6):
 		var petal = ColorRect.new()

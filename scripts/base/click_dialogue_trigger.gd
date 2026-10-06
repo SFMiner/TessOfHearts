@@ -13,6 +13,7 @@ var dialogue_system: Node
 const scr_debug : bool =  false
 var debug : bool
 
+# Initialize click dialogue trigger: connect input_event signal
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 
@@ -32,6 +33,7 @@ func _ready() -> void:
 	connect("input_event", Callable(self, "_on_input_event"))
 	if debug: print("Click dialogue trigger setup complete")
 
+# Start dialogue when the trigger area is clicked by the player
 func _on_input_event(viewport, event, shape_idx):
 	if debug: 
 		print("=== CLICK DIALOGUE TRIGGER INPUT EVENT ===")

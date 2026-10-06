@@ -11,6 +11,7 @@ signal interacted()
 var dialog_point_pos_right : Vector2
 var dialog_point_pos_left : Vector2
 
+# Initialize Tess: set up character references, camera limits, and dialogue origin
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	character_name = "Tess"
@@ -38,12 +39,14 @@ func _ready() -> void:
 #	if sprite:
 #		create_placeholder_texture(Color("#8B4CB8"))  # Purple
 
+# Store Tess's dialogue origin point for the dialogue system
 func set_dialog_point():
 	if direction.x > 0:
 		dialog_point.position = dialog_point_pos_right
 	if direction.x < 0:
 		dialog_point.position = dialog_point_pos_left
 
+# Generate a solid-color placeholder texture (development fallback)
 func create_placeholder_texture(color: Color) -> void:
 	var image = Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	image.fill(color)
@@ -51,14 +54,17 @@ func create_placeholder_texture(color: Color) -> void:
 	texture.set_image(image)
 	sprite.texture = texture
 
+# Handle direct touches on Tess (currently a no-op since movement handles clicks)
 func _on_character_touched(position: Vector2) -> void:
 	super._on_character_touched(position)
 	if debug: print("Tess touched - no dialogue")
 	# say_dialogue("tess_what_is_it")  # Commented out - Tess doesn't speak when clicked
 	
+# Perform Tess's interaction action at her current position
 func interact():
 	emit_signal("interacted")	
 
+# Configure the camera's scrolling bounds from GameData values
 func set_camera_limits():
 	camera.limit_right = GameData.camera_limit_right
 	camera.limit_bottom = GameData.camera_limit_bottom
@@ -83,6 +89,7 @@ func _physics_process(delta: float) -> void:
 	# Call parent physics process
 	super._physics_process(delta)
 
+# Forward dialogue choices to the dialogue choice UI
 func show_dialogue_choices(choices: Array[Dictionary]) -> void:
 	# Get the choice UI and show Tess's dialogue choices
 	var choice_ui = get_tree().current_scene.get_node_or_null("UI/DialogueChoiceUI")
@@ -91,6 +98,7 @@ func show_dialogue_choices(choices: Array[Dictionary]) -> void:
 	else:
 		print("ERROR: Choice UI not found")
 
+# Trigger the dialogue sequence for interacting with the friend NPC
 func call_friend_dialogue() -> void:
 	# Show Tess's dialogue during the call animation
 	var dialogue_system = get_tree().current_scene.find_child("DialogueSystem")
@@ -101,6 +109,7 @@ func call_friend_dialogue() -> void:
 	else:
 		print("ERROR: Dialogue system not found")
 
+# Play the named animation on Tess's AnimationPlayer
 func play_animation(anim_name : String) -> void:
 	if debug: print("playing Friend animation: " + anim_name) 
 	anim.play(anim_name)

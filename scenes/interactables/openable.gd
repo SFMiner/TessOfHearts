@@ -14,6 +14,7 @@ var object_type : String = "openable"
 var loaded_texture: bool = false
 var is_open: bool = false
 
+# Initialize the openable: set up sprite, configure open/closed frames
 func _ready():
 	super._ready()  # CRITICAL: Call parent setup
 #	insteraction_area.shape.radius = collision_radius

@@ -17,10 +17,12 @@ var touch_start_position: Vector2
 var current_touch_position: Vector2
 var touched_objects: Array[Node2D] = []
 
+# Initialize debug flag from GameData settings
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	if debug: print("InputManager initialized - Touch controls active")
 
+# Route incoming input to touch, drag, mouse, or motion handlers based on event type
 func _input(event: InputEvent) -> void:
 	# Handle touch input (primary)
 	if event is InputEventScreenTouch:
@@ -33,17 +35,20 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and is_touching:
 		handle_mouse_motion(event)
 
+# Convert screen touch press/release into start_touch/end_touch calls
 func handle_touch_event(event: InputEventScreenTouch) -> void:
 	if event.pressed:
 		start_touch(event.position)
 	else:
 		end_touch(event.position)
 
+# Update current touch position and emit touch_moved on drag
 func handle_drag_event(event: InputEventScreenDrag) -> void:
 	if is_touching:
 		current_touch_position = event.position
 		touch_moved.emit(event.position)
 
+# Treat left mouse button as touch input (desktop fallback)
 func handle_mouse_event(event: InputEventMouseButton) -> void:
 	if event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -51,10 +56,12 @@ func handle_mouse_event(event: InputEventMouseButton) -> void:
 		else:
 			end_touch(event.position)
 
+# Track mouse position during active touches for movement
 func handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	current_touch_position = event.position
 	touch_moved.emit(event.position)
 
+# Begin a touch: convert screen coords to world, scan for intersected objects, emit touch_started
 func start_touch(position: Vector2) -> void:
 	is_touching = true
 	touch_start_position = position
@@ -74,6 +81,7 @@ func start_touch(position: Vector2) -> void:
 	if debug: print("INPUT MANAGER: Emitting touch_started signal")
 	touch_started.emit(world_position)
 
+# End the active touch, clear tracked objects, emit touch_ended
 func end_touch(position: Vector2) -> void:
 	is_touching = false
 	current_touch_position = position
@@ -81,6 +89,7 @@ func end_touch(position: Vector2) -> void:
 	
 	touch_ended.emit(position)
 
+# Run PhysicsPointQueryParameters2D at position; emit object_touched for each hit and call _on_touched
 func find_touched_objects(position: Vector2) -> void:
 	if debug: 
 		print("=== INPUT MANAGER FINDING TOUCHED OBJECTS ===")
@@ -127,8 +136,10 @@ func find_touched_objects(position: Vector2) -> void:
 	#touch_started.emit(position)
 	#if debug: print("INPUT MANAGER: touch_started signal emitted")
 
+# Return the latest touch or mouse position during an active drag
 func get_current_touch_position() -> Vector2:
 	return current_touch_position
 
+# Return whether a touch or mouse drag is currently in progress
 func is_currently_touching() -> bool:
 	return is_touching

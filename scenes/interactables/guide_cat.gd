@@ -16,6 +16,7 @@ class_name GuideCat
 var has_appeared: bool = false
 var has_been_interacted: bool = false
 
+# Initialize guide cat: set up visuals and connect heart tracking
 func _ready() -> void:
 	interaction_type = "guide_cat"
 	uses_energy = false  # Dialogue interactions don't use energy
@@ -28,10 +29,12 @@ func _ready() -> void:
 	# Check if should appear
 	check_trigger_condition()
 
+# Configure the cat's sprite and animation setup
 func setup_visual() -> void:
 	# Cats use sprite animations, not ColorRect
 	pass
 
+# Check if enough hearts are collected for the cat to appear
 func check_trigger_condition() -> void:
 	if trigger_condition == "":
 		# No condition, appear immediately
@@ -46,6 +49,7 @@ func check_trigger_condition() -> void:
 	elif trigger_condition == "on_room_enter":
 		appear()
 
+# Make the cat visible with a fade-in animation
 func appear() -> void:
 	if has_appeared:
 		return
@@ -67,6 +71,7 @@ func appear() -> void:
 	if animation_player and animation_player.has_animation("idle"):
 		animation_player.play("idle")
 
+# Make the cat invisible with a fade-out animation
 func vanish() -> void:
 	print("Cat vanishing: ", cat_name)
 	can_interact = false
@@ -77,6 +82,7 @@ func vanish() -> void:
 	tween.parallel().tween_property(self, "scale", Vector2(0.8, 0.8), 0.4)
 	tween.tween_callback(func(): visible = false)
 
+# When the cat is clicked, show a guiding dialogue hint
 func handle_interaction() -> void:
 	if has_been_interacted:
 		return

@@ -7,6 +7,7 @@ extends SmartCollectable
 @export var cookie_type: String = "friendship"
 @export var comfort_value: float = 3.0
 
+# Initialize cookie collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "cookie"
 	interaction_text = "Shared sweetness makes everything better."
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#8B4513")  # Brown
 #		visual.size = Vector2(28, 28)
 
+# Add cookie to inventory via GameManager when collected
 func handle_interaction() -> void:
 	print("Cookie shared - simple joys matter most")
 	
@@ -28,6 +30,7 @@ func handle_interaction() -> void:
 	tween.tween_property(self, "modulate", Color.TRANSPARENT, 0.4)
 	tween.tween_callback(queue_free)
 
+# Play a crumb-falling particle or tween effect on collection
 func create_crumb_effect() -> void:
 	# Create small crumb particles
 	for i in range(5):

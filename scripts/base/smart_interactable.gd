@@ -32,6 +32,7 @@ var interaction_area: Area2D = null
 const scr_debug: bool = true
 var debug: bool
 
+# Initialize interaction area, connect touch signals, and set up collision detection
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	
@@ -81,6 +82,7 @@ func _input(event: InputEvent) -> void:
 			return
 
 
+# Create an Area2D child with CollisionShape2D for detecting Tess proximity
 func setup_interaction_area() -> void:
 	if debug: print("=== SETTING UP INTERACTION AREA FOR: ", name, " ===")
 	
@@ -111,6 +113,7 @@ func setup_interaction_area() -> void:
 	# Connect to this interactable's input events
 #	input_event.connect(_on_area_input_event)
 
+# Track when Tess enters the interaction zone
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if debug: print("=== INTERACTION AREA BODY ENTERED: ", name, " ===")
 	if debug: print("Body name: ", body.name)
@@ -123,6 +126,7 @@ func _on_interaction_area_body_entered(body: Node2D) -> void:
 		if auto_collect_on_enter:
 			perform_interaction()
 
+# Track when Tess leaves the interaction zone
 func _on_interaction_area_body_exited(body: Node2D) -> void:
 	if debug: print("=== INTERACTION AREA BODY EXITED: ", name, " ===")
 	
@@ -131,6 +135,7 @@ func _on_interaction_area_body_exited(body: Node2D) -> void:
 		if debug: print("Tess exited interaction area for: ", name)
 
 
+# Legacy Area2D input_event handler (kept for backward compatibility)
 func _on_area_input_event_old(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if debug: print("=== INTERACTABLE INPUT EVENT: ", name, " ===")
 	if debug: print("Event type: ", event.get_class())
@@ -145,6 +150,7 @@ func _on_area_input_event_old(viewport: Node, event: InputEvent, shape_idx: int)
 		get_viewport().set_input_as_handled()
 		#_on_interactable_touched(event.position)
 
+# Legacy global touch handler that checks proximity before interaction
 func _on_global_touch_old(position: Vector2) -> void:
 	if not tess_in_interaction_area:
 		return
@@ -190,6 +196,7 @@ func _on_global_touch_old(position: Vector2) -> void:
 	# Note: Input consumption now happens in _on_interactable_touched if interaction occurs
 
 # And update the global touch handler:
+# Current global touch handler: delegates to perform_interaction if Tess is in range
 func _on_global_touch(position: Vector2) -> void:
 	if not tess_in_interaction_area:
 		return
@@ -203,6 +210,7 @@ func _on_global_touch(position: Vector2) -> void:
 		#_on_interactable_touched(position)
 		# Input consumption is handled in _on_interactable_touched
 		
+# Execute the interaction: check energy, call handle_interaction, emit signal, mark as interacted
 func perform_interaction() -> void:
 	if debug: print("=== PERFORMING INTERACTION: ", name, " ===")
 	

@@ -40,9 +40,11 @@ var paper_assignments: Dictionary = {
 	"menu": PaperType.SKETCH                  # Artistic, textured
 }
 
+# Return the appropriate paper background texture based on context (dialogue, inventory, etc.)
 func get_paper_texture(context: String) -> Texture2D:
 	var paper_type = paper_assignments.get(context, PaperType.UNRULED)
 	return paper_textures.get(paper_type, null)
 
+# Return a paper texture by specific type (lined, grid, blank, aged)
 func get_paper_by_type(type: PaperType) -> Texture2D:
 	return paper_textures.get(type, null)

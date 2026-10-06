@@ -8,6 +8,7 @@ extends SmartCollectable
 @export var base_value: float = 10.0
 @export var is_repaired: bool = false
 
+# Initialize heart collectable with its specific texture and properties
 func _ready() -> void:
 	interaction_type = "heart"
 	super._ready()
@@ -17,6 +18,7 @@ func _ready() -> void:
 #		visual.color = Color("#B84C4C")  # Red
 #		visual.size = Vector2(32, 32)
 
+# Add heart piece to inventory via GameManager when collected
 func handle_interaction() -> void:
 	# Collect the heart
 	var heart_data = {

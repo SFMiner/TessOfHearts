@@ -45,6 +45,7 @@ var interaction_area: Area2D = null
 
 @onready var dialog_point : Marker2D = $DialoguePoint
 
+# Initialize friend character: set up navigation, interaction area, touch detection, and personality state
 func _ready() -> void:
 
 	debug = scr_debug or GameData.sys_debug
@@ -99,16 +100,19 @@ func _ready() -> void:
 		print("z_index: ", z_index)
 		print("z_as_relative: ", z_as_relative)
 
+# Configure friend's sprite, animation player, collision, and reference nodes
 func setup_character() -> void:
 	if sprite:
 		create_placeholder_texture(Color("#4C8CB8"))  # Blue
 
+# Store this character's dialogue origin point for the dialogue system
 func set_dialog_point():
 	if direction.x > 0:
 		dialog_point.position = dialog_point_pos_right
 	if direction.x < 0:
 		dialog_point.position = dialog_point_pos_left
 
+# Generate a solid-color placeholder texture if no sprite is assigned (development fallback)
 func create_placeholder_texture(color: Color) -> void:
 	var image = Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	image.fill(color)
@@ -116,6 +120,7 @@ func create_placeholder_texture(color: Color) -> void:
 	texture.set_image(image)
 	sprite.texture = texture
 
+# Record Tess's position periodically for the friend's departure pathfinding
 func track_movement_for_back_to_points() -> void:
 	# Don't track if departing
 	if is_departing:
@@ -149,6 +154,7 @@ func track_movement_for_back_to_points() -> void:
 		# Update last position
 		last_position = global_position
 
+# Configure the NavigationAgent2D for pathfinding movement
 func setup_navigation_agent() -> void:
 	if debug: print("=== SETTING UP NAVIGATION AGENT ===")
 
@@ -165,6 +171,7 @@ func setup_navigation_agent() -> void:
 	if debug: print("Navigation agent created with radius: ", navigation_agent.radius)
 	if debug: print("Target desired distance: ", navigation_agent.target_desired_distance)
 
+# Per-frame update: handle personality state, depth sorting, and movement
 func _physics_process(delta: float) -> void:
 	# Call parent physics process for proper physics handling
 	#super._physics_process(delta)
@@ -188,6 +195,7 @@ func _physics_process(delta: float) -> void:
 	if is_moving and can_move:
 		move_towards_target_friend()
 
+# Execute the current personality state behavior (follow, wander, drift, pause)
 func handle_friend_personality() -> void:
 	# Don't handle personality if departing
 	if is_departing:
@@ -228,6 +236,7 @@ func handle_friend_personality() -> void:
 	# Normal following behavior - always follow Tess when not doing personality behaviors
 	follow_tess()
 
+# Move the friend toward Tess's echo-delayed position using navigation
 func follow_tess() -> void:
 	if is_departing or has_departed:
 		return
@@ -255,6 +264,7 @@ func follow_tess() -> void:
 			navigation_agent.target_position = tess_pos
 		is_moving = true
 
+# Check if the friend's collision shape overlaps Tess to prevent stacking
 func is_colliding_with_tess() -> bool:
 	var tess_nodes = get_tree().get_nodes_in_group("Tess")
 	if tess_nodes.size() > 0:
@@ -263,10 +273,12 @@ func is_colliding_with_tess() -> bool:
 		return distance < 50.0  # Stop when within 20 pixels of Tess (closer collision)
 	return false
 
+# Play the named animation on the friend's AnimationPlayer
 func play_animation(anim_name : String) -> void:
 	if debug: print("playing Friend animnation: " + anim_name)
 	anim.play(anim_name)
 
+# Move one step toward the navigation target using the friend's own speed
 func move_towards_target_friend() -> void:
 	var move_target = target_position
 
@@ -336,6 +348,7 @@ func _on_character_touched(position: Vector2) -> void:
 	# Tess is not in range — allow normal touch feedback behavior.
 	super._on_character_touched(position)
 
+# Teleport the friend to Tess's current position and reset to follow state
 func summon_friend() -> void:
 	if debug: print("=== SUMMONING FRIEND ===")
 	if debug: print("Friend current state - has_departed: ", has_departed, " is_departing: ", is_departing, " is_summoned: ", is_summoned)
@@ -376,6 +389,7 @@ func summon_friend() -> void:
 	else:
 		if debug: print("ERROR: Tess not found for summoning")
 
+# Begin the wander personality: pick a random nearby destination
 func start_wandering() -> void:
 	is_wandering = true
 	wander_direction = Vector2(randf_range(-0.5, 0.5), randf_range(-0.5, 0.5)).normalized()
@@ -383,6 +397,7 @@ func start_wandering() -> void:
 	wander_timer = randf_range(3.0, 4.0)  # 3-4 seconds cooldown between wanders
 	if debug: print("Friend started exploring for ", wander_duration, " seconds")
 
+# Wander behavior logic: move randomly, switch states periodically
 func handle_wandering() -> void:
 	wander_duration -= get_process_delta_time()
 	if wander_duration <= 0.0:
@@ -402,12 +417,14 @@ func handle_wandering() -> void:
 	velocity = final_direction * 100.0
 	move_and_slide()
 
+# Begin the pause personality: friend stops moving for a duration
 func start_pause() -> void:
 	is_paused = true
 	pause_duration = randf_range(0.5, 1.0)  # 0.5-1.0 seconds max
 	pause_timer = randf_range(5.0, 12.0)  # Longer cooldown between pauses (5-12 seconds instead of 2-5)
 	if debug: print("Friend started pause for ", pause_duration, " seconds")
 
+# Pause behavior logic: wait, then transition back to follow
 func handle_pause() -> void:
 	pause_duration -= get_process_delta_time()
 	if pause_duration <= 0.0:
@@ -415,6 +432,7 @@ func handle_pause() -> void:
 		if debug: print("Friend finished pause")
 		return
 
+# Begin the drift personality: slow random movement near Tess
 func start_drift() -> void:
 	is_drifting = true
 	drift_direction = Vector2(randf_range(-0.8, 0.8), randf_range(-0.8, 0.8)).normalized()
@@ -422,6 +440,7 @@ func start_drift() -> void:
 	drift_timer = randf_range(5.0, 15.0)  # 5-15 seconds cooldown between drifts
 	if debug: print("Friend started drifting for ", drift_duration, " seconds")
 
+# Drift behavior logic: gentle random offset from current position
 func handle_drift() -> void:
 	drift_duration -= get_process_delta_time()
 	if drift_duration <= 0.0:
@@ -429,6 +448,7 @@ func handle_drift() -> void:
 		if debug: print("Friend finished drifting")
 		return
 
+# Configure the touch responder component for click detection
 func setup_touch_responder() -> void:
 	if debug: print("=== SETTING UP FRIEND TOUCH RESPONDER ===")
 	var touch_responder = $TouchArea/TouchResponder
@@ -450,6 +470,7 @@ func setup_touch_responder() -> void:
 	else:
 		if debug: print("ERROR: TouchArea not found")
 
+# Create the Area2D + CollisionShape2D for detecting when Tess is nearby
 func setup_interaction_area() -> void:
 	if debug: print("=== SETTING UP FRIEND INTERACTION AREA ===")
 
@@ -507,6 +528,7 @@ func setup_interaction_area() -> void:
 			if debug: print("Tess is already within interaction area - manually setting tess_in_interaction_area")
 			tess_in_interaction_area = true
 
+# Track when Tess enters the friend's interaction radius
 func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if debug:
 		print("=== INTERACTION AREA BODY ENTERED ===")
@@ -524,6 +546,7 @@ func _on_interaction_area_body_entered(body: Node2D) -> void:
 	else:
 		if debug: print("Body entered interaction area: ", body.name, " (not Tess)")
 
+# Track when Tess leaves the friend's interaction radius
 func _on_interaction_area_body_exited(body: Node2D) -> void:
 	if debug:
 		print("=== INTERACTION AREA BODY EXITED ===")
@@ -539,6 +562,7 @@ func _on_interaction_area_body_exited(body: Node2D) -> void:
 	else:
 		if debug: print("Body exited interaction area: ", body.name, " (not Tess)")
 
+# Make the friend walk off screen: determine departure target, navigate there, then remove
 func depart_from_screen() -> void:
 	if debug:
 		print("=== FRIEND DEPARTING FROM SCREEN ===")
@@ -674,6 +698,7 @@ func build_available_choices() -> Array[Dictionary]:
 	if debug: print("Total choices available: ", choices.size())
 	return choices
 
+# Display the dialogue choice menu for interacting with the friend
 func show_tess_choices() -> void:
 	if _choices_shown:
 		return
@@ -688,6 +713,7 @@ func show_tess_choices() -> void:
 	else:
 		if debug: print("ERROR: Tess not found")
 
+# Handle touch on the friend when Tess is nearby: show dialogue choices
 func _on_touched(position: Vector2) -> void:
 	if debug:
 		print("=== FRIEND _ON_TOUCHED DEBUG ===")
@@ -755,6 +781,7 @@ func _on_touched(position: Vector2) -> void:
 		# Call the character touch method to allow movement
 		_on_character_touched(position)
 
+# Remove the friend from the scene after departure animation completes
 func _on_departure_timeout() -> void:
 	if not is_moving or not is_departing:
 		return
@@ -774,6 +801,7 @@ func _on_departure_timeout() -> void:
 		is_departing = false
 	_departure_timer = null
 
+# Clean up references and timers when the friend node is removed
 func _exit_tree() -> void:
 	if _departure_timer != null and _departure_timer.timeout.is_connected(_on_departure_timeout):
 		_departure_timer.timeout.disconnect(_on_departure_timeout)

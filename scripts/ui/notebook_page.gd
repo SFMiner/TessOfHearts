@@ -17,6 +17,7 @@ var current_paper_type: NotebookPaperManager.PaperType
 var main
 
 
+# Initialize notebook page with paper background system
 func _ready() -> void:
 	debug = scr_debug or GameData.sys_debug
 	main = get_tree().get_root().get_node_or_null("Main")
@@ -25,9 +26,11 @@ func _ready() -> void:
 #	paper_manager = get_node("/root/NotebookPaperManager")
 #setup_paper_background()
 
+# Convenience: get the Tess character node from the scene
 func get_tess() -> Character:
 	return tess
 
+# Apply the notebook paper background texture to this page
 func setup_paper_background() -> void:
 	if paper_background:
 		# Fill entire screen with paper texture
@@ -35,11 +38,13 @@ func setup_paper_background() -> void:
 		paper_background.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		paper_background.stretch_mode = TextureRect.STRETCH_TILE
 
+# Change the paper background to match the given context (e.g. dialogue, inventory)
 func set_paper_context(context: String) -> void:
 	var texture = paper_manager.get_paper_texture(context)
 	if texture and paper_background:
 		paper_background.texture = texture
 
+# Change the paper to a specific type (e.g. lined, grid, blank)
 func set_paper_type(type: NotebookPaperManager.PaperType) -> void:
 	current_paper_type = type
 	var texture = paper_manager.get_paper_by_type(type)

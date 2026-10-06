@@ -1,6 +1,7 @@
 # Test script for friend departure functionality
 extends Node
 
+# Test the full friend departure sequence: navigation, animation, and removal
 func test_friend_departure():
 	print("=== TESTING FRIEND DEPARTURE ===")
 	
@@ -28,6 +29,7 @@ func test_friend_departure():
 	
 	print("=== FRIEND DEPARTURE TEST COMPLETE ===")
 
+# Test that the dialogue choice UI appears correctly when interacting with the friend
 func test_dialogue_choice():
 	print("=== TESTING DIALOGUE CHOICE ===")
 	
